@@ -1,0 +1,2271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#1a1b3a">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="English Imersivo">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>English Imersivo</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    height: 100%; width: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: linear-gradient(135deg, #1a1b3a 0%, #2d1b69 100%);
+    color: #fff;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+  body {
+    display: flex; flex-direction: column;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  /* HEADER */
+  header {
+    padding: 16px;
+    text-align: center;
+    background: rgba(0,0,0,0.2);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    flex-shrink: 0;
+  }
+  header h1 {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    background: linear-gradient(90deg, #a78bfa, #60a5fa);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  header .subtitle { font-size: 11px; opacity: 0.6; margin-top: 2px; }
+
+  /* MAIN AREA */
+  main {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+  }
+  .view {
+    position: absolute; inset: 0;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .view.active { display: flex; }
+
+  /* CHAT TOOLBAR */
+  .chat-toolbar {
+    display: flex;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(0,0,0,0.2);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    flex-shrink: 0;
+    justify-content: flex-end;
+  }
+  .chat-toolbar button {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.85);
+    padding: 6px 12px;
+    border-radius: 14px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .chat-toolbar button:active { background: rgba(255,255,255,0.15); }
+
+  /* CHAT VIEW */
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .msg {
+    margin-bottom: 12px;
+    max-width: 85%;
+    padding: 10px 14px;
+    border-radius: 18px;
+    word-wrap: break-word;
+    line-height: 1.5;
+    font-size: 15px;
+    animation: fadeIn 0.2s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  .msg.user {
+    margin-left: auto;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border-bottom-right-radius: 6px;
+  }
+  .msg.bot {
+    background: rgba(255,255,255,0.08);
+    border-bottom-left-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  .msg.system {
+    text-align: center;
+    background: transparent;
+    color: rgba(255,255,255,0.5);
+    font-size: 12px;
+    font-style: italic;
+    margin: 8px auto;
+  }
+  .msg .quick-tip {
+    margin-top: 8px;
+    padding: 8px 10px;
+    background: rgba(251,191,36,0.15);
+    border-left: 3px solid #fbbf24;
+    border-radius: 6px;
+    font-size: 13px;
+  }
+  .msg .speak-btn {
+    margin-top: 6px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.7);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    cursor: pointer;
+  }
+  .msg .speak-btn:active { background: rgba(255,255,255,0.1); }
+
+  .typing {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    padding: 10px 14px;
+    border-radius: 18px;
+    border-bottom-left-radius: 6px;
+  }
+  .typing span {
+    display: inline-block;
+    width: 6px; height: 6px;
+    margin: 0 2px;
+    background: rgba(255,255,255,0.6);
+    border-radius: 50%;
+    animation: bounce 1.4s infinite ease-in-out;
+  }
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { 0%, 80%, 100% { transform: scale(0.6); } 40% { transform: scale(1); } }
+
+  /* INPUT BAR */
+  .input-bar {
+    padding: 10px 12px;
+    background: rgba(0,0,0,0.3);
+    border-top: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    flex-shrink: 0;
+  }
+  .input-bar textarea {
+    flex: 1;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 10px 14px;
+    color: #fff;
+    font-size: 15px;
+    resize: none;
+    min-height: 40px;
+    max-height: 120px;
+    font-family: inherit;
+    outline: none;
+  }
+  .input-bar textarea:focus { border-color: #8b5cf6; }
+  .input-bar button {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border: none;
+    border-radius: 50%;
+    width: 40px; height: 40px;
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .input-bar button:active { transform: scale(0.95); }
+  .input-bar button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .input-bar button.mic {
+    background: rgba(239, 68, 68, 0.8);
+  }
+  .input-bar button.mic.listening {
+    background: #ef4444;
+    animation: pulse 1.2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.6); }
+    50% { box-shadow: 0 0 0 12px rgba(239,68,68,0); }
+  }
+
+  /* TOPICS VIEW */
+  .topics-list, .subtopics-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .topic-card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: background 0.15s;
+  }
+  .topic-card:active { background: rgba(255,255,255,0.12); }
+  .topic-card .emoji { font-size: 32px; flex-shrink: 0; }
+  .topic-card .info { flex: 1; }
+  .topic-card .title { font-size: 16px; font-weight: 600; margin-bottom: 2px; }
+  .topic-card .desc { font-size: 12px; opacity: 0.6; }
+  .topic-card .arrow { opacity: 0.4; font-size: 18px; }
+
+  .subtopic-header {
+    padding: 12px 16px;
+    background: rgba(0,0,0,0.2);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .subtopic-header .back-btn {
+    background: rgba(255,255,255,0.08);
+    border: none;
+    color: #fff;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  .subtopic-header h2 { font-size: 16px; font-weight: 600; }
+
+  .subtopic-item {
+    background: rgba(255,255,255,0.06);
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    border: 1px solid transparent;
+  }
+  .subtopic-item:active { background: rgba(255,255,255,0.12); }
+  .subtopic-item.expanded { border-color: #8b5cf6; background: rgba(139,92,246,0.1); }
+  .subtopic-item .label { font-weight: 500; }
+  .subtopic-item .explanation {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    font-size: 14px;
+    line-height: 1.6;
+    color: rgba(255,255,255,0.9);
+    white-space: pre-wrap;
+  }
+  .subtopic-item .ctrl {
+    margin-top: 8px;
+    display: flex;
+    gap: 6px;
+  }
+  .subtopic-item .ctrl button {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    cursor: pointer;
+  }
+
+  /* ASK VIEW */
+  .ask-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .ask-intro {
+    background: rgba(139,92,246,0.1);
+    border: 1px solid rgba(139,92,246,0.3);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: rgba(255,255,255,0.9);
+  }
+  .ask-input-block {
+    background: rgba(255,255,255,0.05);
+    border-radius: 14px;
+    padding: 12px;
+    margin-bottom: 16px;
+  }
+  .ask-input-block textarea {
+    width: 100%;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 10px 12px;
+    color: #fff;
+    font-size: 15px;
+    resize: vertical;
+    min-height: 60px;
+    font-family: inherit;
+    outline: none;
+  }
+  .ask-input-block textarea:focus { border-color: #8b5cf6; }
+  .ask-input-block .ask-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .ask-input-block button {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border: none;
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    flex: 1;
+  }
+  .ask-input-block button.mic {
+    flex: 0 0 44px;
+    padding: 10px;
+    background: rgba(239,68,68,0.8);
+  }
+  .ask-input-block button:disabled { opacity: 0.5; }
+  .ask-history-block { margin-top: 10px; }
+  .ask-response {
+    background: rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+  }
+  .ask-response .q {
+    font-size: 12px;
+    opacity: 0.6;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    font-style: italic;
+  }
+  .ask-response .ctrl {
+    margin-top: 8px;
+    display: flex;
+    gap: 6px;
+  }
+  .ask-response .ctrl button {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    cursor: pointer;
+  }
+  .ask-examples {
+    font-size: 11px;
+    opacity: 0.5;
+    margin-top: 6px;
+    padding: 0 4px;
+  }
+
+  /* SETTINGS VIEW */
+  .settings-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .settings-group {
+    background: rgba(255,255,255,0.05);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+  .settings-group h3 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.7;
+    margin-bottom: 10px;
+  }
+  .settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    gap: 10px;
+  }
+  .settings-row:last-child { border-bottom: none; }
+  .settings-row label { font-size: 14px; flex: 1; }
+  .settings-row .hint { font-size: 11px; opacity: 0.5; display: block; margin-top: 2px; }
+  .api-key-input {
+    width: 100%;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 8px 10px;
+    color: #fff;
+    font-size: 12px;
+    font-family: ui-monospace, monospace;
+    outline: none;
+  }
+  .api-key-input:focus { border-color: #8b5cf6; }
+  .api-key-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .api-key-row:last-child { border-bottom: none; }
+  .api-key-row .label-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .api-key-row .label-line .name { font-size: 14px; font-weight: 500; }
+  .api-key-row .label-line .status {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+  .api-key-row .label-line .status.ok { background: rgba(34,197,94,0.2); color: #4ade80; }
+  .api-key-row .label-line .status.missing { background: rgba(239,68,68,0.2); color: #fca5a5; }
+  .api-key-row .help {
+    font-size: 11px;
+    opacity: 0.6;
+    margin-top: 2px;
+  }
+  .api-key-row .help a {
+    color: #a78bfa;
+    text-decoration: none;
+  }
+  .api-key-row .help a:active { opacity: 0.7; }
+  select, .select-style {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    color: #fff;
+    padding: 6px 10px;
+    font-size: 13px;
+    font-family: inherit;
+  }
+  /* Toggle switch */
+  .switch {
+    position: relative;
+    width: 44px; height: 24px;
+    flex-shrink: 0;
+  }
+  .switch input { display: none; }
+  .switch .slider {
+    position: absolute; inset: 0;
+    background: rgba(255,255,255,0.15);
+    border-radius: 24px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .switch .slider::before {
+    content: "";
+    position: absolute;
+    width: 18px; height: 18px;
+    top: 3px; left: 3px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.2s;
+  }
+  .switch input:checked + .slider { background: #8b5cf6; }
+  .switch input:checked + .slider::before { transform: translateX(20px); }
+
+  .btn-danger {
+    background: rgba(239,68,68,0.2);
+    color: #fca5a5;
+    border: 1px solid rgba(239,68,68,0.3);
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 4px;
+  }
+  .btn-danger:active { background: rgba(239,68,68,0.3); }
+
+  .info-line {
+    font-size: 11px;
+    opacity: 0.5;
+    text-align: center;
+    margin-top: 12px;
+  }
+
+  /* BOTTOM NAV */
+  nav.bottom {
+    display: flex;
+    background: rgba(0,0,0,0.4);
+    border-top: 1px solid rgba(255,255,255,0.05);
+    flex-shrink: 0;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  nav.bottom button {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: rgba(255,255,255,0.5);
+    padding: 10px 4px 8px;
+    font-size: 11px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  nav.bottom button .icon { font-size: 22px; }
+  nav.bottom button.active {
+    color: #a78bfa;
+  }
+  nav.bottom button:active { background: rgba(255,255,255,0.05); }
+
+  /* QUOTA BANNER */
+  .quota-banner {
+    background: rgba(251,191,36,0.15);
+    color: #fbbf24;
+    padding: 8px 12px;
+    text-align: center;
+    font-size: 12px;
+    border-bottom: 1px solid rgba(251,191,36,0.3);
+    display: none;
+  }
+  .quota-banner.show { display: block; }
+
+  /* ONBOARDING OVERLAY (first launch / no keys) */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 100;
+  }
+  .overlay-card {
+    background: linear-gradient(135deg, #1a1b3a, #2d1b69);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 18px;
+    padding: 22px;
+    max-width: 400px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .overlay-card h2 {
+    font-size: 18px;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+  .overlay-card p {
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 10px;
+    opacity: 0.85;
+  }
+  .overlay-card .step {
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 8px;
+    font-size: 12px;
+  }
+  .overlay-card .step strong { color: #a78bfa; }
+  .overlay-card ul { margin: 6px 0 10px 18px; }
+  .overlay-card li { margin-bottom: 4px; line-height: 1.5; }
+  .overlay-card strong { color: #a78bfa; }
+  .overlay-card p { margin-bottom: 8px; line-height: 1.55; }
+  .overlay-card button {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border: none;
+    color: #fff;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  /* LISTENING HINT */
+  #listeningHint {
+    position: fixed;
+    bottom: 130px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(239,68,68,0.95);
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 18px;
+    font-size: 12px;
+    font-weight: 500;
+    z-index: 150;
+    box-shadow: 0 4px 12px rgba(239,68,68,0.4);
+    animation: fadeIn 0.2s ease;
+    pointer-events: none;
+    max-width: 90%;
+    text-align: center;
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.85);
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 20px;
+    font-size: 13px;
+    z-index: 200;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+    max-width: 90%;
+    text-align: center;
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📚 English Imersivo</h1>
+  <div class="subtitle">Your immersive English coach</div>
+</header>
+
+<div class="quota-banner" id="quotaBanner"></div>
+
+<main>
+  <!-- CHAT VIEW -->
+  <section class="view active" id="view-chat">
+    <div class="chat-toolbar">
+      <button id="btnProgress" title="See your progress report">📊 Progress</button>
+      <button id="btnNewConv" title="Start a new conversation">🔄 New</button>
+    </div>
+    <div class="messages" id="chatMessages"></div>
+    <div class="input-bar">
+      <textarea id="chatInput" placeholder="Type in English... (Ctrl+Enter to send)" rows="1"></textarea>
+      <button class="mic" id="chatMicBtn" title="Speak">🎤</button>
+      <button id="chatSendBtn" title="Send">➤</button>
+    </div>
+  </section>
+
+  <!-- TOPICS VIEW -->
+  <section class="view" id="view-topics">
+    <div class="topics-list" id="topicsList"></div>
+    <div class="subtopics-list" id="subtopicsList" style="display:none;"></div>
+  </section>
+
+  <!-- ASK VIEW -->
+  <section class="view" id="view-ask">
+    <div class="ask-container">
+      <div class="ask-intro">
+        💡 Ask anything about English in your own words. Try: <em>"Tell me about sentences in past"</em>, <em>"What is the difference between 'make' and 'do'?"</em>, <em>"Give me 5 phrases for ordering food".</em>
+      </div>
+      <div class="ask-input-block">
+        <textarea id="askInput" placeholder="Tell me about..." rows="3"></textarea>
+        <div class="ask-examples">Tip: ask in English to stay immersive.</div>
+        <div class="ask-row">
+          <button class="mic" id="askMicBtn" title="Speak">🎤</button>
+          <button id="askSendBtn">Ask Mr. Wilson</button>
+        </div>
+      </div>
+      <div class="ask-history-block" id="askHistory"></div>
+    </div>
+  </section>
+
+  <!-- SETTINGS VIEW -->
+  <section class="view" id="view-settings">
+    <div class="settings-content">
+
+      <div class="settings-group">
+        <h3>🔑 API Keys (free)</h3>
+        <div id="apiKeysContainer"></div>
+      </div>
+
+      <div class="settings-group">
+        <h3>🎙️ Voice</h3>
+        <div class="settings-row">
+          <label>Mr. Wilson speaks out loud
+            <span class="hint">Tap a message to hear it</span>
+          </label>
+          <div class="switch">
+            <input type="checkbox" id="cfgVoiceOn">
+            <span class="slider" data-target="cfgVoiceOn"></span>
+          </div>
+        </div>
+        <div class="settings-row">
+          <label>Auto-speak new replies
+            <span class="hint">Speak as soon as IA responds</span>
+          </label>
+          <div class="switch">
+            <input type="checkbox" id="cfgAutoSpeak">
+            <span class="slider" data-target="cfgAutoSpeak"></span>
+          </div>
+        </div>
+        <div class="settings-row">
+          <label>English accent</label>
+          <select id="cfgAccent">
+            <option value="en-US">American (US)</option>
+            <option value="en-GB">British (UK)</option>
+            <option value="en-AU">Australian (AU)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <h3>👨‍🏫 Teaching style</h3>
+        <div class="settings-row">
+          <label>Correction mode
+            <span class="hint">How Mr. Wilson fixes your English</span>
+          </label>
+          <select id="cfgCorrection">
+            <option value="off">Off — just talk</option>
+            <option value="gentle">Gentle — tip at end</option>
+            <option value="strict">Strict — fix now</option>
+          </select>
+        </div>
+        <div class="settings-row">
+          <label>Portuguese helper
+            <span class="hint">PT hints when you're stuck (off = full immersive)</span>
+          </label>
+          <div class="switch">
+            <input type="checkbox" id="cfgPtHelper">
+            <span class="slider" data-target="cfgPtHelper"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <h3>🔄 LLM rotation order</h3>
+        <div class="settings-row">
+          <label>1st choice</label>
+          <select id="cfgOrder1">
+            <option value="gemini">Gemini</option>
+            <option value="groq">Groq</option>
+            <option value="mistral">Mistral</option>
+          </select>
+        </div>
+        <div class="settings-row">
+          <label>2nd choice</label>
+          <select id="cfgOrder2">
+            <option value="gemini">Gemini</option>
+            <option value="groq">Groq</option>
+            <option value="mistral">Mistral</option>
+          </select>
+        </div>
+        <div class="settings-row">
+          <label>3rd choice</label>
+          <select id="cfgOrder3">
+            <option value="gemini">Gemini</option>
+            <option value="groq">Groq</option>
+            <option value="mistral">Mistral</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <h3>🗑️ Reset</h3>
+        <button class="btn-danger" id="btnClearChat">Clear chat history</button>
+        <button class="btn-danger" id="btnClearAsk">Clear Ask history</button>
+        <button class="btn-danger" id="btnClearPastConvs">Clear long-term memory (past conversations)</button>
+        <button class="btn-danger" id="btnResetQuotas">Reset quota state (test)</button>
+      </div>
+
+      <div class="info-line">English Imersivo v1.0 — Jean Edition</div>
+    </div>
+  </section>
+</main>
+
+<nav class="bottom">
+  <button data-tab="chat" class="active"><span class="icon">💬</span><span>Chat</span></button>
+  <button data-tab="topics"><span class="icon">📚</span><span>Topics</span></button>
+  <button data-tab="ask"><span class="icon">❓</span><span>Ask</span></button>
+  <button data-tab="settings"><span class="icon">⚙️</span><span>Settings</span></button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   ENGLISH IMERSIVO — PWA pro iPhone do Jean
+   ============================================================ */
+
+// ===== CONSTANTS =====
+const STORAGE_KEYS = {
+  config: 'ei_config',
+  chatHistory: 'ei_chat_history',
+  askHistory: 'ei_ask_history',
+  quotaState: 'ei_quota_state',
+  pastConvs: 'ei_past_conversations', // resumos de conversas anteriores
+};
+
+const PROVIDERS = {
+  gemini: {
+    name: 'Gemini',
+    keyHelp: 'aistudio.google.com/apikey',
+    keyHelpUrl: 'https://aistudio.google.com/apikey',
+    quotaLabel: 'gemini-2.5-flash — ~1500/dia',
+  },
+  groq: {
+    name: 'Groq',
+    keyHelp: 'console.groq.com/keys',
+    keyHelpUrl: 'https://console.groq.com/keys',
+    quotaLabel: 'llama-3.3-70b — ~14000/dia',
+  },
+  mistral: {
+    name: 'Mistral',
+    keyHelp: 'console.mistral.ai/api-keys',
+    keyHelpUrl: 'https://console.mistral.ai/api-keys/',
+    quotaLabel: 'mistral-small — ~500/dia',
+  },
+};
+
+// === System prompt do Mr. Wilson (adaptado do English Assistant desktop) ===
+const MR_WILSON_SYSTEM = `You are "Mr. Wilson", a patient and friendly English conversation teacher.
+Your student is Jean, a Brazilian beginner who has been studying English
+for several months at TopWay, an immersive English school in Brazil.
+He feels stuck and shy about speaking.
+
+Your mission: get him to keep talking in English without feeling judged.
+
+== HOW YOU RECEIVE EACH MESSAGE ==
+Every message has 3 parts:
+  1. [SESSION SETTINGS] - flags chosen by Jean for this session:
+     - Correction mode: off / gentle / strict
+     - Portuguese helper: ENABLED or DISABLED
+  2. [CONVERSATION SO FAR] - the chat history (you and the student).
+  3. [NEW STUDENT MESSAGE] - what Jean just said now.
+
+== CORRECTION MODE RULES (follow strictly) ==
+- "off"     : do NOT correct anything. Just have a natural conversation.
+              If he says something wrong, you understand and reply normally.
+              Goal: pure speaking confidence.
+- "gentle"  : have a natural conversation. At the END of your reply, add
+              a small block "Quick tip:" with 1 (max 2) of his most
+              important mistakes corrected. Be encouraging, never harsh.
+- "strict"  : correct every grammar/vocabulary error IMMEDIATELY at the
+              START of your reply. Show "You said: ... / Better: ...".
+              Then continue the conversation.
+
+== PORTUGUESE HELPER RULES ==
+- If ENABLED: speak English by default. If Jean seems stuck (very short
+  replies, asks "what", uses many wrong words, or directly asks in
+  Portuguese), give a SHORT hint in Portuguese in parentheses, like:
+  "Try saying: 'I went to the gym.' (vc foi a academia)".
+- If DISABLED: do NOT write Portuguese by default. If he is stuck, first
+  reformulate with even simpler English, give examples, or describe with
+  easier words.
+  HOWEVER — if Jean still seems stuck after that (multiple very short
+  replies in a row, says "I don't know" or "I don't understand", asks
+  "how do you say X", writes Portuguese words inside English, or shows
+  clear frustration), OFFER help with a short bilingual question:
+  "Do you want a little Portuguese help to unlock this? Um pouco de
+  português?" — then WAIT for his answer.
+  - If he says yes / sim / please / por favor: give ONE short Portuguese
+    hint just for that topic, then continue the conversation in English.
+  - If he says no / não / let's keep going: stay in English and try a
+    different angle (simpler words, an example, a role-play).
+  - Do NOT ask this in every message — only when you genuinely sense real
+    struggle. Never ask twice in a row.
+
+== CONVERSATION STYLE ==
+- Speak like a real human. Warm, curious, encouraging.
+- Use SHORT sentences (he is a beginner). Avoid idioms unless explaining.
+- Ask ONE question at a time. Wait for his answer before asking more.
+- If he gives a very short answer, ask follow-up questions to keep him
+  talking. Example: "Cool! And why did you choose that?"
+- If he goes silent or seems lost, suggest a simple topic (his day,
+  food he likes, his work, weekend plans, a movie he watched).
+- NEVER overwhelm him with long lectures. Conversation > explanation.
+
+== PROACTIVE VOCABULARY COACHING ==
+- If Jean writes incomplete sentences, repeats himself, hesitates
+  ('uhm', 'I want to... I want to...'), asks 'how do you say X', uses
+  a wrong word, or types a Portuguese word inside English, DO NOT just
+  continue as if nothing happened.
+- INSTEAD: offer 2 or 3 English vocabulary options that could fit what
+  he is trying to say. Format: "Are you looking for **X** (short
+  meaning), **Y** (short meaning), or **Z** (short meaning)? They are
+  all about <theme>."
+- NEVER translate to Portuguese in those suggestions. Use simple
+  English-only meanings.
+- After the suggestion, wait for him to choose.
+
+== EXAMPLES, NOT JUST OBJECTS ==
+- When teaching vocabulary or concepts, prefer examples that involve
+  VERBS, ACTIONS, and SITUATIONS — not just physical objects. Show how
+  the word lives in real conversation. Ex: instead of just "dog = a pet
+  animal", say "Look at that dog running in the park! Dogs love to play.
+  Do you have a dog at home?"
+
+== FORMAT (your response will be SPOKEN OUT LOUD) ==
+- Plain text only. NO markdown, NO asterisks, NO hashtags, NO emojis.
+- 2 to 5 short sentences usually. Up to 8 if doing a role-play scene.
+- For "gentle" tip or "strict" correction, use plain text labels:
+    Quick tip: ...
+    or
+    You said: ... / Better: ...
+
+== TONE ==
+- Always positive. Celebrate his progress.
+- If he writes in Portuguese, gently say in English "Let's try in English -
+  I'll help you" and then give him the English version of what he wanted
+  to say.
+
+== NAME PREFIX (very important) ==
+- NEVER start your reply with "Mr. Wilson:" or any name tag.
+- NEVER write your name at all. Just answer directly as if you were speaking.
+- Bad: "Mr. Wilson: That's great, Jean!"
+- Good: "That's great, Jean!"
+
+== USING PAST CONVERSATIONS ==
+- If the user message includes a [PAST CONVERSATIONS SUMMARY] block,
+  read it silently. Use it to know what topics Jean already practiced,
+  which mistakes he has made before, and how he is evolving.
+- Do NOT quote the summary back at him. Do NOT say "I see in our past
+  conversations...". Just use it as background knowledge to personalize
+  your replies and avoid repeating yourself.
+- If you notice a recurring difficulty, gently bring it up at a natural
+  moment ("by the way, last time you struggled with X — want to try
+  again now?"), but do not lecture.
+
+You are Mr. Wilson. Begin every reply directly as Mr. Wilson would, with
+NO name prefix and NO meta-comments.`;
+
+// === Topics data ===
+const TOPICOS = [
+  {
+    id: 'linking-words',
+    emoji: '🔗',
+    titulo: 'Linking Words',
+    descricao: 'Connect ideas in English',
+    subtopicos: [
+      'If — conditionals',
+      'Of — possession and belonging',
+      'To — direction and purpose',
+      'A vs An — when to use each',
+      'The — definite article',
+      'For — duration and reason',
+      'Since — point in time',
+      'During — within a period',
+      'While — at the same time',
+      'Because — reason',
+    ],
+  },
+  {
+    id: 'confusing-words',
+    emoji: '🤔',
+    titulo: 'Confusing Words',
+    descricao: 'Words that sound similar but differ',
+    subtopicos: [
+      "There vs Their vs They're",
+      'Were vs Where',
+      'Then vs Than',
+      "Its vs It's",
+      "Your vs You're",
+      'Affect vs Effect',
+      'Lose vs Loose',
+      'Lie vs Lay',
+      'Bring vs Take',
+    ],
+  },
+  {
+    id: 'verb-tenses',
+    emoji: '⏰',
+    titulo: 'Verb Tenses',
+    descricao: 'When to use each tense',
+    subtopicos: [
+      'Present Simple',
+      'Present Continuous',
+      'Present Perfect',
+      'Past Simple',
+      'Past Continuous',
+      'Past Perfect',
+      'Future with will',
+      'Future with going to',
+    ],
+  },
+  {
+    id: 'expressions',
+    emoji: '💬',
+    titulo: 'Real-life Expressions',
+    descricao: 'Phrases natives use daily',
+    subtopicos: [
+      "I'm up for it",
+      'No way!',
+      'That sucks!',
+      'Go ahead',
+      'No worries',
+      "I'm beat",
+      'Take it easy',
+      "What's up?",
+      "It's a deal",
+      'Got it',
+      'Hang on',
+      'My bad',
+      'Hit the road',
+      'Piece of cake',
+    ],
+  },
+  {
+    id: 'irregular-verbs',
+    emoji: '🔄',
+    titulo: 'Irregular Verbs',
+    descricao: 'The 46 most-spoken irregulars',
+    subtopicos: [
+      'be (was/were — been)',
+      'have (had — had)',
+      'do (did — done)',
+      'go (went — gone)',
+      'come (came — come)',
+      'see (saw — seen)',
+      'get (got — gotten)',
+      'know (knew — known)',
+      'take (took — taken)',
+      'make (made — made)',
+      'say (said — said)',
+      'think (thought — thought)',
+      'find (found — found)',
+      'give (gave — given)',
+      'tell (told — told)',
+      'feel (felt — felt)',
+      'become (became — become)',
+      'leave (left — left)',
+      'put (put — put)',
+      'mean (meant — meant)',
+      'eat (ate — eaten)',
+      'drink (drank — drunk)',
+      'sleep (slept — slept)',
+      'write (wrote — written)',
+      'read (read — read)',
+      'run (ran — run)',
+      'break (broke — broken)',
+      'lose (lost — lost)',
+      'win (won — won)',
+      'buy (bought — bought)',
+      'bring (brought — brought)',
+      'catch (caught — caught)',
+      'choose (chose — chosen)',
+      'drive (drove — driven)',
+      'fall (fell — fallen)',
+      'forget (forgot — forgotten)',
+      'hold (held — held)',
+      'keep (kept — kept)',
+      'pay (paid — paid)',
+      'send (sent — sent)',
+      'sit (sat — sat)',
+      'speak (spoke — spoken)',
+      'stand (stood — stood)',
+      'understand (understood — understood)',
+      'wear (wore — worn)',
+      'meet (met — met)',
+    ],
+  },
+  {
+    id: 'vocabulary',
+    emoji: '📚',
+    titulo: 'Vocabulary by theme',
+    descricao: '14 categories of real-life words',
+    subtopicos: [
+      'Home & House',
+      'Kitchen & Food',
+      'Drinks',
+      'Body & Health',
+      'Sports',
+      'People & Family',
+      'Animals',
+      'Transport',
+      'Places',
+      'Clothing',
+      'Weather',
+      'Time & Calendar',
+      'Work & Office',
+      'School & Study',
+    ],
+  },
+  {
+    id: 'grammar',
+    emoji: '📐',
+    titulo: 'Grammar Essentials',
+    descricao: 'Core building blocks',
+    subtopicos: [
+      'To Be (am / is / are)',
+      'To Have (have / has)',
+      'Do / Does (Simple Present questions and negatives)',
+      'Did (Simple Past questions and negatives)',
+      'Articles (a / an / the)',
+      'Personal Pronouns (I, you, he, she, it, we, they)',
+      'Possessive Adjectives (my, your, his, her, its, our, their)',
+      'Plurals (rules and irregulars)',
+      'Prepositions of Place (in, on, at, under, behind...)',
+      'Question Words (What, Who, Where, When, Why, How)',
+      'Modal Verbs (can, could, should, must, may, might)',
+    ],
+  },
+];
+
+// ===== STATE =====
+let state = {
+  currentTab: 'chat',
+  config: {},
+  chatHistory: [],
+  askHistory: [],
+  quotaState: {},
+  pastConvs: [], // resumos de conversas anteriores (memória de longo prazo)
+  topicViewing: null, // {topicId, expandedSubtopic, explanation}
+  isListening: false,
+  voicesLoaded: false,
+  userWantsListening: false,
+};
+
+// ===== STORAGE =====
+function loadConfig() {
+  const raw = localStorage.getItem(STORAGE_KEYS.config);
+  const defaults = {
+    keys: { gemini: '', groq: '', mistral: '' },
+    voiceOn: true,
+    autoSpeak: false,
+    accent: 'en-US',
+    correction: 'gentle',
+    ptHelper: true,
+    order: ['gemini', 'groq', 'mistral'],
+  };
+  if (!raw) return defaults;
+  try {
+    const loaded = JSON.parse(raw);
+    return { ...defaults, ...loaded, keys: { ...defaults.keys, ...(loaded.keys || {}) } };
+  } catch { return defaults; }
+}
+function saveConfig() {
+  localStorage.setItem(STORAGE_KEYS.config, JSON.stringify(state.config));
+}
+function loadChatHistory() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.chatHistory) || '[]'); }
+  catch { return []; }
+}
+function saveChatHistory() {
+  const trimmed = state.chatHistory.slice(-32); // mantém ~16 trocas
+  localStorage.setItem(STORAGE_KEYS.chatHistory, JSON.stringify(trimmed));
+}
+function loadAskHistory() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.askHistory) || '[]'); }
+  catch { return []; }
+}
+function saveAskHistory() {
+  const trimmed = state.askHistory.slice(-20);
+  localStorage.setItem(STORAGE_KEYS.askHistory, JSON.stringify(trimmed));
+}
+function loadQuotaState() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.quotaState) || '{}'); }
+  catch { return {}; }
+}
+function saveQuotaState() {
+  localStorage.setItem(STORAGE_KEYS.quotaState, JSON.stringify(state.quotaState));
+}
+function loadPastConvs() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.pastConvs) || '[]'); }
+  catch { return []; }
+}
+function savePastConvs() {
+  // Limita a 30 conversas (mais antigas caem fora)
+  const trimmed = state.pastConvs.slice(-30);
+  localStorage.setItem(STORAGE_KEYS.pastConvs, JSON.stringify(trimmed));
+}
+
+// ===== LLM ROTATION =====
+async function callLLM(messages, opts = {}) {
+  const maxTokens = opts.maxTokens || 800;
+  const temperature = opts.temperature || 0.7;
+  const order = state.config.order || ['gemini', 'groq', 'mistral'];
+  const now = Date.now();
+  const errors = [];
+
+  for (const providerId of order) {
+    const key = state.config.keys[providerId];
+    if (!key) { errors.push(`${providerId}: no key`); continue; }
+
+    const exhaustedUntil = state.quotaState[providerId]?.exhaustedUntil || 0;
+    if (exhaustedUntil > now) { errors.push(`${providerId}: cooling down`); continue; }
+
+    try {
+      const text = await callProvider(providerId, messages, key, maxTokens, temperature);
+      updateQuotaBanner();
+      return { text, provider: providerId };
+    } catch (err) {
+      const code = err.status || 0;
+      if (code === 429) {
+        state.quotaState[providerId] = { exhaustedUntil: now + 60 * 60 * 1000, lastError: '429' };
+        saveQuotaState();
+      } else if (code === 402 || code === 403) {
+        state.quotaState[providerId] = { exhaustedUntil: now + 24 * 60 * 60 * 1000, lastError: String(code) };
+        saveQuotaState();
+      }
+      errors.push(`${providerId}: ${err.message || code}`);
+    }
+  }
+
+  updateQuotaBanner();
+  throw new Error('All IAs are resting right now. Try again in a few minutes or check your API keys in Settings.\n\nDetails: ' + errors.join(' | '));
+}
+
+async function callProvider(providerId, messages, key, maxTokens, temperature) {
+  if (providerId === 'gemini') return callGemini(messages, key, maxTokens, temperature);
+  if (providerId === 'groq') return callGroq(messages, key, maxTokens, temperature);
+  if (providerId === 'mistral') return callMistral(messages, key, maxTokens, temperature);
+  throw new Error('Unknown provider');
+}
+
+async function callGemini(messages, key, maxTokens, temperature) {
+  const systemMsg = messages.find(m => m.role === 'system');
+  const turns = messages.filter(m => m.role !== 'system').map(m => ({
+    role: m.role === 'assistant' ? 'model' : 'user',
+    parts: [{ text: m.content }],
+  }));
+  const body = {
+    contents: turns,
+    generationConfig: { temperature, maxOutputTokens: maxTokens },
+  };
+  if (systemMsg) body.systemInstruction = { parts: [{ text: systemMsg.content }] };
+
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(key)}`;
+  const r = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!r.ok) { const e = new Error(`Gemini HTTP ${r.status}`); e.status = r.status; throw e; }
+  const data = await r.json();
+  const txt = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!txt) throw new Error('Gemini: empty response');
+  return txt.trim();
+}
+
+async function callGroq(messages, key, maxTokens, temperature) {
+  const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + key,
+    },
+    body: JSON.stringify({
+      model: 'llama-3.3-70b-versatile',
+      messages,
+      temperature,
+      max_tokens: maxTokens,
+    }),
+  });
+  if (!r.ok) { const e = new Error(`Groq HTTP ${r.status}`); e.status = r.status; throw e; }
+  const data = await r.json();
+  const txt = data.choices?.[0]?.message?.content;
+  if (!txt) throw new Error('Groq: empty response');
+  return txt.trim();
+}
+
+async function callMistral(messages, key, maxTokens, temperature) {
+  const r = await fetch('https://api.mistral.ai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + key,
+    },
+    body: JSON.stringify({
+      model: 'mistral-small-latest',
+      messages,
+      temperature,
+      max_tokens: maxTokens,
+    }),
+  });
+  if (!r.ok) { const e = new Error(`Mistral HTTP ${r.status}`); e.status = r.status; throw e; }
+  const data = await r.json();
+  const txt = data.choices?.[0]?.message?.content;
+  if (!txt) throw new Error('Mistral: empty response');
+  return txt.trim();
+}
+
+// ===== CHAT (Mr. Wilson) =====
+async function sendChatMessage(text) {
+  if (!text.trim()) return;
+  if (!hasAnyKey()) { showOnboarding(); return; }
+
+  appendChatMsg('user', text);
+  state.chatHistory.push({ role: 'user', content: text });
+  saveChatHistory();
+
+  showTyping(true);
+
+  const historyForPrompt = state.chatHistory.slice(-32);
+  const conversationSoFar = historyForPrompt.slice(0, -1).map(m => {
+    return (m.role === 'user' ? 'STUDENT' : 'TEACHER') + ': ' + m.content;
+  }).join('\n');
+
+  const pastBlock = buildPastConvsBlock();
+
+  const userBlock = `[SESSION SETTINGS]
+- Correction mode: ${state.config.correction}
+- Portuguese helper: ${state.config.ptHelper ? 'ENABLED' : 'DISABLED'}
+${pastBlock}
+[CONVERSATION SO FAR]
+${conversationSoFar || '(this is the first message)'}
+
+[NEW STUDENT MESSAGE]
+${text}`;
+
+  const messages = [
+    { role: 'system', content: MR_WILSON_SYSTEM },
+    { role: 'user', content: userBlock },
+  ];
+
+  try {
+    const { text: rawReply } = await callLLM(messages, { maxTokens: 600 });
+    const reply = stripNamePrefix(rawReply);
+    showTyping(false);
+    appendChatMsg('bot', reply);
+    state.chatHistory.push({ role: 'assistant', content: reply });
+    saveChatHistory();
+    if (state.config.voiceOn && state.config.autoSpeak) speakText(reply);
+  } catch (err) {
+    showTyping(false);
+    appendChatMsg('system', '⚠️ ' + err.message);
+  }
+}
+
+// Remove prefixos "Mr. Wilson:" / "Teacher:" / "Mr Wilson:" no início da resposta
+function stripNamePrefix(text) {
+  if (!text) return text;
+  return text.replace(/^\s*(Mr\.?\s*Wilson|Teacher|Professor|MR\.?\s*WILSON)\s*[:\-—]\s*/i, '').trim();
+}
+
+// Monta bloco [PAST CONVERSATIONS SUMMARY] pro prompt do Mr. Wilson
+function buildPastConvsBlock() {
+  if (!state.pastConvs || state.pastConvs.length === 0) return '';
+  // Pega últimos 10 resumos pra não estourar tokens
+  const recent = state.pastConvs.slice(-10);
+  const lines = recent.map((c, i) => {
+    const date = c.date ? new Date(c.date).toLocaleDateString('en-US') : '?';
+    return `- (${date}) Topics: ${(c.topics || []).join(', ') || '—'}. Difficulties: ${(c.difficulties || []).join(', ') || '—'}. New words Jean used: ${(c.newWords || []).join(', ') || '—'}.`;
+  }).join('\n');
+  return `\n[PAST CONVERSATIONS SUMMARY — for context only, do not quote back]\n${lines}\n`;
+}
+
+function appendChatMsg(role, text) {
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+
+  // Parse "Quick tip:" no final
+  let main = text;
+  let tip = null;
+  const tipMatch = text.match(/(.*?)(\n?Quick tip:[\s\S]+)$/i);
+  if (role === 'bot' && tipMatch) {
+    main = tipMatch[1].trim();
+    tip = tipMatch[2].trim();
+  }
+  div.textContent = main;
+
+  if (tip) {
+    const tipDiv = document.createElement('div');
+    tipDiv.className = 'quick-tip';
+    tipDiv.textContent = tip;
+    div.appendChild(tipDiv);
+  }
+
+  if (role === 'bot') {
+    const speakBtn = document.createElement('button');
+    speakBtn.className = 'speak-btn';
+    speakBtn.textContent = '🔊 Hear';
+    speakBtn.onclick = () => speakText(main + (tip ? '. ' + tip : ''));
+    div.appendChild(speakBtn);
+  }
+
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function showTyping(on) {
+  const container = document.getElementById('chatMessages');
+  let typing = document.getElementById('typingIndicator');
+  if (on) {
+    if (typing) return;
+    const wrap = document.createElement('div');
+    wrap.id = 'typingIndicator';
+    wrap.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+    container.appendChild(wrap);
+    container.scrollTop = container.scrollHeight;
+  } else {
+    if (typing) typing.remove();
+  }
+}
+
+function renderChatFromHistory() {
+  const container = document.getElementById('chatMessages');
+  container.innerHTML = '';
+  if (state.chatHistory.length === 0) {
+    const intro = document.createElement('div');
+    intro.className = 'msg system';
+    intro.textContent = "Tap 'Send' or 🎤 to start. Mr. Wilson is ready to chat with you in English!";
+    container.appendChild(intro);
+    return;
+  }
+  for (const m of state.chatHistory) {
+    appendChatMsg(m.role === 'assistant' ? 'bot' : 'user', m.content);
+  }
+}
+
+// ===== TOPICS =====
+async function explainTopic(topicLabel, subtopic, btnEl) {
+  if (!hasAnyKey()) { showOnboarding(); return; }
+  if (btnEl) btnEl.textContent = 'Loading...';
+
+  const system = `You are Mr. Wilson teaching Jean (Brazilian beginner, TopWay immersive English school).
+Topic: "${topicLabel}". Specific item: "${subtopic}".
+Style: 100% immersive English (never translate unless Jean explicitly asks).
+Use real-life DIALOGUES, SITUATIONS and ACTIONS — not just object names.
+Show how the word lives in real conversation. Use simple vocabulary.
+4 to 8 short sentences. Plain text (will be spoken). No markdown.`;
+
+  const userBlock = `Please explain "${subtopic}" so I can really understand and remember it. Give clear examples in real-life situations.`;
+
+  const messages = [
+    { role: 'system', content: system },
+    { role: 'user', content: userBlock },
+  ];
+
+  try {
+    const { text } = await callLLM(messages, { maxTokens: 500 });
+    return text;
+  } catch (err) {
+    return '⚠️ ' + err.message;
+  }
+}
+
+function renderTopicsList() {
+  const list = document.getElementById('topicsList');
+  list.innerHTML = '';
+  for (const t of TOPICOS) {
+    const card = document.createElement('div');
+    card.className = 'topic-card';
+    card.innerHTML = `
+      <div class="emoji">${t.emoji}</div>
+      <div class="info">
+        <div class="title">${t.titulo}</div>
+        <div class="desc">${t.descricao}</div>
+      </div>
+      <div class="arrow">›</div>
+    `;
+    card.onclick = () => openSubtopics(t);
+    list.appendChild(card);
+  }
+}
+
+function openSubtopics(topic) {
+  state.topicViewing = { topicId: topic.id, expanded: null };
+  document.getElementById('topicsList').style.display = 'none';
+  const sub = document.getElementById('subtopicsList');
+  sub.style.display = 'block';
+  sub.innerHTML = '';
+
+  const header = document.createElement('div');
+  header.className = 'subtopic-header';
+  header.innerHTML = `
+    <button class="back-btn">‹</button>
+    <h2>${topic.emoji} ${topic.titulo}</h2>
+  `;
+  header.querySelector('.back-btn').onclick = closeSubtopics;
+  sub.appendChild(header);
+
+  const inner = document.createElement('div');
+  inner.style.padding = '12px';
+  inner.style.overflowY = 'auto';
+  inner.style.flex = '1';
+
+  for (const st of topic.subtopicos) {
+    const item = document.createElement('div');
+    item.className = 'subtopic-item';
+    item.innerHTML = `<div class="label">${st}</div>`;
+    item.onclick = (ev) => {
+      if (ev.target.closest('.ctrl')) return;
+      toggleSubtopicExplain(item, topic.titulo, st);
+    };
+    inner.appendChild(item);
+  }
+  sub.appendChild(inner);
+}
+
+function closeSubtopics() {
+  document.getElementById('subtopicsList').style.display = 'none';
+  document.getElementById('topicsList').style.display = 'block';
+  state.topicViewing = null;
+}
+
+async function toggleSubtopicExplain(item, topicLabel, subtopic) {
+  // se já expandido, recolhe
+  if (item.classList.contains('expanded')) {
+    item.classList.remove('expanded');
+    const exp = item.querySelector('.explanation');
+    const ctrl = item.querySelector('.ctrl');
+    if (exp) exp.remove();
+    if (ctrl) ctrl.remove();
+    return;
+  }
+  item.classList.add('expanded');
+  const exp = document.createElement('div');
+  exp.className = 'explanation';
+  exp.textContent = 'Thinking...';
+  item.appendChild(exp);
+
+  const text = await explainTopic(topicLabel, subtopic);
+  exp.textContent = text;
+
+  const ctrl = document.createElement('div');
+  ctrl.className = 'ctrl';
+  const hearBtn = document.createElement('button');
+  hearBtn.textContent = '🔊 Hear';
+  hearBtn.onclick = (ev) => { ev.stopPropagation(); speakText(text); };
+  ctrl.appendChild(hearBtn);
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = '✕ Close';
+  closeBtn.onclick = (ev) => {
+    ev.stopPropagation();
+    item.classList.remove('expanded');
+    exp.remove();
+    ctrl.remove();
+  };
+  ctrl.appendChild(closeBtn);
+  item.appendChild(ctrl);
+
+  if (state.config.voiceOn && state.config.autoSpeak) speakText(text);
+}
+
+// ===== ASK ANYTHING =====
+async function askAnything(question) {
+  if (!question.trim()) return;
+  if (!hasAnyKey()) { showOnboarding(); return; }
+
+  const askInput = document.getElementById('askInput');
+  const askSendBtn = document.getElementById('askSendBtn');
+  askSendBtn.disabled = true;
+  askSendBtn.textContent = 'Thinking...';
+
+  const system = `You are Mr. Wilson, an immersive English teacher.
+Jean (Brazilian beginner, TopWay immersive school) asks an open question.
+Answer in 100% immersive English (never translate unless explicitly asked).
+Use examples with REAL-LIFE situations, dialogues, verbs, actions — not just object names.
+Plain text. 4 to 10 short sentences. No markdown, no emojis.`;
+
+  const messages = [
+    { role: 'system', content: system },
+    { role: 'user', content: question },
+  ];
+
+  try {
+    const { text } = await callLLM(messages, { maxTokens: 600 });
+    state.askHistory.unshift({ q: question, a: text, ts: Date.now() });
+    saveAskHistory();
+    renderAskHistory();
+    askInput.value = '';
+    if (state.config.voiceOn && state.config.autoSpeak) speakText(text);
+  } catch (err) {
+    state.askHistory.unshift({ q: question, a: '⚠️ ' + err.message, ts: Date.now() });
+    saveAskHistory();
+    renderAskHistory();
+  } finally {
+    askSendBtn.disabled = false;
+    askSendBtn.textContent = 'Ask Mr. Wilson';
+  }
+}
+
+function renderAskHistory() {
+  const box = document.getElementById('askHistory');
+  box.innerHTML = '';
+  for (const it of state.askHistory) {
+    const div = document.createElement('div');
+    div.className = 'ask-response';
+    div.innerHTML = `<div class="q">${escapeHtml(it.q)}</div>`;
+    const ans = document.createElement('div');
+    ans.textContent = it.a;
+    div.appendChild(ans);
+
+    const ctrl = document.createElement('div');
+    ctrl.className = 'ctrl';
+    const hearBtn = document.createElement('button');
+    hearBtn.textContent = '🔊 Hear';
+    hearBtn.onclick = () => speakText(it.a);
+    ctrl.appendChild(hearBtn);
+    div.appendChild(ctrl);
+
+    box.appendChild(div);
+  }
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ===== VOICE — TTS =====
+let availableVoices = [];
+function loadVoices() {
+  availableVoices = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
+  state.voicesLoaded = availableVoices.length > 0;
+}
+if (window.speechSynthesis) {
+  window.speechSynthesis.onvoiceschanged = loadVoices;
+}
+
+function pickVoice() {
+  if (!availableVoices.length) loadVoices();
+  const wantedLang = state.config.accent || 'en-US';
+  // exato
+  let v = availableVoices.find(v => v.lang === wantedLang);
+  if (v) return v;
+  // mesma família
+  const base = wantedLang.split('-')[0];
+  v = availableVoices.find(v => v.lang && v.lang.startsWith(base));
+  if (v) return v;
+  return availableVoices[0] || null;
+}
+
+function speakText(text) {
+  if (!state.config.voiceOn) return;
+  if (!window.speechSynthesis) { toast('Voice not supported on this browser'); return; }
+  try { window.speechSynthesis.cancel(); } catch {}
+  const cleaned = stripNamePrefix(String(text))
+    .replace(/[*_#`]+/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!cleaned) return;
+  const u = new SpeechSynthesisUtterance(cleaned);
+  const v = pickVoice();
+  if (v) { u.voice = v; u.lang = v.lang; }
+  else { u.lang = state.config.accent || 'en-US'; }
+  u.rate = 0.95;
+  u.pitch = 1.0;
+  window.speechSynthesis.speak(u);
+}
+
+// ===== VOICE — STT =====
+function getSpeechRecognition() {
+  return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+}
+function isStandaloneMode() {
+  return window.matchMedia('(display-mode: standalone)').matches ||
+         window.navigator.standalone === true;
+}
+
+let currentRecognition = null;
+
+function startListening(targetTextarea, micBtn) {
+  const SR = getSpeechRecognition();
+  if (!SR) { toast('Microphone not supported on this browser'); return; }
+  if (state.isListening) { stopListening(); return; }
+
+  try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch {}
+
+  const rec = new SR();
+  rec.lang = state.config.accent || 'en-US';
+  rec.continuous = true;       // não para sozinho — Jean fala no ritmo dele
+  rec.interimResults = true;
+  rec.maxAlternatives = 1;
+
+  let finalText = '';
+  state.isListening = true;
+  micBtn.classList.add('listening');
+  micBtn.title = 'Tap to stop';
+  showListeningHint(true);
+
+  rec.onresult = (ev) => {
+    let interim = '';
+    for (let i = ev.resultIndex; i < ev.results.length; i++) {
+      const transcript = ev.results[i][0].transcript;
+      if (ev.results[i].isFinal) finalText += transcript;
+      else interim += transcript;
+    }
+    targetTextarea.value = (finalText + interim).trim();
+  };
+  rec.onerror = (ev) => {
+    state.isListening = false;
+    micBtn.classList.remove('listening');
+    micBtn.title = 'Speak';
+    showListeningHint(false);
+    if (ev.error === 'not-allowed') toast('Please allow microphone access');
+    else if (ev.error === 'no-speech') {
+      // Em modo contínuo, no-speech pode disparar entre frases — reiniciar se Jean ainda quer falar
+      if (state.userWantsListening) {
+        try { rec.start(); state.isListening = true; micBtn.classList.add('listening'); showListeningHint(true); return; } catch {}
+      }
+      toast("I didn't hear anything — tap mic to try again");
+    }
+    else if (ev.error === 'aborted') { /* parada manual — sem aviso */ }
+    else toast('Mic error: ' + ev.error);
+  };
+  rec.onend = () => {
+    state.isListening = false;
+    micBtn.classList.remove('listening');
+    micBtn.title = 'Speak';
+    showListeningHint(false);
+    if (finalText.trim()) targetTextarea.value = finalText.trim();
+    // Se o reconhecimento terminou sozinho mas Jean ainda quer falar, reinicia
+    if (state.userWantsListening) {
+      state.userWantsListening = false; // já reiniciou
+      try {
+        rec.start();
+        state.isListening = true;
+        micBtn.classList.add('listening');
+        showListeningHint(true);
+        state.userWantsListening = true;
+      } catch {}
+    }
+  };
+  state.userWantsListening = true;
+
+  try {
+    rec.start();
+    currentRecognition = rec;
+  } catch (e) {
+    state.isListening = false;
+    micBtn.classList.remove('listening');
+    toast('Could not start mic: ' + e.message);
+  }
+}
+
+function stopListening() {
+  state.userWantsListening = false;
+  if (currentRecognition) {
+    try { currentRecognition.stop(); } catch {}
+    currentRecognition = null;
+  }
+  state.isListening = false;
+  document.querySelectorAll('.mic.listening').forEach(b => {
+    b.classList.remove('listening');
+    b.title = 'Speak';
+  });
+  showListeningHint(false);
+}
+
+function showListeningHint(on) {
+  let hint = document.getElementById('listeningHint');
+  if (on) {
+    if (hint) return;
+    hint = document.createElement('div');
+    hint.id = 'listeningHint';
+    hint.textContent = '🔴 Listening… tap 🎤 again when you finish.';
+    document.body.appendChild(hint);
+  } else if (hint) {
+    hint.remove();
+  }
+}
+
+function applyMicVisibility() {
+  const SR = getSpeechRecognition();
+  const standalone = isStandaloneMode();
+  const supported = !!SR;
+  const usable = supported && !standalone;
+  document.getElementById('chatMicBtn').style.display = usable ? 'flex' : 'none';
+  document.getElementById('askMicBtn').style.display = usable ? 'flex' : 'none';
+  if (!supported) return;
+  if (standalone) {
+    // Esconde mic no modo PWA standalone (limitação iOS Safari)
+    console.log('Standalone mode detected — mic disabled (iOS PWA limitation)');
+  }
+}
+
+// ===== SETTINGS RENDER =====
+function renderApiKeys() {
+  const container = document.getElementById('apiKeysContainer');
+  container.innerHTML = '';
+  for (const [id, info] of Object.entries(PROVIDERS)) {
+    const value = state.config.keys[id] || '';
+    const row = document.createElement('div');
+    row.className = 'api-key-row';
+    row.innerHTML = `
+      <div class="label-line">
+        <div class="name">${info.name}</div>
+        <div class="status ${value ? 'ok' : 'missing'}">${value ? 'OK' : 'missing'}</div>
+      </div>
+      <input type="password" class="api-key-input" data-provider="${id}" placeholder="Paste ${info.name} API key" value="${escapeHtml(value)}">
+      <div class="help">📎 Get free key at <a href="${info.keyHelpUrl}" target="_blank" rel="noopener">${info.keyHelp}</a> — ${info.quotaLabel}</div>
+    `;
+    container.appendChild(row);
+  }
+  container.querySelectorAll('input[data-provider]').forEach(inp => {
+    inp.addEventListener('change', (e) => {
+      const id = e.target.dataset.provider;
+      state.config.keys[id] = e.target.value.trim();
+      saveConfig();
+      renderApiKeys();
+      updateQuotaBanner();
+    });
+  });
+}
+
+function bindSettings() {
+  const map = {
+    cfgVoiceOn: 'voiceOn',
+    cfgAutoSpeak: 'autoSpeak',
+    cfgPtHelper: 'ptHelper',
+  };
+  for (const [el, key] of Object.entries(map)) {
+    const inp = document.getElementById(el);
+    inp.checked = !!state.config[key];
+    inp.addEventListener('change', () => {
+      state.config[key] = inp.checked;
+      saveConfig();
+    });
+  }
+  // sliders clicáveis
+  document.querySelectorAll('.switch .slider[data-target]').forEach(sl => {
+    sl.addEventListener('click', (e) => {
+      const t = document.getElementById(sl.dataset.target);
+      if (t) { t.checked = !t.checked; t.dispatchEvent(new Event('change')); }
+    });
+  });
+  // selects
+  const cfgAccent = document.getElementById('cfgAccent');
+  cfgAccent.value = state.config.accent || 'en-US';
+  cfgAccent.addEventListener('change', () => { state.config.accent = cfgAccent.value; saveConfig(); });
+
+  const cfgCorr = document.getElementById('cfgCorrection');
+  cfgCorr.value = state.config.correction || 'gentle';
+  cfgCorr.addEventListener('change', () => { state.config.correction = cfgCorr.value; saveConfig(); });
+
+  const cfgO1 = document.getElementById('cfgOrder1');
+  const cfgO2 = document.getElementById('cfgOrder2');
+  const cfgO3 = document.getElementById('cfgOrder3');
+  const order = state.config.order || ['gemini', 'groq', 'mistral'];
+  cfgO1.value = order[0]; cfgO2.value = order[1]; cfgO3.value = order[2];
+  function persistOrder() {
+    state.config.order = [cfgO1.value, cfgO2.value, cfgO3.value];
+    saveConfig();
+  }
+  cfgO1.addEventListener('change', persistOrder);
+  cfgO2.addEventListener('change', persistOrder);
+  cfgO3.addEventListener('change', persistOrder);
+
+  document.getElementById('btnClearChat').onclick = () => {
+    if (confirm('Clear all chat history?')) {
+      state.chatHistory = [];
+      saveChatHistory();
+      renderChatFromHistory();
+      toast('Chat cleared');
+    }
+  };
+  document.getElementById('btnClearAsk').onclick = () => {
+    if (confirm('Clear Ask history?')) {
+      state.askHistory = [];
+      saveAskHistory();
+      renderAskHistory();
+      toast('Ask history cleared');
+    }
+  };
+  document.getElementById('btnResetQuotas').onclick = () => {
+    state.quotaState = {};
+    saveQuotaState();
+    updateQuotaBanner();
+    toast('Quota state reset');
+  };
+  document.getElementById('btnClearPastConvs').onclick = () => {
+    const count = state.pastConvs.length;
+    if (count === 0) { toast('No past conversations to clear.'); return; }
+    if (confirm(`Apagar a memória de longo prazo (${count} conversas resumidas)?\n\nMr. Wilson vai esquecer o que conversamos antes. As conversas atuais não são afetadas.`)) {
+      state.pastConvs = [];
+      savePastConvs();
+      toast('Long-term memory cleared');
+    }
+  };
+}
+
+// ===== QUOTA BANNER =====
+function updateQuotaBanner() {
+  const banner = document.getElementById('quotaBanner');
+  const now = Date.now();
+  const order = state.config.order || ['gemini', 'groq', 'mistral'];
+  const hasKey = order.some(p => state.config.keys[p]);
+  if (!hasKey) {
+    banner.classList.remove('show');
+    return;
+  }
+  const cooling = order.filter(p => state.config.keys[p] && (state.quotaState[p]?.exhaustedUntil || 0) > now);
+  if (cooling.length >= order.filter(p => state.config.keys[p]).length) {
+    const minTime = Math.min(...cooling.map(p => state.quotaState[p].exhaustedUntil));
+    const minutes = Math.ceil((minTime - now) / 60000);
+    banner.textContent = `⏳ All IAs resting. Next ready in ~${minutes} min.`;
+    banner.classList.add('show');
+  } else if (cooling.length > 0) {
+    banner.textContent = `🔄 Rotating: ${cooling.map(p => PROVIDERS[p].name).join(', ')} resting.`;
+    banner.classList.add('show');
+  } else {
+    banner.classList.remove('show');
+  }
+}
+
+// ===== NEW CONVERSATION + LONG-TERM MEMORY =====
+async function startNewConversation() {
+  if (state.chatHistory.length === 0) {
+    toast("Nothing to save yet — chat is empty.");
+    return;
+  }
+  const choice = await confirmModal(
+    'Nova conversa',
+    'Quer salvar um resumo desta conversa pra acompanhar sua evolução? Mr. Wilson vai lembrar dos pontos principais nas próximas conversas.',
+    [
+      { label: 'Sim, salvar e começar nova', value: 'save' },
+      { label: 'Não, só apagar', value: 'discard' },
+      { label: 'Cancelar', value: 'cancel' },
+    ]
+  );
+  if (choice === 'cancel' || !choice) return;
+
+  if (choice === 'save') {
+    toast('Generating summary...');
+    try {
+      const summary = await summarizeConversation(state.chatHistory);
+      if (summary) {
+        state.pastConvs.push({ ...summary, date: Date.now() });
+        savePastConvs();
+        toast('Saved! ✅');
+      }
+    } catch (err) {
+      // Mesmo se falhar, deixa Jean começar nova conversa
+      toast('Could not summarize, but starting fresh.');
+    }
+  }
+
+  state.chatHistory = [];
+  saveChatHistory();
+  renderChatFromHistory();
+}
+
+async function summarizeConversation(history) {
+  if (!history || history.length < 2) return null;
+  const conv = history.map(m => (m.role === 'user' ? 'STUDENT' : 'TEACHER') + ': ' + m.content).join('\n');
+  const system = `You analyze an English-learning conversation between a teacher and a Brazilian student named Jean.
+Extract structured insights for his long-term progress tracker.
+Output ONLY valid JSON (no markdown, no commentary) with this exact shape:
+{
+  "topics": ["..."],
+  "strengths": ["..."],
+  "difficulties": ["..."],
+  "newWords": ["..."],
+  "levelEstimate": "beginner | beginner-intermediate | intermediate | upper-intermediate | advanced",
+  "encouragement": "short positive note in Portuguese"
+}
+Rules:
+- topics: themes Jean talked about (max 5, short labels in English)
+- strengths: things Jean did well (max 3, in English)
+- difficulties: recurring mistakes or struggles (max 4, in English)
+- newWords: English words/expressions Jean tried for the first time or that the teacher introduced (max 8)
+- encouragement: 1 short positive sentence in PORTUGUESE (1-2 lines)
+- Be honest but kind. If something is missing, use [].`;
+  const user = 'Conversation transcript:\n\n' + conv;
+  try {
+    const { text } = await callLLM([
+      { role: 'system', content: system },
+      { role: 'user', content: user },
+    ], { maxTokens: 500, temperature: 0.3 });
+    const cleaned = text.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim();
+    const json = JSON.parse(cleaned);
+    return json;
+  } catch (e) {
+    console.log('Summary parse failed:', e);
+    return null;
+  }
+}
+
+async function showProgressReport() {
+  if (!hasAnyKey()) { showOnboarding(); return; }
+  const total = state.pastConvs.length;
+  if (total === 0 && state.chatHistory.length < 4) {
+    toast('Converse com Mr. Wilson um pouco antes para gerar relatório.');
+    return;
+  }
+
+  const ov = document.createElement('div');
+  ov.className = 'overlay';
+  ov.id = 'progressOverlay';
+  ov.innerHTML = `
+    <div class="overlay-card">
+      <h2>📊 Seu progresso</h2>
+      <div id="progressContent" style="font-size:13px;line-height:1.6;">
+        <div style="text-align:center;padding:20px;">⏳ Analisando suas ${total} conversas...</div>
+      </div>
+      <button id="closeProgress">Fechar</button>
+    </div>
+  `;
+  document.body.appendChild(ov);
+  document.getElementById('closeProgress').onclick = () => ov.remove();
+
+  // Compila dados pra IA
+  const recent = state.pastConvs.slice(-15);
+  const allTopics = recent.flatMap(c => c.topics || []);
+  const allDiff = recent.flatMap(c => c.difficulties || []);
+  const allStrong = recent.flatMap(c => c.strengths || []);
+  const allWords = recent.flatMap(c => c.newWords || []);
+  const levels = recent.map(c => c.levelEstimate).filter(Boolean);
+
+  // Inclui a conversa atual como dado extra
+  let currentSummary = null;
+  if (state.chatHistory.length >= 4) {
+    try {
+      currentSummary = await summarizeConversation(state.chatHistory);
+    } catch {}
+  }
+
+  const dataBlock = JSON.stringify({
+    totalConversations: total + (currentSummary ? 1 : 0),
+    pastConversations: recent.map(c => ({
+      date: c.date ? new Date(c.date).toISOString().split('T')[0] : null,
+      topics: c.topics, strengths: c.strengths, difficulties: c.difficulties,
+      newWords: c.newWords, level: c.levelEstimate,
+    })),
+    currentConversation: currentSummary,
+  }, null, 2);
+
+  const system = `Você é um coach de inglês analisando o progresso do aluno Jean (brasileiro, escola imersiva TopWay).
+Receba os dados das conversas dele e gere um RELATÓRIO DE PROGRESSO em PORTUGUÊS BRASILEIRO claro e motivador.
+
+Estrutura obrigatória (use estes cabeçalhos exatos com emoji):
+
+🎯 NÍVEL ATUAL
+(Um parágrafo curto sobre onde o Jean está hoje. Seja realista mas encorajador.)
+
+💪 PONTOS FORTES
+(Bullet list de 3-5 coisas que ele faz bem. Cada bullet começa com "•".)
+
+⚠️ ÁREAS PARA TRABALHAR
+(Bullet list de 3-5 dificuldades recorrentes. Seja específico — não escreva "gramática" genericamente, escreva "uso do Past Simple em frases negativas".)
+
+📚 PALAVRAS E EXPRESSÕES QUE VOCÊ APRENDEU
+(Lista das palavras novas mais relevantes, em inglês com tradução curta entre parênteses.)
+
+🎓 PLANO DE ESTUDO SUGERIDO
+(3-5 sugestões concretas e práticas, em bullet. Cada uma com um VERBO no infinitivo e uma situação real. Ex: "Praticar Past Simple narrando seu dia em inglês toda noite por 5 minutos.")
+
+✨ MENSAGEM FINAL
+(2-3 linhas positivas, falando direto com o Jean.)
+
+Regras:
+- Use Markdown simples (negrito com **texto**, bullets com •).
+- NÃO traduza os títulos.
+- NÃO invente dados que não estão no JSON.
+- Se houver poucos dados, seja honesto: "Ainda estou conhecendo seu estilo — quanto mais você conversar, melhor fica este relatório."`;
+
+  const userBlock = 'Dados das conversas do Jean (JSON):\n\n' + dataBlock;
+
+  try {
+    const { text } = await callLLM([
+      { role: 'system', content: system },
+      { role: 'user', content: userBlock },
+    ], { maxTokens: 1200, temperature: 0.4 });
+
+    const content = document.getElementById('progressContent');
+    if (content) {
+      content.innerHTML = renderMarkdownSimple(text);
+    }
+  } catch (err) {
+    const content = document.getElementById('progressContent');
+    if (content) content.textContent = '⚠️ Erro ao gerar relatório: ' + err.message;
+  }
+}
+
+// Markdown bem básico (negrito + bullets + quebras) — sem libs externas
+function renderMarkdownSimple(text) {
+  let html = escapeHtml(text);
+  html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/^[•\-\*] (.+)$/gm, '<li>$1</li>');
+  html = html.replace(/(<li>.*<\/li>\n?)+/g, m => '<ul>' + m + '</ul>');
+  html = html.replace(/\n\n+/g, '</p><p>');
+  html = '<p>' + html + '</p>';
+  html = html.replace(/<p>(<ul>)/g, '$1').replace(/(<\/ul>)<\/p>/g, '$1');
+  return html;
+}
+
+// Confirm modal genérico com botões customizados — retorna a value escolhida
+function confirmModal(title, body, options) {
+  return new Promise((resolve) => {
+    const ov = document.createElement('div');
+    ov.className = 'overlay';
+    const btns = options.map(o => `<button data-value="${escapeHtml(o.value)}" style="margin-top:8px;background:${o.value === 'cancel' ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg,#6366f1,#8b5cf6)'};">${escapeHtml(o.label)}</button>`).join('');
+    ov.innerHTML = `
+      <div class="overlay-card">
+        <h2>${escapeHtml(title)}</h2>
+        <p>${escapeHtml(body)}</p>
+        ${btns}
+      </div>
+    `;
+    document.body.appendChild(ov);
+    ov.querySelectorAll('button[data-value]').forEach(b => {
+      b.onclick = () => { ov.remove(); resolve(b.dataset.value); };
+    });
+  });
+}
+
+// ===== ONBOARDING =====
+function hasAnyKey() {
+  return Object.values(state.config.keys).some(k => k && k.length > 5);
+}
+
+function showOnboarding() {
+  if (document.getElementById('onboardingOverlay')) return;
+  const ov = document.createElement('div');
+  ov.id = 'onboardingOverlay';
+  ov.className = 'overlay';
+  ov.innerHTML = `
+    <div class="overlay-card">
+      <h2>👋 Hi Jean! Let's get you set up.</h2>
+      <p>This app needs at least one free API key to talk to the AI. Creating a key is fast (≈3 minutes per service) and 100% free — no credit card.</p>
+      <div class="step"><strong>1. Google Gemini (recommended)</strong><br>Go to <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a> → "Create API key" → copy.</div>
+      <div class="step"><strong>2. Groq (most generous)</strong><br>Go to <a href="https://console.groq.com/keys" target="_blank">console.groq.com/keys</a> → "Create API Key" → copy.</div>
+      <div class="step"><strong>3. Mistral (backup)</strong><br>Go to <a href="https://console.mistral.ai/api-keys/" target="_blank">console.mistral.ai/api-keys</a> → "Create new key" → copy.</div>
+      <p style="font-size:11px;opacity:0.7;">Paste any one (or all three) in Settings. The app will rotate automatically if a key hits its daily limit.</p>
+      <button id="goSettings">Open Settings</button>
+    </div>
+  `;
+  document.body.appendChild(ov);
+  document.getElementById('goSettings').onclick = () => {
+    ov.remove();
+    switchTab('settings');
+  };
+}
+
+// ===== TABS =====
+function switchTab(name) {
+  state.currentTab = name;
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  document.querySelectorAll('nav.bottom button').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === name);
+  });
+  if (name === 'topics' && state.topicViewing) {
+    // mantém estado
+  } else if (name === 'topics') {
+    document.getElementById('topicsList').style.display = 'block';
+    document.getElementById('subtopicsList').style.display = 'none';
+  }
+}
+
+// ===== TOAST =====
+function toast(msg, ms = 2200) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => t.classList.remove('show'), ms);
+}
+
+// ===== INIT =====
+function init() {
+  state.config = loadConfig();
+  state.chatHistory = loadChatHistory();
+  state.askHistory = loadAskHistory();
+  state.quotaState = loadQuotaState();
+  state.pastConvs = loadPastConvs();
+
+  // Limpa prefixos "Mr. Wilson:" de mensagens antigas salvas
+  let anyChanged = false;
+  for (const m of state.chatHistory) {
+    if (m.role === 'assistant') {
+      const cleaned = stripNamePrefix(m.content);
+      if (cleaned !== m.content) { m.content = cleaned; anyChanged = true; }
+    }
+  }
+  if (anyChanged) saveChatHistory();
+
+  // Bind navigation
+  document.querySelectorAll('nav.bottom button').forEach(b => {
+    b.onclick = () => switchTab(b.dataset.tab);
+  });
+
+  // Chat
+  const chatInput = document.getElementById('chatInput');
+  document.getElementById('chatSendBtn').onclick = () => {
+    const t = chatInput.value.trim();
+    if (!t) return;
+    chatInput.value = '';
+    sendChatMessage(t);
+  };
+  chatInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      document.getElementById('chatSendBtn').click();
+    }
+  });
+  document.getElementById('chatMicBtn').onclick = () => {
+    startListening(chatInput, document.getElementById('chatMicBtn'));
+  };
+
+  // Chat toolbar
+  document.getElementById('btnNewConv').onclick = startNewConversation;
+  document.getElementById('btnProgress').onclick = showProgressReport;
+
+  // Topics
+  renderTopicsList();
+
+  // Ask
+  const askInput = document.getElementById('askInput');
+  document.getElementById('askSendBtn').onclick = () => {
+    const q = askInput.value.trim();
+    if (q) askAnything(q);
+  };
+  document.getElementById('askMicBtn').onclick = () => {
+    startListening(askInput, document.getElementById('askMicBtn'));
+  };
+  renderAskHistory();
+
+  // Settings
+  renderApiKeys();
+  bindSettings();
+
+  // Chat history initial render
+  renderChatFromHistory();
+
+  // Voice
+  loadVoices();
+  applyMicVisibility();
+  updateQuotaBanner();
+
+  // Service worker (only on https or localhost)
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+    navigator.serviceWorker.register('service-worker.js').catch(err => console.log('SW failed:', err));
+  }
+
+  // First-time onboarding
+  if (!hasAnyKey()) {
+    setTimeout(showOnboarding, 400);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
