@@ -735,12 +735,40 @@
           </div>
         </div>
         <div class="settings-row">
-          <label>English accent</label>
+          <label>English accent
+            <span class="hint">Filters available voices</span>
+          </label>
           <select id="cfgAccent">
             <option value="en-US">American (US)</option>
             <option value="en-GB">British (UK)</option>
             <option value="en-AU">Australian (AU)</option>
           </select>
+        </div>
+        <div class="settings-row">
+          <label>Voice gender preference
+            <span class="hint">Auto-pick masculine or feminine voice</span>
+          </label>
+          <select id="cfgVoiceGender">
+            <option value="male">Male (Mr. Wilson)</option>
+            <option value="female">Female</option>
+            <option value="auto">Auto / system default</option>
+          </select>
+        </div>
+        <div class="settings-row" style="flex-direction:column;align-items:stretch;">
+          <label style="margin-bottom:6px;">Specific voice (optional)
+            <span class="hint">Override above with a specific voice on your device</span>
+          </label>
+          <select id="cfgVoice" style="width:100%;"></select>
+          <button id="btnTestVoice" style="margin-top:8px;background:rgba(139,92,246,0.2);border:1px solid rgba(139,92,246,0.4);color:#a78bfa;padding:6px 12px;border-radius:10px;font-size:12px;cursor:pointer;">🔊 Test selected voice</button>
+        </div>
+        <div class="settings-row">
+          <label>Better speech recognition (Whisper)
+            <span class="hint">Uses your Groq quota. Much more accurate. Works on iPhone home-screen icon.</span>
+          </label>
+          <div class="switch">
+            <input type="checkbox" id="cfgUseWhisper">
+            <span class="slider" data-target="cfgUseWhisper"></span>
+          </div>
         </div>
       </div>
 
@@ -1158,6 +1186,9 @@ function loadConfig() {
     voiceOn: true,
     autoSpeak: false,
     accent: 'en-US',
+    voiceName: '',           // nome específico da voz (vazio = auto, preferindo masculino)
+    voiceGender: 'male',     // 'male' | 'female' | 'auto'
+    useWhisper: true,        // STT via Groq Whisper (muito mais preciso) — fallback Web Speech
     correction: 'gentle',
     ptHelper: true,
     order: ['gemini', 'groq', 'mistral'],
@@ -1640,20 +1671,99 @@ function loadVoices() {
   state.voicesLoaded = availableVoices.length > 0;
 }
 if (window.speechSynthesis) {
-  window.speechSynthesis.onvoiceschanged = loadVoices;
+  window.speechSynthesis.onvoiceschanged = () => {
+    loadVoices();
+    // Re-popula dropdown se Settings já tiver sido construído
+    if (document.getElementById('cfgVoice')) populateVoiceDropdown();
+  };
+}
+
+// Nomes típicos de vozes masculinas / femininas no iOS, macOS, Windows, Android
+const MALE_VOICE_NAMES = [
+  'aaron', 'albert', 'alex', 'arthur', 'bahh', 'bruce', 'daniel', 'diego',
+  'fred', 'gordon', 'jorge', 'junior', 'lee', 'oliver', 'rishi', 'thomas',
+  'tom', 'mark', 'david', 'george', 'james', 'martin', 'guy', 'matthew',
+  'brian', 'william', 'eric',
+];
+const FEMALE_VOICE_NAMES = [
+  'samantha', 'karen', 'moira', 'tessa', 'fiona', 'allison', 'ava', 'serena',
+  'siri', 'susan', 'victoria', 'kate', 'kathy', 'princess', 'veena', 'zira',
+  'hazel', 'aria', 'jenny', 'sara', 'emily', 'amy', 'libby', 'sonia',
+];
+
+function guessMale(name) {
+  const n = (name || '').toLowerCase();
+  return MALE_VOICE_NAMES.some(m => n.includes(m));
+}
+function guessFemale(name) {
+  const n = (name || '').toLowerCase();
+  return FEMALE_VOICE_NAMES.some(f => n.includes(f));
 }
 
 function pickVoice() {
   if (!availableVoices.length) loadVoices();
+  if (!availableVoices.length) return null;
+
+  // 1. Voz específica escolhida por Jean tem prioridade máxima
+  if (state.config.voiceName) {
+    const exact = availableVoices.find(v => v.name === state.config.voiceName);
+    if (exact) return exact;
+  }
+
   const wantedLang = state.config.accent || 'en-US';
-  // exato
-  let v = availableVoices.find(v => v.lang === wantedLang);
-  if (v) return v;
-  // mesma família
+  const gender = state.config.voiceGender || 'male';
+
+  // 2. Em ordem: lang exato → mesma família → qualquer
+  const exactLang = availableVoices.filter(v => v.lang === wantedLang);
   const base = wantedLang.split('-')[0];
-  v = availableVoices.find(v => v.lang && v.lang.startsWith(base));
-  if (v) return v;
-  return availableVoices[0] || null;
+  const sameBase = availableVoices.filter(v => v.lang && v.lang.startsWith(base));
+  const others = availableVoices;
+
+  for (const list of [exactLang, sameBase, others]) {
+    if (!list.length) continue;
+    if (gender === 'male') {
+      const m = list.find(v => guessMale(v.name) && !guessFemale(v.name));
+      if (m) return m;
+    } else if (gender === 'female') {
+      const f = list.find(v => guessFemale(v.name) && !guessMale(v.name));
+      if (f) return f;
+    }
+    // auto ou não achou pelo gênero
+    return list[0];
+  }
+  return availableVoices[0];
+}
+
+function populateVoiceDropdown() {
+  const sel = document.getElementById('cfgVoice');
+  if (!sel) return;
+  sel.innerHTML = '';
+
+  if (!availableVoices.length) loadVoices();
+  const enVoices = availableVoices.filter(v => v.lang && v.lang.startsWith('en'));
+
+  const auto = document.createElement('option');
+  auto.value = '';
+  auto.textContent = 'Auto (use gender preference above)';
+  sel.appendChild(auto);
+
+  const langs = [...new Set(enVoices.map(v => v.lang))].sort();
+  for (const lang of langs) {
+    const group = document.createElement('optgroup');
+    group.label = lang;
+    for (const v of enVoices.filter(v => v.lang === lang).sort((a, b) => a.name.localeCompare(b.name))) {
+      const opt = document.createElement('option');
+      opt.value = v.name;
+      const suffix = guessMale(v.name) ? '  ♂'
+                   : guessFemale(v.name) ? '  ♀'
+                   : '';
+      opt.textContent = v.name + suffix;
+      group.appendChild(opt);
+    }
+    sel.appendChild(group);
+  }
+
+  sel.value = state.config.voiceName || '';
 }
 
 function speakText(text) {
@@ -1684,11 +1794,44 @@ function isStandaloneMode() {
 }
 
 let currentRecognition = null;
+let currentRecorder = null;
+let currentStream = null;
 
+// Decide qual modo de STT usar e dispara
 function startListening(targetTextarea, micBtn) {
+  if (state.isListening) { stopListening(); return; }
+
+  const standalone = isStandaloneMode();
+  const hasGroq = !!state.config.keys.groq;
+  const SR = getSpeechRecognition();
+  const wantWhisper = state.config.useWhisper && hasGroq;
+  const canMediaRec = typeof MediaRecorder !== 'undefined' && navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
+
+  // Em standalone, Web Speech NÃO funciona — só Whisper
+  if (standalone) {
+    if (canMediaRec && hasGroq) {
+      return startWhisperRecording(targetTextarea, micBtn);
+    }
+    toast('Mic in home-screen mode needs Groq key + a modern iOS. Add Groq in Settings.');
+    return;
+  }
+
+  // Modo normal: respeita preferência
+  if (wantWhisper && canMediaRec) {
+    return startWhisperRecording(targetTextarea, micBtn);
+  }
+  if (SR) {
+    return startWebSpeechRecognition(targetTextarea, micBtn);
+  }
+  if (canMediaRec && hasGroq) {
+    return startWhisperRecording(targetTextarea, micBtn);
+  }
+  toast('Microphone not supported on this browser.');
+}
+
+function startWebSpeechRecognition(targetTextarea, micBtn) {
   const SR = getSpeechRecognition();
   if (!SR) { toast('Microphone not supported on this browser'); return; }
-  if (state.isListening) { stopListening(); return; }
 
   try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch {}
 
@@ -1759,11 +1902,132 @@ function startListening(targetTextarea, micBtn) {
   }
 }
 
+// ===== STT VIA GROQ WHISPER =====
+async function startWhisperRecording(targetTextarea, micBtn) {
+  const groqKey = state.config.keys.groq;
+  if (!groqKey) { toast('Add your Groq API key in Settings to use voice'); return; }
+
+  try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch {}
+
+  // Pede permissão de mic
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch (err) {
+    toast('Microphone permission denied');
+    return;
+  }
+  currentStream = stream;
+
+  // Detecta formato suportado
+  let mimeType = '';
+  for (const mt of ['audio/mp4', 'audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/wav']) {
+    try {
+      if (MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(mt)) { mimeType = mt; break; }
+    } catch {}
+  }
+
+  let mr;
+  try {
+    mr = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+  } catch (err) {
+    stream.getTracks().forEach(t => t.stop());
+    toast('Could not start recorder: ' + (err.message || err.name));
+    return;
+  }
+
+  const chunks = [];
+  mr.ondataavailable = (e) => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+
+  mr.onstop = async () => {
+    try { stream.getTracks().forEach(t => t.stop()); } catch {}
+    currentStream = null;
+    state.isListening = false;
+    micBtn.classList.remove('listening');
+    micBtn.title = 'Speak';
+
+    if (chunks.length === 0) { showListeningHint(false); return; }
+
+    showListeningHint(true, '🔄 Transcribing...');
+    const blob = new Blob(chunks, { type: mimeType || 'audio/mp4' });
+    try {
+      const text = await transcribeWithWhisper(blob, groqKey, mimeType);
+      if (text && text.trim()) {
+        targetTextarea.value = text.trim();
+        targetTextarea.focus();
+        // dispara input event pra resize do textarea se houver
+        targetTextarea.dispatchEvent(new Event('input', { bubbles: true }));
+      } else {
+        toast("I didn't catch that — try again");
+      }
+    } catch (err) {
+      console.log('Whisper error:', err);
+      toast('Transcription failed: ' + (err.message || 'unknown'));
+    } finally {
+      showListeningHint(false);
+    }
+  };
+
+  state.isListening = true;
+  currentRecorder = mr;
+  micBtn.classList.add('listening');
+  micBtn.title = 'Tap to stop and transcribe';
+  showListeningHint(true, '🔴 Recording… speak now, tap 🎤 when finished.');
+
+  try {
+    mr.start();
+  } catch (err) {
+    state.isListening = false;
+    micBtn.classList.remove('listening');
+    showListeningHint(false);
+    try { stream.getTracks().forEach(t => t.stop()); } catch {}
+    toast('Recorder failed: ' + (err.message || err.name));
+  }
+}
+
+async function transcribeWithWhisper(blob, key, mimeType) {
+  const form = new FormData();
+  // Extensão coerente com mimeType (Whisper aceita várias)
+  const ext = mimeType && mimeType.includes('webm') ? 'webm'
+            : mimeType && mimeType.includes('ogg') ? 'ogg'
+            : mimeType && mimeType.includes('wav') ? 'wav'
+            : 'm4a';
+  form.append('file', blob, 'audio.' + ext);
+  form.append('model', 'whisper-large-v3-turbo');
+  const langCode = (state.config.accent || 'en-US').split('-')[0];
+  form.append('language', langCode);
+  form.append('response_format', 'json');
+  form.append('temperature', '0');
+
+  const r = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + key },
+    body: form,
+  });
+  if (!r.ok) {
+    let detail = '';
+    try { detail = (await r.json()).error?.message || ''; } catch {}
+    const e = new Error('Whisper HTTP ' + r.status + (detail ? ' — ' + detail : ''));
+    e.status = r.status;
+    throw e;
+  }
+  const data = await r.json();
+  return data.text || '';
+}
+
 function stopListening() {
   state.userWantsListening = false;
   if (currentRecognition) {
     try { currentRecognition.stop(); } catch {}
     currentRecognition = null;
+  }
+  if (currentRecorder && currentRecorder.state && currentRecorder.state !== 'inactive') {
+    try { currentRecorder.stop(); } catch {}
+  }
+  currentRecorder = null;
+  if (currentStream) {
+    try { currentStream.getTracks().forEach(t => t.stop()); } catch {}
+    currentStream = null;
   }
   state.isListening = false;
   document.querySelectorAll('.mic.listening').forEach(b => {
@@ -1773,14 +2037,15 @@ function stopListening() {
   showListeningHint(false);
 }
 
-function showListeningHint(on) {
+function showListeningHint(on, msg) {
   let hint = document.getElementById('listeningHint');
   if (on) {
-    if (hint) return;
-    hint = document.createElement('div');
-    hint.id = 'listeningHint';
-    hint.textContent = '🔴 Listening… tap 🎤 again when you finish.';
-    document.body.appendChild(hint);
+    if (!hint) {
+      hint = document.createElement('div');
+      hint.id = 'listeningHint';
+      document.body.appendChild(hint);
+    }
+    hint.textContent = msg || '🔴 Listening… tap 🎤 again when you finish.';
   } else if (hint) {
     hint.remove();
   }
@@ -1789,15 +2054,20 @@ function showListeningHint(on) {
 function applyMicVisibility() {
   const SR = getSpeechRecognition();
   const standalone = isStandaloneMode();
-  const supported = !!SR;
-  const usable = supported && !standalone;
-  document.getElementById('chatMicBtn').style.display = usable ? 'flex' : 'none';
-  document.getElementById('askMicBtn').style.display = usable ? 'flex' : 'none';
-  if (!supported) return;
-  if (standalone) {
-    // Esconde mic no modo PWA standalone (limitação iOS Safari)
-    console.log('Standalone mode detected — mic disabled (iOS PWA limitation)');
-  }
+  const hasGroq = !!state.config.keys.groq;
+  const hasMediaRec = typeof MediaRecorder !== 'undefined' && navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
+
+  // Mic usável se:
+  //  - Web Speech disponível e não em standalone, OU
+  //  - MediaRecorder disponível e tem Groq key (funciona em qualquer modo, inclusive PWA)
+  const canWebSpeech = !!SR && !standalone;
+  const canWhisper = hasMediaRec && hasGroq;
+  const usable = canWebSpeech || canWhisper;
+
+  const chatBtn = document.getElementById('chatMicBtn');
+  const askBtn = document.getElementById('askMicBtn');
+  if (chatBtn) chatBtn.style.display = usable ? 'flex' : 'none';
+  if (askBtn) askBtn.style.display = usable ? 'flex' : 'none';
 }
 
 // ===== SETTINGS RENDER =====
@@ -1825,6 +2095,7 @@ function renderApiKeys() {
       saveConfig();
       renderApiKeys();
       updateQuotaBanner();
+      applyMicVisibility(); // groq key habilita mic em standalone
     });
   });
 }
@@ -1834,6 +2105,7 @@ function bindSettings() {
     cfgVoiceOn: 'voiceOn',
     cfgAutoSpeak: 'autoSpeak',
     cfgPtHelper: 'ptHelper',
+    cfgUseWhisper: 'useWhisper',
   };
   for (const [el, key] of Object.entries(map)) {
     const inp = document.getElementById(el);
@@ -1853,7 +2125,29 @@ function bindSettings() {
   // selects
   const cfgAccent = document.getElementById('cfgAccent');
   cfgAccent.value = state.config.accent || 'en-US';
-  cfgAccent.addEventListener('change', () => { state.config.accent = cfgAccent.value; saveConfig(); });
+  cfgAccent.addEventListener('change', () => {
+    state.config.accent = cfgAccent.value;
+    saveConfig();
+    populateVoiceDropdown();
+  });
+
+  const cfgVoiceGender = document.getElementById('cfgVoiceGender');
+  cfgVoiceGender.value = state.config.voiceGender || 'male';
+  cfgVoiceGender.addEventListener('change', () => {
+    state.config.voiceGender = cfgVoiceGender.value;
+    saveConfig();
+  });
+
+  const cfgVoice = document.getElementById('cfgVoice');
+  populateVoiceDropdown();
+  cfgVoice.addEventListener('change', () => {
+    state.config.voiceName = cfgVoice.value;
+    saveConfig();
+  });
+
+  document.getElementById('btnTestVoice').onclick = () => {
+    speakText("Hi Jean! I'm Mr. Wilson. This is how I sound. Ready to practice your English?");
+  };
 
   const cfgCorr = document.getElementById('cfgCorrection');
   cfgCorr.value = state.config.correction || 'gentle';
