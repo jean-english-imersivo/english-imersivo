@@ -759,6 +759,9 @@
             <span class="hint">Override above with a specific voice on your device</span>
           </label>
           <select id="cfgVoice" style="width:100%;"></select>
+          <div id="voiceDownloadHint" style="display:none;margin-top:8px;padding:10px;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);border-radius:8px;font-size:11px;line-height:1.5;color:#fbbf24;">
+            💡 <strong>Vozes estão robotizadas?</strong> No iPhone: <em>Ajustes → Acessibilidade → Conteúdo Falado → Vozes → Inglês</em> → baixe uma "Enhanced" ou "Premium" (Aaron, Evan, Tom, Nathan). Depois volte aqui — ela vai aparecer com 🌟 no topo desta lista.
+          </div>
           <button id="btnTestVoice" style="margin-top:8px;background:rgba(139,92,246,0.2);border:1px solid rgba(139,92,246,0.4);color:#a78bfa;padding:6px 12px;border-radius:10px;font-size:12px;cursor:pointer;">🔊 Test selected voice</button>
         </div>
         <div class="settings-row">
@@ -1700,6 +1703,24 @@ function guessFemale(name) {
   return FEMALE_VOICE_NAMES.some(f => n.includes(f));
 }
 
+// Score de "naturalidade" — quanto maior, melhor a voz. Ordem baseada no iOS/macOS/Windows.
+function voiceQualityScore(v) {
+  const n = (v.name || '').toLowerCase();
+  let score = 0;
+  if (n.includes('siri')) score += 100;              // Siri Voices (iOS 15+) — top de linha
+  if (n.includes('neural') || n.includes('natural')) score += 90;  // Windows/Azure neural voices
+  if (n.includes('premium')) score += 80;             // iOS Premium
+  if (n.includes('enhanced')) score += 60;            // iOS Enhanced
+  if (n.includes('online')) score += 50;              // Google/Chrome online voices
+  if (n.includes('compact')) score -= 20;             // iOS Compact (robotizada)
+  if (v.localService === false) score += 10;          // vozes de rede (Chrome/Edge) costumam ser boas
+  return score;
+}
+
+function isPremiumVoice(v) {
+  return voiceQualityScore(v) >= 60;
+}
+
 function pickVoice() {
   if (!availableVoices.length) loadVoices();
   if (!availableVoices.length) return null;
@@ -1713,23 +1734,32 @@ function pickVoice() {
   const wantedLang = state.config.accent || 'en-US';
   const gender = state.config.voiceGender || 'male';
 
-  // 2. Em ordem: lang exato → mesma família → qualquer
+  // Filtro por gênero
+  const genderFilter = (v) => {
+    if (gender === 'male') return guessMale(v.name) && !guessFemale(v.name);
+    if (gender === 'female') return guessFemale(v.name) && !guessMale(v.name);
+    return true;
+  };
+
+  // 2. Ordena candidatos: primeiro por qualidade (Enhanced/Premium/Siri), depois por match de gênero
   const exactLang = availableVoices.filter(v => v.lang === wantedLang);
   const base = wantedLang.split('-')[0];
   const sameBase = availableVoices.filter(v => v.lang && v.lang.startsWith(base));
-  const others = availableVoices;
 
-  for (const list of [exactLang, sameBase, others]) {
+  for (const list of [exactLang, sameBase, availableVoices]) {
     if (!list.length) continue;
-    if (gender === 'male') {
-      const m = list.find(v => guessMale(v.name) && !guessFemale(v.name));
-      if (m) return m;
-    } else if (gender === 'female') {
-      const f = list.find(v => guessFemale(v.name) && !guessMale(v.name));
-      if (f) return f;
+
+    // Ordena por qualidade DESC
+    const sorted = [...list].sort((a, b) => voiceQualityScore(b) - voiceQualityScore(a));
+
+    // Primeiro tenta achar match de gênero + qualidade alta
+    if (gender !== 'auto') {
+      const match = sorted.find(genderFilter);
+      if (match) return match;
     }
-    // auto ou não achou pelo gênero
-    return list[0];
+
+    // Fallback: melhor voz da lista (mesmo que não bata o gênero)
+    return sorted[0];
   }
   return availableVoices[0];
 }
@@ -1744,26 +1774,54 @@ function populateVoiceDropdown() {
 
   const auto = document.createElement('option');
   auto.value = '';
-  auto.textContent = 'Auto (use gender preference above)';
+  auto.textContent = '⭐ Auto (best available)';
   sel.appendChild(auto);
 
-  const langs = [...new Set(enVoices.map(v => v.lang))].sort();
-  for (const lang of langs) {
+  // Grupo especial: só as premium/enhanced/siri no topo
+  const premiums = enVoices.filter(isPremiumVoice)
+    .sort((a, b) => voiceQualityScore(b) - voiceQualityScore(a));
+  if (premiums.length) {
     const group = document.createElement('optgroup');
-    group.label = lang;
-    for (const v of enVoices.filter(v => v.lang === lang).sort((a, b) => a.name.localeCompare(b.name))) {
+    group.label = '🌟 Premium / Enhanced / Siri';
+    for (const v of premiums) {
       const opt = document.createElement('option');
       opt.value = v.name;
-      const suffix = guessMale(v.name) ? '  ♂'
-                   : guessFemale(v.name) ? '  ♀'
-                   : '';
-      opt.textContent = v.name + suffix;
+      const genderMark = guessMale(v.name) ? ' ♂' : guessFemale(v.name) ? ' ♀' : '';
+      opt.textContent = `🌟 ${v.name}${genderMark} (${v.lang})`;
+      group.appendChild(opt);
+    }
+    sel.appendChild(group);
+  }
+
+  // Restante agrupado por idioma
+  const langs = [...new Set(enVoices.map(v => v.lang))].sort();
+  for (const lang of langs) {
+    const list = enVoices.filter(v => v.lang === lang && !isPremiumVoice(v))
+      .sort((a, b) => a.name.localeCompare(b.name));
+    if (!list.length) continue;
+    const group = document.createElement('optgroup');
+    group.label = lang + ' (standard)';
+    for (const v of list) {
+      const opt = document.createElement('option');
+      opt.value = v.name;
+      const genderMark = guessMale(v.name) ? ' ♂' : guessFemale(v.name) ? ' ♀' : '';
+      opt.textContent = v.name + genderMark;
       group.appendChild(opt);
     }
     sel.appendChild(group);
   }
 
   sel.value = state.config.voiceName || '';
+
+  // Se não há voz premium instalada, mostra dica logo abaixo
+  const hint = document.getElementById('voiceDownloadHint');
+  if (hint) {
+    if (premiums.length === 0) {
+      hint.style.display = 'block';
+    } else {
+      hint.style.display = 'none';
+    }
+  }
 }
 
 function speakText(text) {
