@@ -763,6 +763,7 @@
             💡 <strong>Vozes estão robotizadas?</strong> No iPhone: <em>Ajustes → Acessibilidade → Conteúdo Falado → Vozes → Inglês</em> → baixe uma "Enhanced" ou "Premium" (Aaron, Evan, Tom, Nathan). Depois volte aqui — ela vai aparecer com 🌟 no topo desta lista.
           </div>
           <button id="btnTestVoice" style="margin-top:8px;background:rgba(139,92,246,0.2);border:1px solid rgba(139,92,246,0.4);color:#a78bfa;padding:6px 12px;border-radius:10px;font-size:12px;cursor:pointer;">🔊 Test selected voice</button>
+          <button id="btnVoiceDiag" style="margin-top:6px;background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.35);color:#fbbf24;padding:6px 12px;border-radius:10px;font-size:12px;cursor:pointer;">🐛 Diagnóstico de voz (tirar print e mandar)</button>
         </div>
         <div class="settings-row">
           <label>Better speech recognition (Whisper)
@@ -1764,6 +1765,60 @@ function pickVoice() {
   return availableVoices[0];
 }
 
+function showVoiceDiagnostic() {
+  // Força recarregar vozes (às vezes o iOS demora)
+  loadVoices();
+
+  const ov = document.createElement('div');
+  ov.className = 'overlay';
+  ov.id = 'voiceDiagOverlay';
+
+  const enVoices = availableVoices.filter(v => v.lang && v.lang.startsWith('en'));
+  const chosen = pickVoice();
+
+  const ua = navigator.userAgent;
+  const isStandalone = isStandaloneMode();
+
+  let rows = '';
+  const sorted = [...enVoices].sort((a, b) => voiceQualityScore(b) - voiceQualityScore(a));
+  for (const v of sorted) {
+    const isChosen = chosen && v.name === chosen.name;
+    const premium = isPremiumVoice(v);
+    const gender = guessMale(v.name) ? '♂' : guessFemale(v.name) ? '♀' : '?';
+    const local = v.localService ? 'local' : 'network';
+    const dflt = v.default ? ' [default]' : '';
+    rows += `<div style="padding:6px 8px;border-bottom:1px solid rgba(255,255,255,0.05);${isChosen ? 'background:rgba(139,92,246,0.15);' : ''}">
+      ${isChosen ? '👉 ' : '&nbsp;&nbsp;&nbsp;'}${premium ? '🌟 ' : ''}<strong>${escapeHtml(v.name)}</strong> ${gender}<br>
+      <span style="opacity:0.7;font-size:11px;">${escapeHtml(v.lang)} · ${local}${dflt} · score ${voiceQualityScore(v)}</span>
+    </div>`;
+  }
+  if (!rows) rows = '<div style="opacity:0.6;padding:12px;text-align:center;">(nenhuma voz em inglês listada — iOS pode não estar expondo vozes ao Safari)</div>';
+
+  ov.innerHTML = `
+    <div class="overlay-card" style="max-width:480px;">
+      <h2>🐛 Diagnóstico de voz</h2>
+      <p style="font-size:11px;opacity:0.7;margin-bottom:8px;">
+        Vozes que o Safari está listando pra este dispositivo.<br>
+        <strong>Tire print desta tela inteira e envie no chat.</strong>
+      </p>
+      <div style="font-size:11px;opacity:0.6;margin-bottom:10px;padding:6px;background:rgba(0,0,0,0.3);border-radius:6px;word-break:break-all;">
+        <strong>Standalone mode:</strong> ${isStandalone ? 'YES (ícone da tela)' : 'NO (via Safari)'}<br>
+        <strong>Total vozes:</strong> ${availableVoices.length} · <strong>Em inglês:</strong> ${enVoices.length}<br>
+        <strong>Voz atualmente escolhida:</strong> ${chosen ? escapeHtml(chosen.name) + ' (' + escapeHtml(chosen.lang) + ')' : '(nenhuma)'}<br>
+        <strong>Gender preference:</strong> ${escapeHtml(state.config.voiceGender || 'male')}<br>
+        <strong>voiceName no config:</strong> ${escapeHtml(state.config.voiceName || '(auto)')}<br>
+        <strong>UA:</strong> ${escapeHtml(ua.substring(0, 120))}
+      </div>
+      <div style="max-height:50vh;overflow-y:auto;background:rgba(0,0,0,0.2);border-radius:8px;padding:4px;font-size:12px;line-height:1.4;">
+        ${rows}
+      </div>
+      <button id="closeVoiceDiag">Fechar</button>
+    </div>
+  `;
+  document.body.appendChild(ov);
+  document.getElementById('closeVoiceDiag').onclick = () => ov.remove();
+}
+
 function populateVoiceDropdown() {
   const sel = document.getElementById('cfgVoice');
   if (!sel) return;
@@ -2206,6 +2261,8 @@ function bindSettings() {
   document.getElementById('btnTestVoice').onclick = () => {
     speakText("Hi Jean! I'm Mr. Wilson. This is how I sound. Ready to practice your English?");
   };
+
+  document.getElementById('btnVoiceDiag').onclick = showVoiceDiagnostic;
 
   const cfgCorr = document.getElementById('cfgCorrection');
   cfgCorr.value = state.config.correction || 'gentle';
