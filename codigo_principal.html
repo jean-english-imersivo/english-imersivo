@@ -698,7 +698,7 @@
         <div class="ask-examples">Tip: ask in English to stay immersive.</div>
         <div class="ask-row">
           <button class="mic" id="askMicBtn" title="Speak">🎤</button>
-          <button id="askSendBtn">Ask Mr. Wilson</button>
+          <button id="askSendBtn">Ask Ms. Marie</button>
         </div>
       </div>
       <div class="ask-history-block" id="askHistory"></div>
@@ -717,7 +717,7 @@
       <div class="settings-group">
         <h3>🎙️ Voice</h3>
         <div class="settings-row">
-          <label>Mr. Wilson speaks out loud
+          <label>Ms. Marie speaks out loud
             <span class="hint">Tap a message to hear it</span>
           </label>
           <div class="switch">
@@ -749,8 +749,8 @@
             <span class="hint">Auto-pick masculine or feminine voice</span>
           </label>
           <select id="cfgVoiceGender">
-            <option value="male">Male (Mr. Wilson)</option>
-            <option value="female">Female</option>
+            <option value="female">Female (Ms. Marie)</option>
+            <option value="male">Male</option>
             <option value="auto">Auto / system default</option>
           </select>
         </div>
@@ -780,7 +780,7 @@
         <h3>👨‍🏫 Teaching style</h3>
         <div class="settings-row">
           <label>Correction mode
-            <span class="hint">How Mr. Wilson fixes your English</span>
+            <span class="hint">How Ms. Marie fixes your English</span>
           </label>
           <select id="cfgCorrection">
             <option value="off">Off — just talk</option>
@@ -884,8 +884,8 @@ const PROVIDERS = {
   },
 };
 
-// === System prompt do Mr. Wilson (adaptado do English Assistant desktop) ===
-const MR_WILSON_SYSTEM = `You are "Mr. Wilson", a patient and friendly English conversation teacher.
+// === System prompt da Ms. Marie (adaptado do English Assistant desktop) ===
+const MS_MARIE_SYSTEM = `You are "Ms. Marie", a patient and friendly English conversation teacher.
 Your student is Jean, a Brazilian beginner who has been studying English
 for several months at TopWay, an immersive English school in Brazil.
 He feels stuck and shy about speaking.
@@ -977,9 +977,9 @@ Every message has 3 parts:
   to say.
 
 == NAME PREFIX (very important) ==
-- NEVER start your reply with "Mr. Wilson:" or any name tag.
+- NEVER start your reply with "Ms. Marie:" or any name tag.
 - NEVER write your name at all. Just answer directly as if you were speaking.
-- Bad: "Mr. Wilson: That's great, Jean!"
+- Bad: "Ms. Marie: That's great, Jean!"
 - Good: "That's great, Jean!"
 
 == USING PAST CONVERSATIONS ==
@@ -993,7 +993,7 @@ Every message has 3 parts:
   moment ("by the way, last time you struggled with X — want to try
   again now?"), but do not lecture.
 
-You are Mr. Wilson. Begin every reply directly as Mr. Wilson would, with
+You are Ms. Marie. Begin every reply directly as Ms. Marie would, with
 NO name prefix and NO meta-comments.`;
 
 // === Topics data ===
@@ -1190,8 +1190,8 @@ function loadConfig() {
     voiceOn: true,
     autoSpeak: false,
     accent: 'en-US',
-    voiceName: '',           // nome específico da voz (vazio = auto, preferindo masculino)
-    voiceGender: 'male',     // 'male' | 'female' | 'auto'
+    voiceName: '',           // nome específico da voz (vazio = auto, preferindo feminino - Ms. Marie)
+    voiceGender: 'female',   // 'male' | 'female' | 'auto'
     useWhisper: true,        // STT via Groq Whisper (muito mais preciso) — fallback Web Speech
     correction: 'gentle',
     ptHelper: true,
@@ -1349,7 +1349,7 @@ async function callMistral(messages, key, maxTokens, temperature) {
   return txt.trim();
 }
 
-// ===== CHAT (Mr. Wilson) =====
+// ===== CHAT (Ms. Marie) =====
 async function sendChatMessage(text) {
   if (!text.trim()) return;
   if (!hasAnyKey()) { showOnboarding(); return; }
@@ -1378,7 +1378,7 @@ ${conversationSoFar || '(this is the first message)'}
 ${text}`;
 
   const messages = [
-    { role: 'system', content: MR_WILSON_SYSTEM },
+    { role: 'system', content: MS_MARIE_SYSTEM },
     { role: 'user', content: userBlock },
   ];
 
@@ -1396,13 +1396,13 @@ ${text}`;
   }
 }
 
-// Remove prefixos "Mr. Wilson:" / "Teacher:" / "Mr Wilson:" no início da resposta
+// Remove prefixos "Ms. Marie:" / "Mr. Wilson:" / "Teacher:" no início da resposta
 function stripNamePrefix(text) {
   if (!text) return text;
-  return text.replace(/^\s*(Mr\.?\s*Wilson|Teacher|Professor|MR\.?\s*WILSON)\s*[:\-—]\s*/i, '').trim();
+  return text.replace(/^\s*(Ms\.?\s*Marie|Mrs\.?\s*Marie|Miss\s+Marie|Marie|Mr\.?\s*Wilson|Teacher|Professor)\s*[:\-—]\s*/i, '').trim();
 }
 
-// Monta bloco [PAST CONVERSATIONS SUMMARY] pro prompt do Mr. Wilson
+// Monta bloco [PAST CONVERSATIONS SUMMARY] pro prompt da Ms. Marie
 function buildPastConvsBlock() {
   if (!state.pastConvs || state.pastConvs.length === 0) return '';
   // Pega últimos 10 resumos pra não estourar tokens
@@ -1469,7 +1469,7 @@ function renderChatFromHistory() {
   if (state.chatHistory.length === 0) {
     const intro = document.createElement('div');
     intro.className = 'msg system';
-    intro.textContent = "Tap 'Send' or 🎤 to start. Mr. Wilson is ready to chat with you in English!";
+    intro.textContent = "Tap 'Send' or 🎤 to start. Ms. Marie is ready to chat with you in English!";
     container.appendChild(intro);
     return;
   }
@@ -1483,12 +1483,13 @@ async function explainTopic(topicLabel, subtopic, btnEl) {
   if (!hasAnyKey()) { showOnboarding(); return; }
   if (btnEl) btnEl.textContent = 'Loading...';
 
-  const system = `You are Mr. Wilson teaching Jean (Brazilian beginner, TopWay immersive English school).
+  const system = `You are Ms. Marie teaching Jean (Brazilian beginner, TopWay immersive English school).
 Topic: "${topicLabel}". Specific item: "${subtopic}".
 Style: 100% immersive English (never translate unless Jean explicitly asks).
 Use real-life DIALOGUES, SITUATIONS and ACTIONS — not just object names.
 Show how the word lives in real conversation. Use simple vocabulary.
-4 to 8 short sentences. Plain text (will be spoken). No markdown.`;
+4 to 8 short sentences. Plain text (will be spoken). No markdown.
+Do NOT prefix your reply with "Ms. Marie:" or any name tag.`;
 
   const userBlock = `Please explain "${subtopic}" so I can really understand and remember it. Give clear examples in real-life situations.`;
 
@@ -1613,11 +1614,12 @@ async function askAnything(question) {
   askSendBtn.disabled = true;
   askSendBtn.textContent = 'Thinking...';
 
-  const system = `You are Mr. Wilson, an immersive English teacher.
+  const system = `You are Ms. Marie, an immersive English teacher.
 Jean (Brazilian beginner, TopWay immersive school) asks an open question.
 Answer in 100% immersive English (never translate unless explicitly asked).
 Use examples with REAL-LIFE situations, dialogues, verbs, actions — not just object names.
-Plain text. 4 to 10 short sentences. No markdown, no emojis.`;
+Plain text. 4 to 10 short sentences. No markdown, no emojis.
+Do NOT prefix your reply with "Ms. Marie:" or any name tag.`;
 
   const messages = [
     { role: 'system', content: system },
@@ -1637,7 +1639,7 @@ Plain text. 4 to 10 short sentences. No markdown, no emojis.`;
     renderAskHistory();
   } finally {
     askSendBtn.disabled = false;
-    askSendBtn.textContent = 'Ask Mr. Wilson';
+    askSendBtn.textContent = 'Ask Ms. Marie';
   }
 }
 
@@ -1733,7 +1735,7 @@ function pickVoice() {
   }
 
   const wantedLang = state.config.accent || 'en-US';
-  const gender = state.config.voiceGender || 'male';
+  const gender = state.config.voiceGender || 'female';
 
   // Filtro por gênero
   const genderFilter = (v) => {
@@ -2245,7 +2247,7 @@ function bindSettings() {
   });
 
   const cfgVoiceGender = document.getElementById('cfgVoiceGender');
-  cfgVoiceGender.value = state.config.voiceGender || 'male';
+  cfgVoiceGender.value = state.config.voiceGender || 'female';
   cfgVoiceGender.addEventListener('change', () => {
     state.config.voiceGender = cfgVoiceGender.value;
     saveConfig();
@@ -2259,7 +2261,7 @@ function bindSettings() {
   });
 
   document.getElementById('btnTestVoice').onclick = () => {
-    speakText("Hi Jean! I'm Mr. Wilson. This is how I sound. Ready to practice your English?");
+    speakText("Hi Jean! I'm Ms. Marie. This is how I sound. Ready to practice your English?");
   };
 
   document.getElementById('btnVoiceDiag').onclick = showVoiceDiagnostic;
@@ -2306,7 +2308,7 @@ function bindSettings() {
   document.getElementById('btnClearPastConvs').onclick = () => {
     const count = state.pastConvs.length;
     if (count === 0) { toast('No past conversations to clear.'); return; }
-    if (confirm(`Apagar a memória de longo prazo (${count} conversas resumidas)?\n\nMr. Wilson vai esquecer o que conversamos antes. As conversas atuais não são afetadas.`)) {
+    if (confirm(`Apagar a memória de longo prazo (${count} conversas resumidas)?\n\nMs. Marie vai esquecer o que conversamos antes. As conversas atuais não são afetadas.`)) {
       state.pastConvs = [];
       savePastConvs();
       toast('Long-term memory cleared');
@@ -2346,7 +2348,7 @@ async function startNewConversation() {
   }
   const choice = await confirmModal(
     'Nova conversa',
-    'Quer salvar um resumo desta conversa pra acompanhar sua evolução? Mr. Wilson vai lembrar dos pontos principais nas próximas conversas.',
+    'Quer salvar um resumo desta conversa pra acompanhar sua evolução? Ms. Marie vai lembrar dos pontos principais nas próximas conversas.',
     [
       { label: 'Sim, salvar e começar nova', value: 'save' },
       { label: 'Não, só apagar', value: 'discard' },
@@ -2415,7 +2417,7 @@ async function showProgressReport() {
   if (!hasAnyKey()) { showOnboarding(); return; }
   const total = state.pastConvs.length;
   if (total === 0 && state.chatHistory.length < 4) {
-    toast('Converse com Mr. Wilson um pouco antes para gerar relatório.');
+    toast('Converse com Ms. Marie um pouco antes para gerar relatório.');
     return;
   }
 
@@ -2600,7 +2602,7 @@ function init() {
   state.quotaState = loadQuotaState();
   state.pastConvs = loadPastConvs();
 
-  // Limpa prefixos "Mr. Wilson:" de mensagens antigas salvas
+  // Limpa prefixos "Mr. Wilson:" / "Ms. Marie:" de mensagens antigas salvas
   let anyChanged = false;
   for (const m of state.chatHistory) {
     if (m.role === 'assistant') {
