@@ -2960,7 +2960,8 @@ function openSubtopics(topic) {
     item.className = 'subtopic-item';
     item.innerHTML = `<div class="label">${st}</div>`;
     item.onclick = (ev) => {
-      if (ev.target.closest('.ctrl')) return;
+      // Não recolhe se o clique foi em controle, no campo Ask ou na resposta
+      if (ev.target.closest('.ctrl') || ev.target.closest('.topic-ask-area')) return;
       toggleSubtopicExplain(item, topic, st);
     };
     inner.appendChild(item);
@@ -3013,9 +3014,99 @@ async function toggleSubtopicExplain(item, topic, subtopic) {
     item.classList.remove('expanded');
     exp.remove();
     ctrl.remove();
+    const ask = item.querySelector('.topic-ask-area');
+    if (ask) ask.remove();
   };
   ctrl.appendChild(closeBtn);
   item.appendChild(ctrl);
+
+  // Campo Ask contextual — pergunta livre sobre este tópico específico
+  const askArea = document.createElement('div');
+  askArea.className = 'topic-ask-area';
+  askArea.style.cssText = 'margin-top:10px; padding-top:10px; border-top:1px dashed rgba(255,255,255,0.15);';
+  askArea.innerHTML = `
+    <div style="font-size:11px; opacity:0.7; margin-bottom:6px;">🤔 Still have a question about this topic? (Ainda com dúvida?)</div>
+    <div style="display:flex; gap:6px;">
+      <input type="text" class="topic-ask-input" placeholder="Ask about this..." style="flex:1; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:8px 10px; color:#fff; font-size:13px; font-family:inherit; outline:none;">
+      <button class="topic-ask-btn" style="background:linear-gradient(135deg,#6366f1,#8b5cf6); border:none; color:#fff; padding:8px 14px; border-radius:8px; font-size:13px; cursor:pointer; font-family:inherit;">Ask</button>
+    </div>
+    <div class="topic-ask-response" style="display:none; margin-top:10px;"></div>
+  `;
+  item.appendChild(askArea);
+
+  const askInput = askArea.querySelector('.topic-ask-input');
+  const askBtn = askArea.querySelector('.topic-ask-btn');
+  const askResp = askArea.querySelector('.topic-ask-response');
+
+  // Impede que cliques no campo/botão/resposta recolham o subtópico
+  askArea.addEventListener('click', (ev) => ev.stopPropagation());
+
+  async function submitTopicQuestion() {
+    const q = askInput.value.trim();
+    if (!q) return;
+    if (!hasAnyKey()) { toast('Add API keys in Settings first'); return; }
+
+    askBtn.disabled = true;
+    askBtn.textContent = '...';
+    askResp.style.display = 'block';
+    askResp.innerHTML = '<div style="opacity:0.6; font-size:12px;">Thinking...</div>';
+
+    try {
+      const system = `You are Ms. Marie, helping Jean (Brazilian beginner, TopWay immersive English school) with a specific English topic.
+
+He is currently studying the topic "${topic.titulo}", specifically the sub-item "${subtopic}".
+
+Here is the reference material he already sees on screen:
+---
+${text}
+---
+
+Answer HIS specific question below. Rules:
+- Stay focused on this topic. Do not switch subjects.
+- Reply in immersive English (unless he explicitly asks in Portuguese or asks for a Portuguese hint).
+- Be concise: 3-7 short sentences. Prefer real-life examples over dry rules.
+- Plain text, no markdown, no emojis, no name prefix.
+- If he asks something unrelated to this topic, gently redirect: "Great question — that's more about X. For now, let's focus on ${subtopic}. About it, ..."`;
+
+      const messages = [
+        { role: 'system', content: system },
+        { role: 'user', content: q },
+      ];
+
+      const { text: rawAnswer } = await callLLM(messages, { maxTokens: 400 });
+      const answer = stripNamePrefix(rawAnswer);
+
+      askResp.innerHTML = `
+        <div style="background:rgba(139,92,246,0.1); border:1px solid rgba(139,92,246,0.3); border-radius:10px; padding:12px; font-size:13px; line-height:1.6; white-space:pre-wrap;">${escapeHtml(answer)}</div>
+        <div style="display:flex; gap:6px; margin-top:6px;">
+          <button class="topic-ask-hear" style="background:rgba(255,255,255,0.1); border:none; color:#fff; padding:4px 10px; border-radius:12px; font-size:11px; cursor:pointer;">🔊 Hear</button>
+          <button class="topic-ask-clear" style="background:rgba(255,255,255,0.1); border:none; color:#fff; padding:4px 10px; border-radius:12px; font-size:11px; cursor:pointer;">✕ Clear</button>
+        </div>
+      `;
+      askResp.querySelector('.topic-ask-hear').onclick = (ev) => {
+        ev.stopPropagation();
+        speakText(answer);
+      };
+      askResp.querySelector('.topic-ask-clear').onclick = (ev) => {
+        ev.stopPropagation();
+        askResp.style.display = 'none';
+        askResp.innerHTML = '';
+        askInput.value = '';
+        askInput.focus();
+      };
+      if (state.config.voiceOn && state.config.autoSpeak) speakText(answer);
+    } catch (err) {
+      askResp.innerHTML = `<div style="color:#fca5a5; font-size:12px;">⚠️ ${escapeHtml(err.message)}</div>`;
+    } finally {
+      askBtn.disabled = false;
+      askBtn.textContent = 'Ask';
+    }
+  }
+
+  askBtn.onclick = (ev) => { ev.stopPropagation(); submitTopicQuestion(); };
+  askInput.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Enter') { ev.preventDefault(); submitTopicQuestion(); }
+  });
 
   if (state.config.voiceOn && state.config.autoSpeak) speakText(text);
 }
