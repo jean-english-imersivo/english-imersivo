@@ -1168,6 +1168,1399 @@ const TOPICOS = [
   },
 ];
 
+// === CONTEÚDO ESTÁTICO POR SUBTÓPICO ===
+// Aba Topics NÃO chama IA — cada subtópico tem explicação curada aqui.
+// Se um subtópico não tiver conteúdo (chave ausente), o app cai pro fallback IA.
+const TOPIC_CONTENT = {
+  'linking-words': {
+    'If — conditionals': `When to use: To talk about something that DEPENDS on another thing happening.
+
+Structure: If + [condition], + [result]
+(Notice: after "if" we don't use "will" for the future part!)
+
+Examples:
+- If it rains tomorrow, I will stay home.
+- If you study, you will pass the test.
+- If she calls, tell her I'm busy.
+- If I had more time, I would travel more. (imagined situation)
+
+Tip: You can also flip the order — "I will stay home if it rains tomorrow" (no comma).`,
+
+    'Of — possession and belonging': `When to use: To show that something BELONGS to or is PART of something else.
+
+Common uses:
+1. Belonging: "the color OF the sky", "the name OF my dog"
+2. Amount / quantity: "a lot OF friends", "a cup OF coffee", "one OF my brothers"
+3. Made from: "a table OF wood", "a ring OF gold"
+4. About: "a story OF love", "a picture OF the beach"
+
+Examples:
+- The roof of the house is red.
+- I drink 2 cups of coffee every morning.
+- She is one of my best friends.
+
+Tip: For people, use apostrophe-s instead: "my friend's car" (not "the car of my friend").`,
+
+    'To — direction and purpose': `When to use: To show DIRECTION (going somewhere) or PURPOSE (reason for doing something).
+
+Direction: "I go TO work"
+Purpose: "I called TO ask about the meeting" (= in order to ask)
+Recipient: "I gave the book TO Maria"
+
+Examples:
+- We're driving to the beach this weekend.
+- She came to help me with my English.
+- Give this letter to your teacher.
+- I want to sleep more. (before another verb = infinitive)
+
+Tip: "To" + verb (base form) is the infinitive: "to eat", "to run", "to learn". Very common!`,
+
+    'A vs An — when to use each': `When to use: BEFORE a singular noun when it's ONE (any one, not specific).
+
+Rule (by SOUND, not spelling):
+- "A" before consonant sounds: a dog, a car, a university (starts with "yu" sound)
+- "AN" before vowel sounds: an apple, an hour (silent H), an umbrella
+
+Examples:
+- I saw a bird in the tree.
+- Can I have an orange juice?
+- She's a teacher. He's an engineer.
+- It takes an hour to get there. (hour = "our" sound)
+
+Tip: When you don't know the word, listen to how it STARTS. "An MBA" (starts with "em" — vowel sound).`,
+
+    'The — definite article': `When to use: When you and the listener know EXACTLY which thing you mean.
+
+Use THE when:
+1. Something is unique: "the sun", "the president", "the internet"
+2. You mentioned it before: "I saw a dog. THE dog was brown."
+3. It's obvious from context: "Close the door" (which door? this one)
+4. Superlatives: "the best", "the biggest"
+
+Do NOT use "the" for:
+- General ideas: "I love music" (not "the music")
+- Countries with simple names: "Brazil" (but "the United States")
+
+Examples:
+- The moon is beautiful tonight.
+- I need to go to the bank. (the specific one I use)
+
+Tip: If you can say "which one?" and there's a clear answer → use "the".`,
+
+    'For — duration and reason': `When to use: For DURATION (how long something lasted) or REASON (why).
+
+Duration: "I lived here FOR 5 years"
+Reason: "Thanks FOR your help"
+Purpose: "This gift is FOR you"
+
+Examples:
+- I studied English for 2 hours yesterday.
+- She worked for a big company for 10 years.
+- I bought this book for my daughter.
+- Sorry for being late!
+
+Tip: "For" + amount of time (5 years, 2 hours). Compare with "since" + starting point (since 2020, since Monday).`,
+
+    'Since — point in time': `When to use: To say WHEN something started (starting point in time).
+
+Use with Present Perfect: "I HAVE lived here SINCE 2020"
+
+Examples:
+- I have been waiting since 3 o'clock.
+- She has worked here since last year.
+- We haven't seen each other since high school.
+- Since I moved to Brazil, I've been happier.
+
+Tip: SINCE = starting point (a date, a time, an event). FOR = duration (5 years, 2 hours).
+"I've lived here SINCE 2020" = "I've lived here FOR 6 years" (both correct, different focus).`,
+
+    'During — within a period': `When to use: To say something happens WITHIN a period of time.
+
+Structure: DURING + noun (not verb!)
+Correct: "during the meeting", "during summer", "during the movie"
+Wrong: "during I was sleeping" ❌
+
+Examples:
+- I fell asleep during the movie.
+- During my vacation, I traveled to Rio.
+- Please don't talk during the exam.
+- It rained a lot during the night.
+
+Tip: If you want to say "during + verb", use WHILE instead: "while I was sleeping".`,
+
+    'While — at the same time': `When to use: To say two things happen AT THE SAME TIME.
+
+Structure: WHILE + subject + verb
+"While I was cooking, she was watching TV"
+
+Examples:
+- I listen to music while I work.
+- She called me while I was in the shower.
+- While you're at the store, buy some milk please.
+- He fell asleep while reading the book.
+
+Tip: WHILE + verb (I was cooking). DURING + noun (dinner). Same idea, different structure.`,
+
+    'Because — reason': `When to use: To give the REASON why something happened or is true.
+
+Structure: [result] BECAUSE + [reason]
+"I'm tired BECAUSE I didn't sleep well"
+
+Examples:
+- She's happy because she got a new job.
+- I stayed home because it was raining.
+- We're late because of traffic. (because OF + noun)
+- He didn't come because he was sick.
+
+Tip: "Because" + full sentence (subject + verb). "Because of" + noun.
+"I'm late because the bus was slow" / "I'm late because of the bus".`,
+  },
+
+  'confusing-words': {
+    "There vs Their vs They're": `Same SOUND, different meanings:
+
+THERE = a place (opposite of "here")
+- The book is over there.
+- There is a cat in the garden. (introduces something)
+
+THEIR = belongs to them
+- Their house is huge.
+- The kids left their toys everywhere.
+
+THEY'RE = short for "they are"
+- They're my best friends.
+- They're coming tomorrow.
+
+Trick: if you can replace with "they are", use THEY'RE. If it shows possession, use THEIR. Everything else = THERE.`,
+
+    'Were vs Where': `Different sounds, different meanings:
+
+WERE = past of "are" (verb)
+- We were happy yesterday.
+- Where were you last night?
+- If I were you, I would call her.
+
+WHERE = question about location
+- Where do you live?
+- Where is my phone?
+- Show me where you work.
+
+Trick: WHERE has an "H" — think "where House". WERE is a verb (was/were).`,
+
+    'Then vs Than': `Different meanings:
+
+THEN = at that time / next
+- I finished work, then I went home.
+- Back then, I was younger.
+- If you're hungry, then eat something.
+
+THAN = used for COMPARING
+- She is taller THAN me.
+- Coffee is stronger than tea.
+- I'd rather stay home than go out tonight.
+
+Trick: THAN has an "A" like "compare". THEN has an "E" like "next" / "sequence".`,
+
+    "Its vs It's": `The apostrophe changes everything:
+
+ITS = belongs to it (possession)
+- The dog wags its tail.
+- The company changed its name.
+- Every book has its own story.
+
+IT'S = short for "it is" or "it has"
+- It's raining. (= it is raining)
+- It's been a long day. (= it has been)
+- Look! It's my cat.
+
+Trick: if you can say "it is" or "it has" instead, use IT'S. Otherwise, ITS.`,
+
+    "Your vs You're": `The apostrophe again:
+
+YOUR = belongs to you
+- Your phone is ringing.
+- Is this your bag?
+- I love your smile.
+
+YOU'RE = short for "you are"
+- You're my best friend. (= you are)
+- You're going to love this movie.
+- I think you're right.
+
+Trick: try replacing with "you are". If it makes sense → YOU'RE. Otherwise → YOUR.`,
+
+    'Affect vs Effect': `Usually: AFFECT is a verb, EFFECT is a noun.
+
+AFFECT (verb) = to influence / to change
+- The weather AFFECTS my mood.
+- Don't let his words affect you.
+- Global warming affects everyone.
+
+EFFECT (noun) = the result / the change
+- The medicine had a strong EFFECT.
+- The new law had positive effects.
+- Special effects in movies.
+
+Trick: The Action = AFFECT (both start with A). The End result = EFFECT (both start with E).`,
+
+    'Lose vs Loose': `Different vowel, different meaning:
+
+LOSE (one "o") = verb — to not win, to misplace
+- Don't lose your keys!
+- I lose my patience when he's late.
+- Our team is going to lose the game.
+
+LOOSE (two "o's") = adjective — not tight
+- My pants are too loose now.
+- The screw is loose — tighten it.
+- Her hair was loose in the wind.
+
+Trick: LOOSE has "OO" — like something LOOSE and open. LOSE = you LOSE one "O"!`,
+
+    'Lie vs Lay': `Two tricky verbs:
+
+LIE = to recline (a person lies down); NO object
+- I lie in bed every night. / I lay in bed yesterday.
+- The cat lies on the couch.
+
+LAY = to put something down; HAS an object
+- Please LAY the book on the table.
+- She laid the baby in the crib.
+
+Trick: LAY needs something to be "laid down" (an object). LIE is what YOU do.
+(Also: "to lie" = to say something false — same word, different meaning!)`,
+
+    'Bring vs Take': `Direction matters:
+
+BRING = towards the speaker (here)
+- Please BRING me a glass of water.
+- Bring your book to class tomorrow.
+- Can you bring dessert to the party?
+
+TAKE = away from the speaker (there)
+- Take this file to the manager.
+- I'll take the kids to school.
+- Take an umbrella when you leave.
+
+Trick: BRING = come here + WITH something. TAKE = go there + WITH something.`,
+  },
+
+  'verb-tenses': {
+    'Present Simple': `When to use: For FACTS, HABITS, and things that are always true.
+
+Structure: subject + verb (add "s" for he/she/it)
+- I work. / You work. / We work. / They work.
+- He workS. / She workS. / It workS.
+
+Negative: don't / doesn't + verb
+- I don't like coffee. / She doesn't like coffee.
+
+Question: Do / Does + subject + verb?
+- Do you speak English? / Does he live here?
+
+Examples:
+- I work at Thomson Reuters.
+- Water boils at 100 degrees.
+- She goes to the gym every day.
+- The sun rises in the east.
+
+Tip: Use with words like: always, usually, often, sometimes, never, every day.`,
+
+    'Present Continuous': `When to use: For something happening RIGHT NOW or AROUND now.
+
+Structure: am / is / are + verb-ING
+- I AM working. / He IS working. / We ARE working.
+
+Negative: I am NOT working / She isn't working.
+
+Examples:
+- I'm studying English right now.
+- Look! The kids are playing outside.
+- She's living in São Paulo this year. (temporary)
+- Why are you smiling?
+
+Tip: Use with: now, right now, at the moment, today, this week.
+Difference from Present Simple: "I work here" (my job) vs "I'm working now" (this moment).`,
+
+    'Present Perfect': `When to use: To connect the PAST with NOW. Something that started before and still matters now.
+
+Structure: HAVE / HAS + past participle (3rd form of verb)
+- I HAVE lived. / She HAS lived.
+
+3 main uses:
+1. Life experience: "I have visited Paris." (any time in my life)
+2. Recent action with present result: "I have lost my keys." (I don't have them now)
+3. Duration (with for/since): "She has worked here for 5 years."
+
+Examples:
+- I've never eaten sushi. (never in my life until now)
+- He has just arrived. (just = a moment ago)
+- Have you finished your homework?
+
+Tip: Use with: ever, never, already, just, yet, for, since, so far.`,
+
+    'Past Simple': `When to use: For actions that FINISHED at a specific time in the past.
+
+Structure: subject + verb-ED (or irregular past form)
+- I workED yesterday. / She went to Paris last year.
+
+Negative: didn't + verb (base form)
+- I didn't work yesterday. / She didn't go there.
+
+Question: Did + subject + verb?
+- Did you work yesterday? / Where did she go?
+
+Examples:
+- I saw a great movie last night.
+- She graduated in 2020.
+- We ate pizza for dinner.
+- Did you sleep well?
+
+Tip: Use with: yesterday, last week, in 2020, ago, when I was young. Time is FINISHED.`,
+
+    'Past Continuous': `When to use: For an action IN PROGRESS in the past. Often interrupted by another action.
+
+Structure: WAS / WERE + verb-ING
+- I WAS working. / They WERE working.
+
+Common pattern: [longer action past continuous] WHILE / WHEN [shorter action past simple]
+- I was cooking when she called.
+- While we were watching TV, the lights went out.
+
+Examples:
+- At 8pm yesterday, I was having dinner.
+- What were you doing when I called?
+- The kids were sleeping when we got home.
+
+Tip: Past Continuous sets the SCENE. Past Simple is the EVENT that happens in that scene.`,
+
+    'Past Perfect': `When to use: To show that one past action happened BEFORE another past action.
+
+Structure: HAD + past participle
+- I HAD finished before she arrived.
+
+Story context: "By the time she got home, I had already cooked dinner."
+(1st: I cooked. 2nd: she got home.)
+
+Examples:
+- When I got to the station, the train had already left.
+- She was tired because she hadn't slept well.
+- I realized I had forgotten my wallet at home.
+
+Tip: Use only when the order of past events matters. Words that help: already, just, never, before, by the time.`,
+
+    'Future with will': `When to use: For DECISIONS made at the moment, PREDICTIONS, and PROMISES.
+
+Structure: WILL + verb (base form)
+- I WILL help you. / She WILL come tomorrow.
+Short: I'll help. / She'll come.
+
+Examples:
+- OK, I'll do it right now. (decision at the moment)
+- I think it will rain tomorrow. (prediction)
+- Don't worry, I'll call you later. (promise)
+- She'll be 30 next month. (fact about future)
+
+Tip: Use WILL when you decide something RIGHT NOW, or make a prediction, or promise.`,
+
+    'Future with going to': `When to use: For PLANS you already made, or predictions based on EVIDENCE.
+
+Structure: am / is / are + GOING TO + verb
+- I'M GOING TO study tonight.
+- She's going to travel next month.
+
+Examples:
+- I'm going to buy a new car next year. (already decided)
+- Look at those clouds — it's going to rain! (evidence)
+- We're going to have dinner at 8pm.
+- What are you going to do this weekend?
+
+Tip:
+- GOING TO = plan you already have.
+- WILL = decision at the moment.
+"What are you going to do?" (asking about plans) vs "I'll help you!" (deciding now).`,
+  },
+
+  'expressions': {
+    "I'm up for it": `Meaning: I want to do it! / Count me in!
+
+When to use: When someone suggests an activity and you're excited to join.
+
+Examples:
+- "Want to go hiking this weekend?" — "Yeah, I'm up for it!"
+- "Anyone up for pizza tonight?"
+- I'm always up for a good adventure.
+
+Similar: I'm in / Sounds good / Count me in.
+
+Tip: Opposite = "I'm not up for it" or "I'll pass" (meaning: no thanks).`,
+
+    'No way!': `Meaning: I don't believe it! / That's amazing! / Absolutely not!
+
+Two totally different uses depending on tone:
+1. Surprise / disbelief: "You won the lottery? No way!"
+2. Refusal (strong): "Will you clean my room?" — "No way!"
+
+Examples:
+- "She's 60 years old!" — "No way! She looks 40!"
+- No way I'm eating that. (I refuse)
+- No way! Did that really happen?
+
+Tip: Context and tone tell you which meaning. Very common in casual speech.`,
+
+    'That sucks!': `Meaning: That's bad / awful / disappointing.
+
+When to use: When you hear bad news and want to show sympathy.
+
+Examples:
+- "My flight got canceled." — "Oh, that sucks!"
+- "I failed the test." — "That sucks, man. Sorry."
+- Working on weekends sucks.
+
+Similar: That's terrible / That's awful / Bummer!
+
+Tip: Casual English — fine with friends, avoid in formal situations (job interview, meeting boss).`,
+
+    'Go ahead': `Meaning: You can do it / Please proceed / Please go first.
+
+When to use: Giving permission or letting someone go first.
+
+Examples:
+- "Can I open the window?" — "Sure, go ahead."
+- Go ahead, I'm listening. (please continue talking)
+- Please, go ahead of me in line. (go first)
+- Go ahead and start without me.
+
+Tip: Very polite and useful. Also works with "please" — "Please go ahead."`,
+
+    'No worries': `Meaning: Don't worry / It's OK / No problem.
+
+When to use: When someone apologizes or thanks you.
+
+Examples:
+- "Sorry I'm late!" — "No worries, we just started."
+- "Thanks for helping!" — "No worries, anytime."
+- No worries about the money, pay me later.
+
+Similar: No problem / Don't worry about it / It's fine.
+
+Tip: Very common in Australia/UK. In the US, "No problem" is more common.`,
+
+    "I'm beat": `Meaning: I'm very tired / exhausted.
+
+When to use: After a long day, hard workout, or lots of activity.
+
+Examples:
+- I'm beat. I need to sleep.
+- After that gym session, I was beat.
+- What a day! I'm totally beat.
+
+Similar: I'm exhausted / I'm wiped out / I'm knackered (UK).
+
+Tip: Casual expression. In formal situations say "I'm exhausted" or "I'm very tired".`,
+
+    'Take it easy': `Meaning: Relax / Don't stress / Goodbye (informal).
+
+Two uses:
+1. Advice to relax: "You're too stressed. Take it easy!"
+2. Casual goodbye: "See you later. Take it easy!"
+
+Examples:
+- Take it easy today — you deserve some rest.
+- Whoa, take it easy man! (calm down)
+- "Bye!" — "Bye! Take it easy."
+
+Tip: Very friendly and common. Great way to say goodbye to friends or coworkers.`,
+
+    "What's up?": `Meaning: Hi, how are you? / What's happening?
+
+When to use: Casual greeting between friends. Also to ask what's going on.
+
+Examples:
+- "Hey! What's up?" — "Not much, you?"
+- What's up with him today? He looks sad.
+- What's up with this weather?
+
+Answers: "Not much" / "Nothing much" / "Just working" / "Same old".
+
+Tip: NEVER answer with "I'm fine" — that's for "How are you?". "What's up?" needs "Not much" or similar.`,
+
+    "It's a deal": `Meaning: Agreed! / Deal!
+
+When to use: When you and someone agree on something (a trade, a promise).
+
+Examples:
+- "You wash the dishes, I'll cook." — "It's a deal!"
+- "$50? OK, it's a deal."
+- If you help me now, I'll help you tomorrow. Deal?
+
+Similar: Deal! / Agreed / You got it.
+
+Tip: You can also just say "Deal!" — short and strong.`,
+
+    'Got it': `Meaning: I understand / OK.
+
+When to use: To confirm you understood something.
+
+Examples:
+- "Turn left at the corner, then right." — "Got it!"
+- "The meeting is at 3pm." — "Got it, thanks."
+- I got it — no need to explain again.
+
+Similar: Understood / Roger that / OK / I see.
+
+Tip: Also used to say "I caught it" physically: "Throw the ball!" — "Got it!"`,
+
+    'Hang on': `Meaning: Wait a moment / Hold on.
+
+When to use: Asking someone to wait briefly.
+
+Examples:
+- "Can you help me?" — "Hang on, I'm on the phone."
+- Hang on a second, I need to find my keys.
+- Hang on... did she really say that?
+
+Similar: Hold on / Wait a sec / Just a moment.
+
+Tip: Also on the phone: "Hang on, I'll transfer you." Very common in daily talk.`,
+
+    'My bad': `Meaning: My mistake / Sorry, my fault.
+
+When to use: Small casual apology when you made a mistake.
+
+Examples:
+- "You forgot to lock the door." — "Oh, my bad!"
+- I sent the wrong file — my bad!
+- My bad, I thought the meeting was tomorrow.
+
+Similar: Sorry / My fault / My mistake.
+
+Tip: Very informal. For serious mistakes, say "I'm sorry" or "I apologize". "My bad" is for small everyday slips.`,
+
+    'Hit the road': `Meaning: To leave / To start a journey.
+
+When to use: When it's time to go, especially before a trip.
+
+Examples:
+- It's getting late — time to hit the road!
+- We hit the road at 6am to avoid traffic.
+- Let's hit the road, everyone!
+
+Similar: Get going / Head out / Take off.
+
+Tip: Also a famous song ("Hit the Road Jack"). Perfect for start of a car trip.`,
+
+    'Piece of cake': `Meaning: Very easy / No problem at all.
+
+When to use: To say something was much easier than expected.
+
+Examples:
+- "How was the test?" — "Piece of cake!"
+- Fixing this bug was a piece of cake.
+- Cooking rice? Piece of cake.
+
+Similar: Easy / A breeze / No sweat.
+
+Tip: Opposite = "It's a challenge" or "It's tough". Piece of cake = super easy.`,
+  },
+
+  'grammar': {
+    'To Be (am / is / are)': `When to use: To say WHO or WHAT someone/something is, or to describe.
+
+Forms:
+- I AM / He, She, It IS / We, You, They ARE
+Short: I'm / He's / We're / They're
+
+Negative: am not / isn't / aren't
+Question: flip the order — "Are you ready?" / "Is she a doctor?"
+
+Examples:
+- I am a designer. She is my sister.
+- The weather is nice today.
+- Are you tired? Yes, I am.
+- They aren't here yet.
+
+Tip: The MOST important verb in English. Learn it perfectly!`,
+
+    'To Have (have / has)': `When to use: To show possession or to describe features.
+
+Forms:
+- I / You / We / They HAVE
+- He / She / It HAS
+
+Negative: don't have / doesn't have
+Question: Do you have...? / Does she have...?
+
+Examples:
+- I have two brothers.
+- She has beautiful eyes.
+- Do you have a pen?
+- He doesn't have time today.
+
+Tip: "Have got" is also correct (British): "I've got two brothers" = "I have two brothers".`,
+
+    'Do / Does (Simple Present questions and negatives)': `When to use: To ask questions or make negatives in Simple Present.
+
+Structure:
+- Question: Do/Does + subject + verb (base) + ?
+- Negative: subject + don't/doesn't + verb (base)
+
+DO for I, you, we, they. DOES for he, she, it.
+
+Examples:
+- Do you speak Spanish? — No, I don't.
+- Does she work here? — Yes, she does.
+- I don't like tomatoes.
+- He doesn't have a car.
+
+Tip: After DO/DOES, verb goes back to BASE form. NOT "Does she works?" — say "Does she work?"`,
+
+    'Did (Simple Past questions and negatives)': `When to use: To ask questions or make negatives in Simple Past — for ANY subject.
+
+Structure:
+- Question: Did + subject + verb (base) + ?
+- Negative: subject + didn't + verb (base)
+
+Examples:
+- Did you sleep well?
+- Did she go to the party?
+- I didn't finish the report.
+- They didn't come yesterday.
+
+Tip: After DID/DIDN'T, verb goes to BASE form — not past!
+Wrong: "Did you went?" ❌
+Right: "Did you go?" ✅`,
+
+    'Articles (a / an / the)': `Three articles in English — huge impact on meaning!
+
+A / AN = ONE (any one, not specific). Use for first mention.
+- I saw A dog in the park. (any dog)
+- Give me AN apple. (any apple)
+
+THE = specific (you know which one).
+- The dog was small. (the one I just mentioned)
+- Close the door. (which door? obvious)
+
+No article = general idea.
+- I love music. (general)
+- Cats are curious. (in general)
+
+Examples:
+- I bought a book. The book is amazing. (a → the after first mention)
+- She's a teacher. (profession = a/an)
+- The sun is bright. (unique = the)
+
+Tip: Brazilians often forget articles. Read English out loud to train your ear.`,
+
+    'Personal Pronouns (I, you, he, she, it, we, they)': `Subject pronouns (do the action):
+
+I = eu / YOU = tu, você / HE = ele / SHE = ela
+IT = ele/ela (things or animals) / WE = nós
+YOU = vocês / THEY = eles, elas
+
+Object pronouns (receive the action): me, you, him, her, it, us, you, them
+
+Examples:
+- I love HER. / SHE loves ME.
+- We invited THEM. / THEY didn't come.
+- Give IT to HIM.
+
+Tip: "IT" is for things, animals, weather, time. "It's raining." "It's 5 pm."`,
+
+    'Possessive Adjectives (my, your, his, her, its, our, their)': `Show that something belongs to someone. ALWAYS before a noun.
+
+I → MY / You → YOUR / He → HIS / She → HER
+It → ITS / We → OUR / They → THEIR
+
+Examples:
+- MY name is Jean.
+- Is this YOUR phone?
+- HIS car is fast. HER dress is red.
+- We love OUR dog.
+- THEIR house is huge.
+
+Careful with:
+- ITS (belongs to it) vs IT'S (it is)
+- YOUR (belongs to you) vs YOU'RE (you are)
+- THEIR vs THERE vs THEY'RE
+
+Tip: Always followed by a noun: "my BOOK", not just "my".`,
+
+    'Plurals (rules and irregulars)': `Regular plural = add -s. Some rules:
+
+1. Most words: cat → cats, book → books
+2. Ending in -s, -sh, -ch, -x: add -ES → bus → busES, box → boxES
+3. Ending in consonant + y: change to -ies → baby → babIES
+4. Ending in -f/-fe: often change to -ves → leaf → leaVES, wife → wiVES
+
+Irregular plurals (memorize!):
+- man → men / woman → women
+- child → children
+- foot → feet / tooth → teeth
+- mouse → mice
+- person → people
+- fish → fish (same!) / sheep → sheep
+
+Examples:
+- I have 3 children.
+- There are many people here.
+- I brushed my teeth.
+
+Tip: Some words are ALWAYS plural: pants, glasses, scissors, jeans.`,
+
+    'Prepositions of Place (in, on, at, under, behind...)': `Show WHERE something is.
+
+IN = inside (a room, a country, water)
+- The keys are IN the drawer. / She lives IN Brazil.
+
+ON = on top of a surface
+- The book is ON the table. / A picture ON the wall.
+
+AT = at a specific point
+- She's AT home. / Meet me AT the station.
+
+UNDER = below / BEHIND = at the back
+- The cat is UNDER the bed. / BEHIND the sofa.
+
+Other useful: NEXT TO, BETWEEN, IN FRONT OF, ABOVE, BELOW.
+
+Examples:
+- The dog is under the table.
+- I'll wait for you at the entrance.
+- She lives in São Paulo.
+
+Tip: IN a city, AT an address, ON a street. "I live IN São Paulo, ON Paulista Avenue."`,
+
+    'Question Words (What, Who, Where, When, Why, How)': `The essential question starters:
+
+WHAT = what thing? — What's your name?
+WHO = which person? — Who called you?
+WHERE = which place? — Where do you live?
+WHEN = what time? — When is the meeting?
+WHY = for what reason? — Why are you late?
+HOW = in what way? — How did you learn English?
+
+Question structure (Present Simple):
+[Question word] + do/does + subject + verb?
+- What DO you WANT?
+- Where DOES she LIVE?
+
+Extended: HOW MANY, HOW MUCH, HOW OFTEN, HOW LONG.
+- How many brothers do you have?
+- How often do you exercise?
+
+Tip: In Portuguese we say "quando você chegou" — in English, always: "WHEN did you arrive?" (question word + auxiliary + subject).`,
+
+    'Modal Verbs (can, could, should, must, may, might)': `Modal verbs add meaning. Always followed by BASE verb (no "to", no "s").
+
+CAN = ability / permission
+- I CAN swim. / You CAN leave now.
+
+COULD = past ability / polite request
+- I COULD run fast when I was young. / COULD you help me?
+
+SHOULD = advice / recommendation
+- You SHOULD sleep more. / You SHOULDN'T smoke.
+
+MUST = obligation / strong necessity
+- Students MUST wear uniforms. / I MUST call my mom.
+
+MAY / MIGHT = possibility
+- It MAY rain later. / She MIGHT come tomorrow.
+
+Examples:
+- Can you speak Portuguese? — Yes, I can.
+- You should try that new restaurant.
+- I must finish this by Friday.
+
+Tip: After modal → base verb. Wrong: "You should to go." ❌ Right: "You should go." ✅`,
+  },
+
+  'irregular-verbs': {
+    'be (was/were — been)': `BE — one of the most important verbs.
+
+Forms:
+- Present: am / is / are
+- Past: WAS (I, he, she, it) / WERE (you, we, they)
+- Past participle: BEEN
+
+Examples:
+- I am tired. / She was happy yesterday.
+- We were at the beach last weekend.
+- Have you ever been to Rio? (present perfect)`,
+
+    'have (had — had)': `HAVE — possession, actions.
+
+Forms: HAVE / HAS (present) → HAD (past) → HAD (participle)
+
+Examples:
+- I have a dog. / He has three kids.
+- I had lunch at 1pm.
+- She has had that car for 5 years.`,
+
+    'do (did — done)': `DO — do actions; also auxiliary for questions/negatives.
+
+Forms: DO / DOES → DID → DONE
+
+Examples:
+- I do my homework every night.
+- What did you do yesterday?
+- I've done everything I could.`,
+
+    'go (went — gone)': `GO — move to a place.
+
+Forms: GO → WENT → GONE / BEEN
+
+Examples:
+- I go to work by bus.
+- She went to Paris last month.
+- I have never been to Japan.
+- He's gone to the store (still there) vs He's been to Paris (visited).`,
+
+    'come (came — come)': `COME — move toward the speaker.
+
+Forms: COME → CAME → COME (same as base!)
+
+Examples:
+- Come here, please.
+- She came home late last night.
+- Have you ever come to our office?`,
+
+    'see (saw — seen)': `SEE — perceive with eyes; understand.
+
+Forms: SEE → SAW → SEEN
+
+Examples:
+- I see the mountains from my window.
+- I saw a great movie yesterday.
+- I've never seen snow.`,
+
+    'get (got — gotten)': `GET — receive, obtain, become. Super common!
+
+Forms: GET → GOT → GOTTEN (US) or GOT (UK)
+
+Examples:
+- I get an email every morning.
+- She got a new job last week.
+- It's gotten cold recently.`,
+
+    'know (knew — known)': `KNOW — have information; be familiar with.
+
+Forms: KNOW → KNEW → KNOWN
+
+Examples:
+- I know the answer.
+- She knew him from college.
+- I've known her for 10 years.`,
+
+    'take (took — taken)': `TAKE — grab, carry, spend time.
+
+Forms: TAKE → TOOK → TAKEN
+
+Examples:
+- Take an umbrella — it's raining.
+- I took a photo of the sunset.
+- The trip has taken 3 hours.`,
+
+    'make (made — made)': `MAKE — create, produce.
+
+Forms: MAKE → MADE → MADE
+
+Examples:
+- I make coffee every morning.
+- She made a cake for my birthday.
+- We've made a lot of progress.`,
+
+    'say (said — said)': `SAY — speak words.
+
+Forms: SAY → SAID → SAID (pronounced "sed")
+
+Examples:
+- I say hello every morning.
+- She said she was tired.
+- Have you said sorry?`,
+
+    'think (thought — thought)': `THINK — use your mind; believe.
+
+Forms: THINK → THOUGHT → THOUGHT
+
+Examples:
+- I think you're right.
+- I thought about it all night.
+- Have you thought about the offer?`,
+
+    'find (found — found)': `FIND — discover, locate.
+
+Forms: FIND → FOUND → FOUND
+
+Examples:
+- I can't find my keys.
+- She found a $20 bill in the street.
+- Have you found what you needed?`,
+
+    'give (gave — given)': `GIVE — offer, hand over.
+
+Forms: GIVE → GAVE → GIVEN
+
+Examples:
+- I give her flowers every year.
+- He gave me a great gift.
+- I have given up smoking.`,
+
+    'tell (told — told)': `TELL — say to someone; inform.
+
+Forms: TELL → TOLD → TOLD
+
+Examples:
+- Tell me the truth.
+- She told me a funny story.
+- I've told you a thousand times!`,
+
+    'feel (felt — felt)': `FEEL — have a sensation or emotion.
+
+Forms: FEEL → FELT → FELT
+
+Examples:
+- I feel great today!
+- She felt sick yesterday.
+- Have you ever felt so happy?`,
+
+    'become (became — become)': `BECOME — start to be something.
+
+Forms: BECOME → BECAME → BECOME
+
+Examples:
+- I want to become a doctor.
+- She became famous overnight.
+- Life has become expensive.`,
+
+    'leave (left — left)': `LEAVE — go away from a place.
+
+Forms: LEAVE → LEFT → LEFT
+
+Examples:
+- I leave home at 7am.
+- She left the party early.
+- I've left my wallet at home!`,
+
+    'put (put — put)': `PUT — place something. Same in all forms!
+
+Forms: PUT → PUT → PUT
+
+Examples:
+- Put the book on the table.
+- She put the key in her pocket.
+- I've put the milk in the fridge.`,
+
+    'mean (meant — meant)': `MEAN — signify; intend.
+
+Forms: MEAN → MEANT → MEANT (pronounced "ment")
+
+Examples:
+- What does this word mean?
+- I meant to call you, sorry.
+- I've always meant well.`,
+
+    'eat (ate — eaten)': `EAT — consume food.
+
+Forms: EAT → ATE → EATEN
+
+Examples:
+- I eat rice every day.
+- We ate pizza last night.
+- Have you eaten yet?`,
+
+    'drink (drank — drunk)': `DRINK — consume liquid.
+
+Forms: DRINK → DRANK → DRUNK
+
+Examples:
+- I drink coffee in the morning.
+- She drank all the water.
+- Have you drunk your medicine?`,
+
+    'sleep (slept — slept)': `SLEEP — rest at night.
+
+Forms: SLEEP → SLEPT → SLEPT
+
+Examples:
+- I sleep 7 hours a night.
+- I slept badly last night.
+- I haven't slept well this week.`,
+
+    'write (wrote — written)': `WRITE — put words on paper/screen.
+
+Forms: WRITE → WROTE → WRITTEN
+
+Examples:
+- I write in my journal every day.
+- She wrote a book last year.
+- Have you written the email?`,
+
+    'read (read — read)': `READ — look at words and understand.
+
+Forms: READ → READ → READ (same spelling! But pronunciation changes: "reed" → "red" → "red")
+
+Examples:
+- I read the news every morning. ("reed")
+- She read that book last month. ("red")
+- I've read three books this year. ("red")`,
+
+    'run (ran — run)': `RUN — move fast on foot; operate.
+
+Forms: RUN → RAN → RUN
+
+Examples:
+- I run every morning.
+- She ran to catch the bus.
+- I've run 5 kilometers today.`,
+
+    'break (broke — broken)': `BREAK — damage; separate into pieces.
+
+Forms: BREAK → BROKE → BROKEN
+
+Examples:
+- Don't break my heart.
+- I broke my phone yesterday.
+- The chair has broken again.`,
+
+    'lose (lost — lost)': `LOSE — misplace; not win.
+
+Forms: LOSE → LOST → LOST
+
+Examples:
+- I always lose my keys.
+- We lost the game 2-1.
+- Have you lost weight? You look great!`,
+
+    'win (won — won)': `WIN — be first / succeed.
+
+Forms: WIN → WON → WON
+
+Examples:
+- I hope you win the race!
+- She won a prize last week.
+- Our team has won 5 games in a row.`,
+
+    'buy (bought — bought)': `BUY — purchase.
+
+Forms: BUY → BOUGHT → BOUGHT
+
+Examples:
+- I buy fruit every week.
+- She bought a new car.
+- I've bought too much stuff online.`,
+
+    'bring (brought — brought)': `BRING — carry TOWARD the speaker.
+
+Forms: BRING → BROUGHT → BROUGHT
+
+Examples:
+- Bring me a coffee, please.
+- She brought flowers to the meeting.
+- I've brought my laptop.`,
+
+    'catch (caught — caught)': `CATCH — grab something moving; get sick.
+
+Forms: CATCH → CAUGHT → CAUGHT
+
+Examples:
+- Can you catch this ball?
+- I caught a cold last week.
+- Have you caught the flu before?`,
+
+    'choose (chose — chosen)': `CHOOSE — pick, select.
+
+Forms: CHOOSE → CHOSE → CHOSEN
+
+Examples:
+- I choose vanilla, please.
+- She chose the red dress.
+- I've chosen my career carefully.`,
+
+    'drive (drove — driven)': `DRIVE — operate a vehicle.
+
+Forms: DRIVE → DROVE → DRIVEN
+
+Examples:
+- I drive to work every day.
+- He drove for 8 hours yesterday.
+- She has driven all over Europe.`,
+
+    'fall (fell — fallen)': `FALL — go down; drop.
+
+Forms: FALL → FELL → FALLEN
+
+Examples:
+- Be careful, don't fall!
+- She fell off her bike.
+- Prices have fallen this year.`,
+
+    'forget (forgot — forgotten)': `FORGET — not remember.
+
+Forms: FORGET → FORGOT → FORGOTTEN
+
+Examples:
+- Don't forget your umbrella!
+- I forgot her birthday!
+- I've forgotten how to swim.`,
+
+    'hold (held — held)': `HOLD — have in your hands; keep.
+
+Forms: HOLD → HELD → HELD
+
+Examples:
+- Hold my hand.
+- She held the baby carefully.
+- I've held this job for 5 years.`,
+
+    'keep (kept — kept)': `KEEP — continue having; save.
+
+Forms: KEEP → KEPT → KEPT
+
+Examples:
+- Keep the change.
+- I kept the letter she wrote me.
+- I've kept my promise.`,
+
+    'pay (paid — paid)': `PAY — give money for something.
+
+Forms: PAY → PAID → PAID
+
+Examples:
+- I pay the bills online.
+- She paid for dinner last night.
+- I've paid everything I owe.`,
+
+    'send (sent — sent)': `SEND — cause something to go somewhere.
+
+Forms: SEND → SENT → SENT
+
+Examples:
+- Send me an email.
+- I sent the package yesterday.
+- Have you sent the report?`,
+
+    'sit (sat — sat)': `SIT — be in a seated position.
+
+Forms: SIT → SAT → SAT
+
+Examples:
+- Please sit down.
+- We sat by the window.
+- I've sat here for hours!`,
+
+    'speak (spoke — spoken)': `SPEAK — talk; use a language.
+
+Forms: SPEAK → SPOKE → SPOKEN
+
+Examples:
+- Do you speak Spanish?
+- She spoke to the manager.
+- I have spoken to him many times.`,
+
+    'stand (stood — stood)': `STAND — be on your feet.
+
+Forms: STAND → STOOD → STOOD
+
+Examples:
+- Stand up, please.
+- She stood by the door.
+- I've stood in line for 30 minutes.`,
+
+    'understand (understood — understood)': `UNDERSTAND — comprehend.
+
+Forms: UNDERSTAND → UNDERSTOOD → UNDERSTOOD
+
+Examples:
+- I understand English well.
+- Did you understand the lesson?
+- I've never understood math.`,
+
+    'wear (wore — worn)': `WEAR — have clothes on your body.
+
+Forms: WEAR → WORE → WORN
+
+Examples:
+- I wear glasses.
+- She wore a beautiful dress.
+- I have worn this shirt too many times!`,
+
+    'meet (met — met)': `MEET — see someone (first time or planned).
+
+Forms: MEET → MET → MET
+
+Examples:
+- Nice to meet you!
+- We met in college.
+- I've met her before, I think.`,
+  },
+};
+
+// === DADOS DE VOCABULARY (grid com imagens/emojis, sem IA) ===
+// Cada categoria tem palavras curadas com emoji + definição em inglês simples.
+const VOCABULARY_DATA = {
+  'Home & House': [
+    { word: 'house', emoji: '🏠', definition: 'A building where people live', example: 'My house has three bedrooms.' },
+    { word: 'door', emoji: '🚪', definition: 'You open it to enter a room', example: 'Please close the door.' },
+    { word: 'window', emoji: '🪟', definition: 'A hole in the wall with glass, to see outside', example: 'Open the window for fresh air.' },
+    { word: 'bed', emoji: '🛏️', definition: 'You sleep on it', example: 'I go to bed at 11 pm.' },
+    { word: 'kitchen', emoji: '🍳', definition: 'The room where you cook', example: 'I cook dinner in the kitchen.' },
+    { word: 'bathroom', emoji: '🛁', definition: 'The room with the shower and toilet', example: 'The bathroom is at the end of the hall.' },
+    { word: 'sofa', emoji: '🛋️', definition: 'A long soft seat for the living room', example: 'We watch TV on the sofa.' },
+    { word: 'chair', emoji: '🪑', definition: 'A seat for one person', example: 'Please sit on this chair.' },
+    { word: 'lamp', emoji: '💡', definition: 'It gives light in a room', example: 'Turn on the lamp, please.' },
+    { word: 'key', emoji: '🔑', definition: 'You use it to open a door', example: 'I lost my house key.' },
+    { word: 'garden', emoji: '🌳', definition: 'The green area outside the house', example: 'We grow flowers in the garden.' },
+    { word: 'stairs', emoji: '🪜', definition: 'Steps to go up or down', example: 'The bedroom is up the stairs.' },
+  ],
+  'Kitchen & Food': [
+    { word: 'bread', emoji: '🍞', definition: 'Made from flour, common breakfast food', example: 'I eat bread with butter every morning.' },
+    { word: 'rice', emoji: '🍚', definition: 'Small white grains, cooked in water', example: 'We eat rice and beans in Brazil.' },
+    { word: 'pasta', emoji: '🍝', definition: 'Italian food made from flour, like spaghetti', example: 'She makes amazing pasta.' },
+    { word: 'chicken', emoji: '🍗', definition: 'A common bird we eat', example: 'I ordered grilled chicken.' },
+    { word: 'egg', emoji: '🥚', definition: 'Comes from a chicken, often for breakfast', example: 'I eat two eggs every morning.' },
+    { word: 'cheese', emoji: '🧀', definition: 'A yellow food made from milk', example: 'I love cheese on pizza.' },
+    { word: 'apple', emoji: '🍎', definition: 'A round red or green fruit', example: 'An apple a day keeps the doctor away.' },
+    { word: 'banana', emoji: '🍌', definition: 'A long yellow fruit', example: 'Monkeys love bananas.' },
+    { word: 'carrot', emoji: '🥕', definition: 'An orange vegetable, good for your eyes', example: 'Rabbits eat carrots.' },
+    { word: 'salt', emoji: '🧂', definition: 'White powder that makes food taste better', example: 'Add a little salt to the soup.' },
+    { word: 'sugar', emoji: '🍬', definition: 'Sweet white powder for coffee or cakes', example: 'I take my coffee with two sugars.' },
+    { word: 'fork', emoji: '🍴', definition: 'You use it to eat, has 4 points', example: 'Use a fork for the pasta.' },
+  ],
+  'Drinks': [
+    { word: 'water', emoji: '💧', definition: 'The clear liquid we all need', example: 'Drink 2 liters of water every day.' },
+    { word: 'coffee', emoji: '☕', definition: 'A hot dark drink that wakes you up', example: 'I need coffee every morning.' },
+    { word: 'tea', emoji: '🍵', definition: 'A hot drink made from leaves', example: 'She drinks green tea in the afternoon.' },
+    { word: 'juice', emoji: '🧃', definition: 'A cold drink made from fruit', example: 'Orange juice is my favorite.' },
+    { word: 'milk', emoji: '🥛', definition: 'A white drink from cows', example: 'I put milk in my coffee.' },
+    { word: 'beer', emoji: '🍺', definition: 'An alcoholic drink, common at parties', example: 'Let\'s grab a beer after work.' },
+    { word: 'wine', emoji: '🍷', definition: 'An alcoholic drink made from grapes', example: 'Red wine goes well with steak.' },
+    { word: 'soda', emoji: '🥤', definition: 'A sweet fizzy drink, like Coke', example: 'I try not to drink too much soda.' },
+    { word: 'smoothie', emoji: '🥤', definition: 'A thick drink from fruits and ice', example: 'I make a banana smoothie for breakfast.' },
+  ],
+  'Body & Health': [
+    { word: 'head', emoji: '🧠', definition: 'The top part of your body, has your brain', example: 'I have a headache.' },
+    { word: 'eyes', emoji: '👀', definition: 'You use them to see', example: 'Her eyes are blue.' },
+    { word: 'hand', emoji: '✋', definition: 'What you use to write and touch', example: 'Wash your hands before eating.' },
+    { word: 'foot', emoji: '🦶', definition: 'Bottom of your leg, you stand on it', example: 'My foot hurts from walking so much.' },
+    { word: 'heart', emoji: '❤️', definition: 'The organ that pumps your blood', example: 'Exercise is good for your heart.' },
+    { word: 'sick', emoji: '🤒', definition: 'Not feeling well; unhealthy', example: 'I feel sick today, I\'ll stay home.' },
+    { word: 'doctor', emoji: '👨‍⚕️', definition: 'A person who helps you when you are sick', example: 'I need to see a doctor.' },
+    { word: 'medicine', emoji: '💊', definition: 'A pill or liquid to make you better', example: 'Take this medicine twice a day.' },
+    { word: 'sleep', emoji: '😴', definition: 'What you do at night to rest', example: 'I sleep 8 hours every night.' },
+    { word: 'tired', emoji: '😫', definition: 'Feeling that you need to rest', example: 'After the gym, I am always tired.' },
+  ],
+  'Sports': [
+    { word: 'soccer', emoji: '⚽', definition: 'The sport with a round ball, played with feet', example: 'Brazil is famous for soccer.' },
+    { word: 'basketball', emoji: '🏀', definition: 'A sport where you throw a ball into a net high up', example: 'He is very tall — perfect for basketball.' },
+    { word: 'tennis', emoji: '🎾', definition: 'A sport with rackets and a small yellow ball', example: 'She plays tennis every weekend.' },
+    { word: 'swim', emoji: '🏊', definition: 'To move through water using your arms and legs', example: 'I swim at the pool three times a week.' },
+    { word: 'run', emoji: '🏃', definition: 'To move very fast on your feet', example: 'I run in the park every morning.' },
+    { word: 'gym', emoji: '💪', definition: 'A place to exercise with machines', example: 'I go to the gym after work.' },
+    { word: 'bike', emoji: '🚴', definition: 'A two-wheeled vehicle you pedal', example: 'I ride my bike to work.' },
+    { word: 'win', emoji: '🏆', definition: 'To be first / to be the best', example: 'Our team won the championship!' },
+  ],
+  'People & Family': [
+    { word: 'mother', emoji: '👩', definition: 'Your female parent (mom)', example: 'My mother is a teacher.' },
+    { word: 'father', emoji: '👨', definition: 'Your male parent (dad)', example: 'My father works at a bank.' },
+    { word: 'brother', emoji: '👦', definition: 'A boy in your family, same parents', example: 'I have two brothers.' },
+    { word: 'sister', emoji: '👧', definition: 'A girl in your family, same parents', example: 'My sister is older than me.' },
+    { word: 'friend', emoji: '🤝', definition: 'A person you like and spend time with', example: 'She\'s my best friend.' },
+    { word: 'boss', emoji: '👔', definition: 'The person in charge at work', example: 'My boss is very fair.' },
+    { word: 'baby', emoji: '👶', definition: 'A very young child', example: 'Their baby is only 6 months old.' },
+    { word: 'wife', emoji: '👰', definition: 'A married woman (from her husband\'s point of view)', example: 'My wife makes the best coffee.' },
+    { word: 'husband', emoji: '🤵', definition: 'A married man (from his wife\'s point of view)', example: 'Her husband is a doctor.' },
+    { word: 'neighbor', emoji: '🏘️', definition: 'A person who lives next to you', example: 'My neighbor is very friendly.' },
+  ],
+  'Animals': [
+    { word: 'dog', emoji: '🐶', definition: 'A common pet, loves to play', example: 'My dog wakes me up every morning.' },
+    { word: 'cat', emoji: '🐱', definition: 'A quiet pet that says "meow"', example: 'The cat is sleeping on the sofa.' },
+    { word: 'bird', emoji: '🐦', definition: 'An animal with feathers that can fly', example: 'I hear birds singing in the morning.' },
+    { word: 'horse', emoji: '🐴', definition: 'A big animal that people can ride', example: 'She learned to ride a horse.' },
+    { word: 'cow', emoji: '🐄', definition: 'A big farm animal that gives milk', example: 'Cows say "moo".' },
+    { word: 'fish', emoji: '🐟', definition: 'An animal that lives in water', example: 'We saw many colorful fish at the beach.' },
+    { word: 'lion', emoji: '🦁', definition: 'A big wild cat, the king of the jungle', example: 'Lions live in Africa.' },
+    { word: 'elephant', emoji: '🐘', definition: 'The biggest land animal, has a long nose', example: 'Elephants never forget.' },
+    { word: 'monkey', emoji: '🐵', definition: 'A small animal that climbs trees', example: 'Monkeys love bananas.' },
+    { word: 'snake', emoji: '🐍', definition: 'A long animal with no legs', example: 'Some snakes are dangerous.' },
+  ],
+  'Transport': [
+    { word: 'car', emoji: '🚗', definition: 'A vehicle with 4 wheels for people', example: 'I drive my car to work.' },
+    { word: 'bus', emoji: '🚌', definition: 'A big vehicle that carries many people', example: 'I take the bus to school.' },
+    { word: 'train', emoji: '🚆', definition: 'A long vehicle on rails', example: 'The train arrives at 8 pm.' },
+    { word: 'airplane', emoji: '✈️', definition: 'A vehicle that flies in the sky', example: 'I hate long airplane flights.' },
+    { word: 'bicycle', emoji: '🚲', definition: 'A two-wheeled vehicle you pedal', example: 'Kids learn to ride a bicycle.' },
+    { word: 'motorcycle', emoji: '🏍️', definition: 'A motor with two wheels, fast', example: 'She rides a motorcycle to work.' },
+    { word: 'boat', emoji: '⛵', definition: 'A vehicle for water', example: 'We took a boat across the lake.' },
+    { word: 'taxi', emoji: '🚕', definition: 'A car you pay to drive you', example: 'Let\'s take a taxi, it\'s raining.' },
+  ],
+  'Places': [
+    { word: 'school', emoji: '🏫', definition: 'A place where children study', example: 'My son goes to a school near our house.' },
+    { word: 'hospital', emoji: '🏥', definition: 'A place where sick people get help', example: 'She works at the hospital as a nurse.' },
+    { word: 'store', emoji: '🏬', definition: 'A place where you buy things', example: 'I went to the store to buy milk.' },
+    { word: 'restaurant', emoji: '🍽️', definition: 'A place where you pay to eat', example: 'This is my favorite Italian restaurant.' },
+    { word: 'park', emoji: '🏞️', definition: 'A green public place with trees', example: 'Let\'s go for a walk in the park.' },
+    { word: 'church', emoji: '⛪', definition: 'A building where Christian people pray', example: 'We go to church every Sunday.' },
+    { word: 'library', emoji: '📚', definition: 'A place with many books to read or borrow', example: 'I study at the library.' },
+    { word: 'beach', emoji: '🏖️', definition: 'Sand next to the ocean', example: 'Brazil has beautiful beaches.' },
+    { word: 'city', emoji: '🌆', definition: 'A big populated place', example: 'São Paulo is a huge city.' },
+    { word: 'airport', emoji: '🛫', definition: 'The place where airplanes take off and land', example: 'The airport is 30 minutes away.' },
+  ],
+  'Clothing': [
+    { word: 'shirt', emoji: '👕', definition: 'A piece of clothing for your top', example: 'I wear a shirt and jeans to work.' },
+    { word: 'pants', emoji: '👖', definition: 'Clothing that covers your legs', example: 'These pants are too tight.' },
+    { word: 'dress', emoji: '👗', definition: 'A piece of clothing for women, one piece', example: 'She wore a beautiful red dress.' },
+    { word: 'shoes', emoji: '👟', definition: 'What you wear on your feet', example: 'I need new running shoes.' },
+    { word: 'jacket', emoji: '🧥', definition: 'A short warm coat', example: 'Bring a jacket, it\'s cold outside.' },
+    { word: 'hat', emoji: '🧢', definition: 'What you wear on your head', example: 'He wears a hat in the sun.' },
+    { word: 'socks', emoji: '🧦', definition: 'What you wear on your feet under shoes', example: 'I always lose one sock in the laundry.' },
+    { word: 'glasses', emoji: '👓', definition: 'What you wear to see better', example: 'I need my glasses to read.' },
+  ],
+  'Weather': [
+    { word: 'sun', emoji: '☀️', definition: 'The bright hot thing in the sky during the day', example: 'The sun is very strong today.' },
+    { word: 'rain', emoji: '🌧️', definition: 'Water falling from the sky', example: 'I love the sound of rain.' },
+    { word: 'cloud', emoji: '☁️', definition: 'White or grey things in the sky', example: 'The sky is full of clouds today.' },
+    { word: 'snow', emoji: '❄️', definition: 'Cold white flakes that fall in winter', example: 'I saw snow for the first time in Europe.' },
+    { word: 'wind', emoji: '💨', definition: 'Air that moves fast', example: 'The wind is strong today.' },
+    { word: 'hot', emoji: '🥵', definition: 'High temperature', example: 'Summer in Rio is very hot.' },
+    { word: 'cold', emoji: '🥶', definition: 'Low temperature', example: 'It\'s cold in winter.' },
+    { word: 'storm', emoji: '⛈️', definition: 'Very bad weather with lightning', example: 'The storm damaged some trees.' },
+  ],
+  'Time & Calendar': [
+    { word: 'morning', emoji: '🌅', definition: 'The early part of the day', example: 'I drink coffee every morning.' },
+    { word: 'afternoon', emoji: '🌤️', definition: 'The middle part of the day, after lunch', example: 'I take a short nap in the afternoon.' },
+    { word: 'night', emoji: '🌙', definition: 'The dark hours when you sleep', example: 'I read a book before bed at night.' },
+    { word: 'today', emoji: '📅', definition: 'This day, right now', example: 'Today is Monday.' },
+    { word: 'tomorrow', emoji: '➡️', definition: 'The day after today', example: 'I have a meeting tomorrow.' },
+    { word: 'yesterday', emoji: '⬅️', definition: 'The day before today', example: 'Yesterday was Sunday.' },
+    { word: 'week', emoji: '📆', definition: 'Seven days together', example: 'I go to the gym twice a week.' },
+    { word: 'weekend', emoji: '🎉', definition: 'Saturday and Sunday', example: 'What are you doing this weekend?' },
+    { word: 'month', emoji: '🗓️', definition: 'Around 30 days', example: 'I get paid once a month.' },
+    { word: 'year', emoji: '🎆', definition: '12 months', example: 'I turn 40 next year.' },
+  ],
+  'Work & Office': [
+    { word: 'job', emoji: '💼', definition: 'The work you do to earn money', example: 'I love my new job.' },
+    { word: 'meeting', emoji: '👥', definition: 'When people come together to talk about work', example: 'I have a meeting at 3 pm.' },
+    { word: 'email', emoji: '📧', definition: 'A message sent over the internet', example: 'I check my email in the morning.' },
+    { word: 'computer', emoji: '💻', definition: 'A machine you use for work', example: 'My computer is slow today.' },
+    { word: 'phone', emoji: '📱', definition: 'A device to call and text people', example: 'Please answer your phone.' },
+    { word: 'money', emoji: '💰', definition: 'What you use to pay for things', example: 'I need more money to travel.' },
+    { word: 'deadline', emoji: '⏰', definition: 'The day something must be finished', example: 'The deadline is Friday.' },
+    { word: 'coworker', emoji: '🤵', definition: 'A person you work with', example: 'My coworkers are really nice.' },
+  ],
+  'School & Study': [
+    { word: 'book', emoji: '📖', definition: 'Pages with words and pictures to read', example: 'I read a book every month.' },
+    { word: 'pen', emoji: '🖊️', definition: 'Something you write with, uses ink', example: 'Can I borrow your pen?' },
+    { word: 'pencil', emoji: '✏️', definition: 'Something you write with, made of wood', example: 'Use a pencil for the drawing.' },
+    { word: 'teacher', emoji: '👩‍🏫', definition: 'A person who teaches students', example: 'My English teacher is amazing.' },
+    { word: 'student', emoji: '🧑‍🎓', definition: 'A person who studies', example: 'She is a good student.' },
+    { word: 'test', emoji: '📝', definition: 'An exam to check what you learned', example: 'I have a test tomorrow.' },
+    { word: 'homework', emoji: '📓', definition: 'Work you do at home for school', example: 'I finished my homework early.' },
+    { word: 'notebook', emoji: '📔', definition: 'A book with empty pages to write in', example: 'I take notes in my notebook.' },
+  ],
+};
+
 // ===== STATE =====
 let state = {
   currentTab: 'chat',
@@ -1529,7 +2922,8 @@ function openSubtopics(topic) {
   state.topicViewing = { topicId: topic.id, expanded: null };
   document.getElementById('topicsList').style.display = 'none';
   const sub = document.getElementById('subtopicsList');
-  sub.style.display = 'block';
+  sub.style.display = 'flex';
+  sub.style.flexDirection = 'column';
   sub.innerHTML = '';
 
   const header = document.createElement('div');
@@ -1546,13 +2940,28 @@ function openSubtopics(topic) {
   inner.style.overflowY = 'auto';
   inner.style.flex = '1';
 
+  // Caso especial: Vocabulary → cada subtópico é uma categoria (abre grid de palavras)
+  if (topic.id === 'vocabulary') {
+    for (const cat of topic.subtopicos) {
+      const item = document.createElement('div');
+      item.className = 'subtopic-item';
+      const wordsCount = (VOCABULARY_DATA[cat] || []).length + getCustomWords(cat).length;
+      item.innerHTML = `<div class="label">${cat}</div><div style="font-size:11px;opacity:0.5;margin-top:2px;">${wordsCount} words</div>`;
+      item.onclick = () => openVocabularyCategory(topic, cat);
+      inner.appendChild(item);
+    }
+    sub.appendChild(inner);
+    return;
+  }
+
+  // Caso geral: cada subtópico expande em uma explicação estática
   for (const st of topic.subtopicos) {
     const item = document.createElement('div');
     item.className = 'subtopic-item';
     item.innerHTML = `<div class="label">${st}</div>`;
     item.onclick = (ev) => {
       if (ev.target.closest('.ctrl')) return;
-      toggleSubtopicExplain(item, topic.titulo, st);
+      toggleSubtopicExplain(item, topic, st);
     };
     inner.appendChild(item);
   }
@@ -1565,7 +2974,7 @@ function closeSubtopics() {
   state.topicViewing = null;
 }
 
-async function toggleSubtopicExplain(item, topicLabel, subtopic) {
+async function toggleSubtopicExplain(item, topic, subtopic) {
   // se já expandido, recolhe
   if (item.classList.contains('expanded')) {
     item.classList.remove('expanded');
@@ -1578,10 +2987,17 @@ async function toggleSubtopicExplain(item, topicLabel, subtopic) {
   item.classList.add('expanded');
   const exp = document.createElement('div');
   exp.className = 'explanation';
-  exp.textContent = 'Thinking...';
   item.appendChild(exp);
 
-  const text = await explainTopic(topicLabel, subtopic);
+  // Busca conteúdo estático primeiro
+  let text = getStaticContent(topic.id, subtopic);
+
+  // Se não encontrou (só em casos raros que faltou preencher), cai pro fallback IA
+  if (!text) {
+    exp.textContent = 'Thinking...';
+    text = await explainTopic(topic.titulo, subtopic);
+  }
+
   exp.textContent = text;
 
   const ctrl = document.createElement('div');
@@ -1602,6 +3018,230 @@ async function toggleSubtopicExplain(item, topicLabel, subtopic) {
   item.appendChild(ctrl);
 
   if (state.config.voiceOn && state.config.autoSpeak) speakText(text);
+}
+
+// Busca conteúdo estático no dicionário TOPIC_CONTENT. Retorna null se não encontrado.
+function getStaticContent(topicId, subtopicLabel) {
+  const bucket = TOPIC_CONTENT[topicId];
+  if (!bucket) return null;
+  // Match exato primeiro
+  if (bucket[subtopicLabel]) return bucket[subtopicLabel];
+  // Match "flexível": ignorando maiúsculas/minúsculas e espaços extras
+  const norm = (s) => s.toLowerCase().replace(/\s+/g, ' ').trim();
+  const target = norm(subtopicLabel);
+  for (const key of Object.keys(bucket)) {
+    if (norm(key) === target) return bucket[key];
+  }
+  return null;
+}
+
+// ===== VOCABULARY GRID (dentro de Topics -> Vocabulary by theme) =====
+function getCustomWords(category) {
+  try {
+    const all = JSON.parse(localStorage.getItem('ei_custom_words') || '{}');
+    return all[category] || [];
+  } catch { return []; }
+}
+
+function saveCustomWord(category, entry) {
+  try {
+    const all = JSON.parse(localStorage.getItem('ei_custom_words') || '{}');
+    if (!all[category]) all[category] = [];
+    // Evita duplicata pelo campo "word" (case-insensitive)
+    const w = (entry.word || '').toLowerCase();
+    if (all[category].some(x => (x.word || '').toLowerCase() === w)) return false;
+    all[category].push({ ...entry, custom: true, addedAt: '2026-07-07' });
+    localStorage.setItem('ei_custom_words', JSON.stringify(all));
+    return true;
+  } catch { return false; }
+}
+
+function openVocabularyCategory(topic, category) {
+  const sub = document.getElementById('subtopicsList');
+  sub.innerHTML = '';
+
+  const header = document.createElement('div');
+  header.className = 'subtopic-header';
+  header.innerHTML = `
+    <button class="back-btn">‹</button>
+    <h2>📚 ${category}</h2>
+  `;
+  header.querySelector('.back-btn').onclick = () => openSubtopics(topic);
+  sub.appendChild(header);
+
+  const toolbar = document.createElement('div');
+  toolbar.style.cssText = 'padding: 8px 12px; display:flex; gap:8px; border-bottom:1px solid rgba(255,255,255,0.05); flex-shrink:0;';
+  toolbar.innerHTML = `
+    <button id="btnAddWord" style="flex:1; background:linear-gradient(135deg,#6366f1,#8b5cf6); border:none; color:#fff; padding:8px 12px; border-radius:10px; font-size:13px; cursor:pointer;">+ Add word to this category</button>
+  `;
+  sub.appendChild(toolbar);
+
+  const grid = document.createElement('div');
+  grid.id = 'vocabGrid';
+  grid.style.cssText = 'display:grid; grid-template-columns: repeat(2, 1fr); gap:10px; padding:12px; overflow-y:auto; flex:1; -webkit-overflow-scrolling: touch;';
+  sub.appendChild(grid);
+
+  renderVocabularyGrid(grid, category);
+
+  document.getElementById('btnAddWord').onclick = () => openAddWordModal(category, () => renderVocabularyGrid(grid, category));
+}
+
+function renderVocabularyGrid(gridEl, category) {
+  gridEl.innerHTML = '';
+  const nativeWords = VOCABULARY_DATA[category] || [];
+  const customWords = getCustomWords(category);
+  const allWords = [...nativeWords, ...customWords];
+
+  if (allWords.length === 0) {
+    gridEl.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:20px; opacity:0.6;">No words yet. Tap "+ Add word" above.</div>';
+    return;
+  }
+
+  for (const w of allWords) {
+    const card = document.createElement('div');
+    card.className = 'vocab-card';
+    card.style.cssText = 'background: rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:12px; display:flex; flex-direction:column; align-items:center; text-align:center; cursor:pointer;' + (w.custom ? ' border-color: rgba(139,92,246,0.4);' : '');
+    card.innerHTML = `
+      <div style="font-size:44px; line-height:1; margin-bottom:6px;">${w.emoji || '📌'}</div>
+      <div style="font-size:15px; font-weight:600; margin-bottom:4px;">${escapeHtml(w.word)}</div>
+      <div style="font-size:11px; opacity:0.7; line-height:1.4;">${escapeHtml(w.definition || '')}</div>
+      ${w.custom ? '<div style="font-size:9px; color:#a78bfa; margin-top:4px;">✨ Custom</div>' : ''}
+    `;
+    card.onclick = () => showWordDetail(w);
+    gridEl.appendChild(card);
+  }
+}
+
+function showWordDetail(word) {
+  const ov = document.createElement('div');
+  ov.className = 'overlay';
+  ov.innerHTML = `
+    <div class="overlay-card" style="max-width:380px; text-align:center;">
+      <div style="font-size:80px; line-height:1; margin-bottom:8px;">${word.emoji || '📌'}</div>
+      <h2 style="font-size:24px;">${escapeHtml(word.word)}</h2>
+      <p style="font-size:14px; opacity:0.85;">${escapeHtml(word.definition || '')}</p>
+      ${word.example ? `<div style="background:rgba(255,255,255,0.05); padding:10px 12px; border-radius:10px; margin-top:12px; font-size:13px; font-style:italic; text-align:left;">💬 ${escapeHtml(word.example)}</div>` : ''}
+      <div style="display:flex; gap:8px; margin-top:14px;">
+        <button id="wordHearBtn" style="flex:1; background:rgba(139,92,246,0.2); border:1px solid rgba(139,92,246,0.4); color:#a78bfa; padding:10px; border-radius:10px; font-size:13px; cursor:pointer;">🔊 Hear</button>
+        <button id="wordCloseBtn" style="flex:1; background:rgba(255,255,255,0.1); border:none; color:#fff; padding:10px; border-radius:10px; font-size:13px; cursor:pointer;">Close</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(ov);
+  document.getElementById('wordHearBtn').onclick = () => {
+    speakText(`${word.word}. ${word.definition}. Example: ${word.example || ''}`);
+  };
+  document.getElementById('wordCloseBtn').onclick = () => ov.remove();
+}
+
+function openAddWordModal(category, onSuccess) {
+  const ov = document.createElement('div');
+  ov.className = 'overlay';
+  ov.id = 'addWordOverlay';
+  ov.innerHTML = `
+    <div class="overlay-card" style="max-width:420px;">
+      <h2>➕ Add word to "${escapeHtml(category)}"</h2>
+      <p style="font-size:12px; opacity:0.8;">Type either:</p>
+      <div class="step">Direct word: <strong>church</strong>, <strong>umbrella</strong>, <strong>curious</strong>...</div>
+      <div class="step">Or a question: <strong>"What's a word for a house of prayers?"</strong>, <strong>"How do you say 'guarda-chuva' in English?"</strong></div>
+      <textarea id="addWordInput" placeholder="Type here..." style="width:100%; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:10px 12px; color:#fff; font-size:15px; font-family:inherit; margin-top:8px; min-height:60px; outline:none;"></textarea>
+      <div id="addWordPreview" style="margin-top:12px; display:none;"></div>
+      <div style="display:flex; gap:8px; margin-top:12px;">
+        <button id="addWordCancel" style="flex:1; background:rgba(255,255,255,0.1); border:none; color:#fff; padding:10px; border-radius:10px; font-size:14px; cursor:pointer;">Cancel</button>
+        <button id="addWordSuggest" style="flex:2; background:linear-gradient(135deg,#6366f1,#8b5cf6); border:none; color:#fff; padding:10px; border-radius:10px; font-size:14px; font-weight:500; cursor:pointer;">🔍 Look up</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(ov);
+
+  const input = document.getElementById('addWordInput');
+  const preview = document.getElementById('addWordPreview');
+  const btnSuggest = document.getElementById('addWordSuggest');
+  const btnCancel = document.getElementById('addWordCancel');
+
+  btnCancel.onclick = () => ov.remove();
+
+  btnSuggest.onclick = async () => {
+    const raw = input.value.trim();
+    if (!raw) { toast('Type something first'); return; }
+    if (!hasAnyKey()) { toast('Add API keys in Settings first'); return; }
+
+    btnSuggest.disabled = true;
+    btnSuggest.textContent = 'Thinking...';
+    preview.style.display = 'none';
+
+    try {
+      const suggestion = await lookupWordViaAI(raw);
+      if (!suggestion) throw new Error('Could not understand');
+
+      preview.style.display = 'block';
+      preview.innerHTML = `
+        <div style="background:rgba(139,92,246,0.1); border:1px solid rgba(139,92,246,0.3); border-radius:12px; padding:14px; text-align:center;">
+          <div style="font-size:60px; line-height:1;">${suggestion.emoji}</div>
+          <div style="font-size:20px; font-weight:600; margin:6px 0;">${escapeHtml(suggestion.word)}</div>
+          <div style="font-size:13px; opacity:0.85; line-height:1.5;">${escapeHtml(suggestion.definition)}</div>
+          ${suggestion.example ? `<div style="font-size:12px; font-style:italic; margin-top:8px; opacity:0.7;">💬 ${escapeHtml(suggestion.example)}</div>` : ''}
+        </div>
+        <div style="display:flex; gap:8px; margin-top:10px;">
+          <button id="addWordReject" style="flex:1; background:rgba(255,255,255,0.1); border:none; color:#fff; padding:9px; border-radius:8px; font-size:13px; cursor:pointer;">Try another</button>
+          <button id="addWordConfirm" style="flex:2; background:linear-gradient(135deg,#22c55e,#16a34a); border:none; color:#fff; padding:9px; border-radius:8px; font-size:13px; font-weight:500; cursor:pointer;">✓ Add to "${escapeHtml(category)}"</button>
+        </div>
+      `;
+
+      document.getElementById('addWordReject').onclick = () => {
+        preview.style.display = 'none';
+        btnSuggest.disabled = false;
+        btnSuggest.textContent = '🔍 Look up';
+      };
+
+      document.getElementById('addWordConfirm').onclick = () => {
+        const ok = saveCustomWord(category, suggestion);
+        if (ok) {
+          toast(`"${suggestion.word}" added! ✨`);
+          ov.remove();
+          if (onSuccess) onSuccess();
+        } else {
+          toast('This word is already in your list.');
+        }
+      };
+    } catch (err) {
+      toast('Error: ' + err.message);
+      btnSuggest.disabled = false;
+      btnSuggest.textContent = '🔍 Look up';
+    }
+  };
+
+  input.focus();
+}
+
+async function lookupWordViaAI(userInput) {
+  const system = `You help Jean (Brazilian beginner learning English) add a word to his vocabulary.
+Analyze his input. It's EITHER a direct English word (e.g., "church") OR a description in English or Portuguese (e.g., "What's a word for a house of prayers?" / "Como se diz guarda-chuva em inglês?").
+
+Return ONLY valid JSON (no markdown, no commentary):
+{
+  "word": "single English word or 2-3 word phrase",
+  "emoji": "ONE emoji that visually represents the word",
+  "definition": "short simple English definition (max 15 words, no translations)",
+  "example": "one natural English example sentence"
+}
+
+Rules:
+- If input is already an English word, use it as-is.
+- If input is a Portuguese word or a descriptive question, identify the best English equivalent.
+- The definition must be in ENGLISH ONLY (simple English, no Portuguese).
+- Use a specific emoji that visually matches the word. If no perfect emoji exists, pick the closest one.`;
+
+  const messages = [
+    { role: 'system', content: system },
+    { role: 'user', content: userInput },
+  ];
+
+  const { text } = await callLLM(messages, { maxTokens: 300, temperature: 0.3 });
+  const cleaned = text.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim();
+  const json = JSON.parse(cleaned);
+  if (!json.word || !json.emoji || !json.definition) return null;
+  return json;
 }
 
 // ===== ASK ANYTHING =====
