@@ -2776,7 +2776,7 @@ ${text}`;
   ];
 
   try {
-    const { text: rawReply } = await callLLM(messages, { maxTokens: 600 });
+    const { text: rawReply } = await callLLM(messages, { maxTokens: 900 });
     const reply = stripNamePrefix(rawReply);
     showTyping(false);
     appendChatMsg('bot', reply);
@@ -2892,7 +2892,7 @@ Do NOT prefix your reply with "Ms. Marie:" or any name tag.`;
   ];
 
   try {
-    const { text } = await callLLM(messages, { maxTokens: 500 });
+    const { text } = await callLLM(messages, { maxTokens: 900 });
     return text;
   } catch (err) {
     return '⚠️ ' + err.message;
@@ -3064,7 +3064,9 @@ ${text}
 Answer HIS specific question below. Rules:
 - Stay focused on this topic. Do not switch subjects.
 - Reply in immersive English (unless he explicitly asks in Portuguese or asks for a Portuguese hint).
-- Be concise: 3-7 short sentences. Prefer real-life examples over dry rules.
+- Prefer real-life examples over dry rules. Give as many as he asks for.
+- IMPORTANT: ALWAYS finish your reasoning and complete your sentences. Never stop mid-sentence. If you list examples, close the list properly.
+- Keep it useful but not padded: aim for 4-10 short sentences unless he asks for a list of examples.
 - Plain text, no markdown, no emojis, no name prefix.
 - If he asks something unrelated to this topic, gently redirect: "Great question — that's more about X. For now, let's focus on ${subtopic}. About it, ..."`;
 
@@ -3073,7 +3075,7 @@ Answer HIS specific question below. Rules:
         { role: 'user', content: q },
       ];
 
-      const { text: rawAnswer } = await callLLM(messages, { maxTokens: 400 });
+      const { text: rawAnswer } = await callLLM(messages, { maxTokens: 1000 });
       const answer = stripNamePrefix(rawAnswer);
 
       askResp.innerHTML = `
@@ -3358,7 +3360,7 @@ Do NOT prefix your reply with "Ms. Marie:" or any name tag.`;
   ];
 
   try {
-    const { text } = await callLLM(messages, { maxTokens: 600 });
+    const { text } = await callLLM(messages, { maxTokens: 900 });
     state.askHistory.unshift({ q: question, a: text, ts: Date.now() });
     saveAskHistory();
     renderAskHistory();
