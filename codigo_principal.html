@@ -636,6 +636,225 @@
     text-align: center;
   }
 
+  /* SPEAK / PRONUNCIATION */
+  .speak-home, .speak-mode {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .speak-intro {
+    background: rgba(139,92,246,0.1);
+    border: 1px solid rgba(139,92,246,0.3);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 14px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .speak-mode-card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .speak-mode-card:active { background: rgba(255,255,255,0.12); }
+  .speak-mode-card .emoji { font-size: 40px; flex-shrink: 0; }
+  .speak-mode-card .info .title { font-size: 15px; font-weight: 600; margin-bottom: 3px; }
+  .speak-mode-card .info .desc { font-size: 12px; opacity: 0.7; line-height: 1.4; }
+  .speak-header {
+    padding: 12px 14px;
+    background: rgba(0,0,0,0.2);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    margin: -14px -14px 14px;
+  }
+  .speak-header .back-btn {
+    background: rgba(255,255,255,0.08);
+    border: none;
+    color: #fff;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .speak-header h2 { font-size: 15px; font-weight: 600; }
+  .word-panel {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .word-panel .word {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    letter-spacing: 0.3px;
+  }
+  .word-panel .meaning {
+    font-size: 13px;
+    opacity: 0.7;
+    line-height: 1.4;
+  }
+  .word-panel .emoji-large {
+    font-size: 56px;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .practice-btns {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 12px;
+  }
+  .practice-btns button {
+    background: rgba(139,92,246,0.15);
+    border: 1px solid rgba(139,92,246,0.35);
+    color: #a78bfa;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .practice-btns button.primary {
+    background: linear-gradient(135deg,#6366f1,#8b5cf6);
+    color: #fff;
+    border: none;
+    font-weight: 500;
+  }
+  .practice-btns button.danger {
+    background: rgba(239,68,68,0.15);
+    border-color: rgba(239,68,68,0.35);
+    color: #fca5a5;
+  }
+  .practice-btns button:active { transform: scale(0.95); }
+  .practice-btns button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .practice-result {
+    margin-top: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+  }
+  .practice-result.correct { background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.35); }
+  .practice-result.close { background: rgba(251,191,36,0.12); border: 1px solid rgba(251,191,36,0.35); }
+  .practice-result.wrong { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.35); }
+  .practice-result .heard {
+    font-size: 12px;
+    opacity: 0.75;
+    margin-top: 6px;
+    font-style: italic;
+  }
+  .pair-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .pair-item {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+  }
+  .pair-item .pair-word { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
+  .pair-item .pair-meaning { font-size: 11px; opacity: 0.7; }
+  .sound-cat-card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .sound-cat-card:active { background: rgba(255,255,255,0.12); }
+  .sound-cat-card .emoji { font-size: 26px; flex-shrink: 0; }
+  .sound-cat-card .info .title { font-size: 14px; font-weight: 600; }
+  .sound-cat-card .info .desc { font-size: 11px; opacity: 0.7; margin-top: 2px; }
+  .sound-cat-tip {
+    background: rgba(251,191,36,0.1);
+    border: 1px solid rgba(251,191,36,0.3);
+    color: #fbbf24;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 12px;
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+  .word-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 6px;
+  }
+  .word-row .wr-word { font-size: 15px; font-weight: 500; flex: 1; }
+  .word-row .wr-stats { font-size: 10px; opacity: 0.6; }
+  .word-row .wr-btn {
+    background: rgba(139,92,246,0.15);
+    border: 1px solid rgba(139,92,246,0.35);
+    color: #a78bfa;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .free-input-block {
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+  .free-input-block input, .free-input-block textarea {
+    width: 100%;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 10px 12px;
+    color: #fff;
+    font-size: 15px;
+    font-family: inherit;
+    outline: none;
+    resize: vertical;
+  }
+  .free-input-block input:focus, .free-input-block textarea:focus { border-color: #8b5cf6; }
+  .practice-history {
+    margin-top: 16px;
+  }
+  .practice-history h4 {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.6;
+    margin-bottom: 8px;
+  }
+  .rec-pulse {
+    animation: pulse 1.2s infinite;
+  }
+
   /* TOAST */
   .toast {
     position: fixed;
@@ -685,6 +904,12 @@
   <section class="view" id="view-topics">
     <div class="topics-list" id="topicsList"></div>
     <div class="subtopics-list" id="subtopicsList" style="display:none;"></div>
+  </section>
+
+  <!-- SPEAK VIEW -->
+  <section class="view" id="view-speak">
+    <div class="speak-home" id="speakHome"></div>
+    <div class="speak-mode" id="speakMode" style="display:none;"></div>
   </section>
 
   <!-- ASK VIEW -->
@@ -843,6 +1068,7 @@
 <nav class="bottom">
   <button data-tab="chat" class="active"><span class="icon">💬</span><span>Chat</span></button>
   <button data-tab="topics"><span class="icon">📚</span><span>Topics</span></button>
+  <button data-tab="speak"><span class="icon">🗣️</span><span>Speak</span></button>
   <button data-tab="ask"><span class="icon">❓</span><span>Ask</span></button>
   <button data-tab="settings"><span class="icon">⚙️</span><span>Settings</span></button>
 </nav>
@@ -2759,11 +2985,12 @@ async function sendChatMessage(text) {
   }).join('\n');
 
   const pastBlock = buildPastConvsBlock();
+  const pronBlock = buildPronunciationBlock();
 
   const userBlock = `[SESSION SETTINGS]
 - Correction mode: ${state.config.correction}
 - Portuguese helper: ${state.config.ptHelper ? 'ENABLED' : 'DISABLED'}
-${pastBlock}
+${pastBlock}${pronBlock}
 [CONVERSATION SO FAR]
 ${conversationSoFar || '(this is the first message)'}
 
@@ -2805,6 +3032,19 @@ function buildPastConvsBlock() {
     return `- (${date}) Topics: ${(c.topics || []).join(', ') || '—'}. Difficulties: ${(c.difficulties || []).join(', ') || '—'}. New words Jean used: ${(c.newWords || []).join(', ') || '—'}.`;
   }).join('\n');
   return `\n[PAST CONVERSATIONS SUMMARY — for context only, do not quote back]\n${lines}\n`;
+}
+
+// Monta bloco [PRONUNCIATION PROGRESS] com o que Jean tem praticado na aba Speak
+function buildPronunciationBlock() {
+  const summary = getPronunciationSummary();
+  if (!summary || summary.totalAttempts === 0) return '';
+  const lines = [
+    `- Total practice attempts: ${summary.totalAttempts} on ${summary.totalWords} words (${summary.overallAccuracy}% accuracy)`,
+  ];
+  if (summary.mastered.length) lines.push(`- Words he pronounces well (>80% correct): ${summary.mastered.slice(0, 10).join(', ')}`);
+  if (summary.struggling.length) lines.push(`- Words he still struggles with (<50% correct): ${summary.struggling.slice(0, 10).join(', ')}`);
+  if (summary.recentPracticed.length) lines.push(`- Recently practiced: ${summary.recentPracticed.slice(0, 8).join(', ')}`);
+  return `\n[PRONUNCIATION PROGRESS — silent context; you may naturally reuse mastered words or gently prompt struggling ones, but do NOT quote this block]\n${lines.join('\n')}\n`;
 }
 
 function appendChatMsg(role, text) {
@@ -3627,7 +3867,7 @@ function speakText(text) {
   const v = pickVoice();
   if (v) { u.voice = v; u.lang = v.lang; }
   else { u.lang = state.config.accent || 'en-US'; }
-  u.rate = 0.95;
+  u.rate = state.config._rateOverride || 0.95;
   u.pitch = 1.0;
   window.speechSynthesis.speak(u);
 }
@@ -4185,6 +4425,8 @@ async function showProgressReport() {
     } catch {}
   }
 
+  const pronunciationSummary = getPronunciationSummary();
+
   const dataBlock = JSON.stringify({
     totalConversations: total + (currentSummary ? 1 : 0),
     pastConversations: recent.map(c => ({
@@ -4193,27 +4435,31 @@ async function showProgressReport() {
       newWords: c.newWords, level: c.levelEstimate,
     })),
     currentConversation: currentSummary,
+    pronunciation: pronunciationSummary,
   }, null, 2);
 
   const system = `Você é um coach de inglês analisando o progresso do aluno Jean (brasileiro, escola imersiva TopWay).
-Receba os dados das conversas dele e gere um RELATÓRIO DE PROGRESSO em PORTUGUÊS BRASILEIRO claro e motivador.
+Receba os dados das conversas E da prática de pronúncia dele, e gere um RELATÓRIO DE PROGRESSO em PORTUGUÊS BRASILEIRO claro e motivador.
 
 Estrutura obrigatória (use estes cabeçalhos exatos com emoji):
 
 🎯 NÍVEL ATUAL
-(Um parágrafo curto sobre onde o Jean está hoje. Seja realista mas encorajador.)
+(Um parágrafo curto sobre onde o Jean está hoje, considerando conversação E pronúncia. Seja realista mas encorajador.)
 
 💪 PONTOS FORTES
-(Bullet list de 3-5 coisas que ele faz bem. Cada bullet começa com "•".)
+(Bullet list de 3-5 coisas que ele faz bem — pode misturar conversação e pronúncia. Cada bullet começa com "•".)
 
 ⚠️ ÁREAS PARA TRABALHAR
-(Bullet list de 3-5 dificuldades recorrentes. Seja específico — não escreva "gramática" genericamente, escreva "uso do Past Simple em frases negativas".)
+(Bullet list de 3-5 dificuldades recorrentes. Seja específico. Se houver dados de pronúncia com palavras problemáticas, inclua-as aqui.)
 
 📚 PALAVRAS E EXPRESSÕES QUE VOCÊ APRENDEU
 (Lista das palavras novas mais relevantes, em inglês com tradução curta entre parênteses.)
 
+🗣️ PRONÚNCIA
+(Se houver dados de pronúncia: taxa de acerto geral, palavras dominadas, palavras/sons ainda desafiadores. Se não houver dados: sugira usar a aba Speak.)
+
 🎓 PLANO DE ESTUDO SUGERIDO
-(3-5 sugestões concretas e práticas, em bullet. Cada uma com um VERBO no infinitivo e uma situação real. Ex: "Praticar Past Simple narrando seu dia em inglês toda noite por 5 minutos.")
+(3-5 sugestões concretas e práticas, em bullet. Cada uma com um VERBO no infinitivo. Inclua pelo menos 1 sugestão de pronúncia se houver dados dela.)
 
 ✨ MENSAGEM FINAL
 (2-3 linhas positivas, falando direto com o Jean.)
@@ -4222,7 +4468,7 @@ Regras:
 - Use Markdown simples (negrito com **texto**, bullets com •).
 - NÃO traduza os títulos.
 - NÃO invente dados que não estão no JSON.
-- Se houver poucos dados, seja honesto: "Ainda estou conhecendo seu estilo — quanto mais você conversar, melhor fica este relatório."`;
+- Se houver poucos dados, seja honesto: "Ainda estou conhecendo seu estilo — quanto mais você conversar e praticar, melhor fica este relatório."`;
 
   const userBlock = 'Dados das conversas do Jean (JSON):\n\n' + dataBlock;
 
@@ -4274,6 +4520,682 @@ function confirmModal(title, body, options) {
   });
 }
 
+// ===== SPEAK / PRONUNCIATION =====
+// Pares de palavras que soam quase iguais — brasileiros costumam confundir.
+const MINIMAL_PAIRS = [
+  { a: { word: 'sun', emoji: '🌞', meaning: 'the star that gives light' },
+    b: { word: 'son', emoji: '👦', meaning: 'a male child' } },
+  { a: { word: 'ship', emoji: '🚢', meaning: 'a big boat' },
+    b: { word: 'sheep', emoji: '🐑', meaning: 'a farm animal' } },
+  { a: { word: 'live', emoji: '🏠', meaning: 'to reside somewhere' },
+    b: { word: 'leave', emoji: '🚪', meaning: 'to go away' } },
+  { a: { word: 'full', emoji: '🥛', meaning: 'not empty' },
+    b: { word: 'fool', emoji: '🤡', meaning: 'a silly person' } },
+  { a: { word: 'three', emoji: '3️⃣', meaning: 'the number 3' },
+    b: { word: 'tree', emoji: '🌳', meaning: 'a big plant' } },
+  { a: { word: 'think', emoji: '🤔', meaning: 'to use your mind' },
+    b: { word: 'sink', emoji: '🚰', meaning: 'the basin in the kitchen' } },
+  { a: { word: 'very', emoji: '💯', meaning: 'a lot / really' },
+    b: { word: 'berry', emoji: '🫐', meaning: 'a small round fruit' } },
+  { a: { word: 'vote', emoji: '🗳️', meaning: 'to choose in an election' },
+    b: { word: 'boat', emoji: '⛵', meaning: 'a small ship' } },
+  { a: { word: 'bad', emoji: '👎', meaning: 'not good' },
+    b: { word: 'bed', emoji: '🛏️', meaning: 'where you sleep' } },
+  { a: { word: 'beach', emoji: '🏖️', meaning: 'sand next to the sea' },
+    b: { word: 'bitch', emoji: '🙅', meaning: 'rude word for a woman' } },
+  { a: { word: 'fit', emoji: '💪', meaning: 'in good shape' },
+    b: { word: 'feet', emoji: '🦶', meaning: 'plural of foot' } },
+  { a: { word: 'chip', emoji: '🍟', meaning: 'a small piece / a fry' },
+    b: { word: 'cheap', emoji: '💸', meaning: 'not expensive' } },
+  { a: { word: 'man', emoji: '👨', meaning: 'an adult male' },
+    b: { word: 'men', emoji: '👬', meaning: 'plural of man' } },
+  { a: { word: 'pen', emoji: '🖊️', meaning: 'a tool to write' },
+    b: { word: 'pan', emoji: '🍳', meaning: 'a flat pot for cooking' } },
+  { a: { word: 'seat', emoji: '🪑', meaning: 'a place to sit' },
+    b: { word: 'sit', emoji: '🧘', meaning: 'the action of sitting' } },
+  { a: { word: 'walk', emoji: '🚶', meaning: 'to go on foot' },
+    b: { word: 'work', emoji: '💼', meaning: 'your job' } },
+  { a: { word: 'thin', emoji: '🥢', meaning: 'not thick / skinny' },
+    b: { word: 'tin', emoji: '🥫', meaning: 'a type of metal / can' } },
+  { a: { word: 'wet', emoji: '💧', meaning: 'covered with water' },
+    b: { word: 'vet', emoji: '👨‍⚕️', meaning: 'animal doctor' } },
+  { a: { word: 'hat', emoji: '🎩', meaning: 'head clothing' },
+    b: { word: 'hot', emoji: '🥵', meaning: 'high temperature' } },
+  { a: { word: 'cat', emoji: '🐱', meaning: 'a pet animal' },
+    b: { word: 'cut', emoji: '✂️', meaning: 'to slice with a knife' } },
+  { a: { word: 'light', emoji: '💡', meaning: 'brightness / not heavy' },
+    b: { word: 'right', emoji: '👉', meaning: 'correct / direction' } },
+  { a: { word: 'load', emoji: '📦', meaning: 'a heavy thing to carry' },
+    b: { word: 'road', emoji: '🛣️', meaning: 'a way for cars' } },
+  { a: { word: 'this', emoji: '👇', meaning: 'the one here' },
+    b: { word: 'these', emoji: '👐', meaning: 'plural of this' } },
+  { a: { word: 'run', emoji: '🏃', meaning: 'to move fast on feet' },
+    b: { word: 'ran', emoji: '⏪', meaning: 'past of run' } },
+  { a: { word: 'law', emoji: '⚖️', meaning: 'the rules of a country' },
+    b: { word: 'low', emoji: '⬇️', meaning: 'not high' } },
+  { a: { word: 'coat', emoji: '🧥', meaning: 'a warm outer clothing' },
+    b: { word: 'cot', emoji: '🛌', meaning: 'a small bed' } },
+  { a: { word: 'pool', emoji: '🏊', meaning: 'water for swimming' },
+    b: { word: 'pull', emoji: '⬅️', meaning: 'to move toward you' } },
+  { a: { word: 'grass', emoji: '🌱', meaning: 'green plants of the ground' },
+    b: { word: 'glass', emoji: '🥃', meaning: 'a cup / material for windows' } },
+  { a: { word: 'peace', emoji: '☮️', meaning: 'no war / calm' },
+    b: { word: 'piece', emoji: '🧩', meaning: 'a small part of something' } },
+  { a: { word: 'won', emoji: '🏆', meaning: 'past of win' },
+    b: { word: 'one', emoji: '1️⃣', meaning: 'the number 1' } },
+];
+
+// Sons difíceis pra brasileiros — categorias com dica de produção + palavras.
+const DIFFICULT_SOUNDS = [
+  {
+    id: 'th-voiceless',
+    emoji: '🦷',
+    title: 'TH voiceless (think, three)',
+    desc: 'Ponta da língua entre os dentes, sopra ar',
+    tip: 'Coloque a PONTA da língua entre os dentes (parece bobo, é normal) e sopre ar. NÃO faça som na garganta. Se soar como "F" ou "T", tente relaxar mais.',
+    words: ['think', 'three', 'thanks', 'thing', 'thirty', 'thought', 'both', 'bath', 'mouth', 'birthday'],
+  },
+  {
+    id: 'th-voiced',
+    emoji: '🦷',
+    title: 'TH voiced (this, that)',
+    desc: 'Igual TH voiceless mas com vibração das cordas vocais',
+    tip: 'Mesma posição da língua entre os dentes, MAS agora COM vibração na garganta. Toque a garganta enquanto fala — precisa vibrar. Se soar como "D", empurre a língua um pouco mais pra fora.',
+    words: ['this', 'that', 'they', 'them', 'there', 'these', 'those', 'mother', 'father', 'weather', 'together'],
+  },
+  {
+    id: 'r-initial',
+    emoji: '🌊',
+    title: 'R initial (red, right)',
+    desc: 'NÃO é o "R" gutural do português',
+    tip: 'A língua NÃO toca o céu da boca. Ela fica no meio, sem tocar em nada. Os lábios ficam levemente arredondados. Se você fizer o "R" do português (garganta), soa MUITO forte. Pense num "W" leve indo pro som de "R".',
+    words: ['red', 'right', 'rain', 'really', 'road', 'run', 'read', 'rock', 'rich', 'room'],
+  },
+  {
+    id: 'w-sound',
+    emoji: '💧',
+    title: 'W (water, winter)',
+    desc: 'Som de "u" bem curto no começo',
+    tip: 'Comece com os lábios em BEEP (bem redondos, para frente), como se fosse assobiar. Depois abra para a próxima letra. NÃO é "V" (não morde o lábio). "Water" = "UÓTER", não "VÓTER".',
+    words: ['water', 'winter', 'woman', 'work', 'week', 'why', 'where', 'want', 'wait', 'we'],
+  },
+  {
+    id: 'v-vs-b',
+    emoji: '🦟',
+    title: 'V vs B',
+    desc: 'V morde o lábio, B não',
+    tip: 'Para V: encoste os dentes de cima no lábio de baixo (leve mordida) e sopre. Para B: os lábios se tocam e explodem. Em português, "V" e "B" são quase iguais em algumas regiões — em inglês, MUITO diferentes.',
+    words: ['very', 'berry', 'vote', 'boat', 'van', 'ban', 'vase', 'base', 'vet', 'bet'],
+  },
+  {
+    id: 'l-vs-r',
+    emoji: '👅',
+    title: 'L vs R',
+    desc: 'L toca o céu da boca, R não',
+    tip: 'Para L: ponta da língua encosta atrás dos dentes de cima. Para R (inicial): língua fica solta no meio da boca. Não confunda: "light" (L) começa com a língua colada, "right" (R) começa solta.',
+    words: ['light', 'right', 'load', 'road', 'lock', 'rock', 'law', 'raw', 'lace', 'race'],
+  },
+  {
+    id: 'silent-letters',
+    emoji: '🤫',
+    title: 'Silent letters (know, comb)',
+    desc: 'Letras que se escreve mas NÃO se fala',
+    tip: 'Algumas palavras têm letras "mudas" — é preciso memorizar. K silencioso antes de N (know), B silencioso depois de M (comb), letras aleatórias como o D em Wednesday.',
+    words: ['know', 'knee', 'knight', 'comb', 'thumb', 'lamb', 'island', 'listen', 'castle', 'Wednesday'],
+  },
+  {
+    id: 'ed-endings',
+    emoji: '⏳',
+    title: '-ED endings',
+    desc: 'Passado regular tem 3 sons diferentes',
+    tip: '3 regras: (1) Se a palavra termina em som de T ou D → -ED soa "id" (needed = "nee-did", wanted = "wan-tid"). (2) Se termina em som "surdo" (P, K, F, S, SH, CH) → -ED soa como "T" (walked = "wɒkt", worked = "wɜːkt"). (3) Outros casos → -ED soa "D" (played = "pleid", loved = "lʌvd").',
+    words: ['walked', 'worked', 'looked', 'needed', 'wanted', 'started', 'played', 'loved', 'called', 'lived'],
+  },
+  {
+    id: 'word-stress',
+    emoji: '💪',
+    title: 'Word stress (COMfortable)',
+    desc: 'Onde cai a força na palavra',
+    tip: 'Palavras longas têm UMA sílaba forte (stressed) e as outras fracas. "COMfortable" (não com-FOR-ta-ble), "VEgetable" (não ve-GE-table), "phoTOgraphy" (foto-GRAFI, não FO-tography). Errar o stress deixa a palavra difícil de entender.',
+    words: ['comfortable', 'vegetable', 'photography', 'important', 'necessary', 'available', 'category', 'family', 'interesting', 'temperature'],
+  },
+];
+
+// === STORAGE de estatísticas de pronúncia ===
+function loadPronunciationStats() {
+  try { return JSON.parse(localStorage.getItem('ei_pronunciation_stats') || '{}'); }
+  catch { return {}; }
+}
+function savePronunciationStats(stats) {
+  localStorage.setItem('ei_pronunciation_stats', JSON.stringify(stats));
+}
+// Registra uma tentativa. score: 'correct' | 'close' | 'wrong'.
+function recordPronunciationAttempt(word, score) {
+  const stats = loadPronunciationStats();
+  const key = word.toLowerCase().trim();
+  const entry = stats[key] || { attempts: 0, correct: 0, close: 0, wrong: 0, lastPracticed: null };
+  entry.attempts += 1;
+  if (score === 'correct') entry.correct += 1;
+  else if (score === 'close') entry.close += 1;
+  else entry.wrong += 1;
+  entry.lastPracticed = new Date().toISOString().split('T')[0];
+  stats[key] = entry;
+  savePronunciationStats(stats);
+  return entry;
+}
+function getPronunciationSummary() {
+  const stats = loadPronunciationStats();
+  const words = Object.entries(stats);
+  if (words.length === 0) return null;
+  const total = words.reduce((s, [, e]) => s + e.attempts, 0);
+  const totalCorrect = words.reduce((s, [, e]) => s + e.correct, 0);
+  const mastered = words.filter(([, e]) => e.attempts >= 3 && (e.correct / e.attempts) >= 0.8).map(([w]) => w);
+  const struggling = words.filter(([, e]) => e.attempts >= 3 && (e.correct / e.attempts) < 0.5).map(([w]) => w);
+  return {
+    totalWords: words.length,
+    totalAttempts: total,
+    overallAccuracy: total > 0 ? Math.round(100 * totalCorrect / total) : 0,
+    mastered,
+    struggling,
+    recentPracticed: words
+      .sort(([, a], [, b]) => (b.lastPracticed || '').localeCompare(a.lastPracticed || ''))
+      .slice(0, 10)
+      .map(([w]) => w),
+  };
+}
+
+// === TTS lento (metade da velocidade) ===
+function speakSlow(text) {
+  const savedRate = state.config._rateOverride;
+  state.config._rateOverride = 0.55;
+  speakText(text);
+  state.config._rateOverride = savedRate;
+}
+
+// === CAPTURA DE VOZ pra pronúncia (usa Whisper) ===
+// Retorna transcrição do que o usuário falou. Bloqueia até parar.
+async function captureVoiceOnce(onStart, onStop) {
+  if (!state.config.keys.groq) throw new Error('Add your Groq API key in Settings first.');
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  let mimeType = '';
+  for (const mt of ['audio/mp4', 'audio/webm;codecs=opus', 'audio/webm']) {
+    try { if (MediaRecorder.isTypeSupported(mt)) { mimeType = mt; break; } } catch {}
+  }
+  const mr = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+  const chunks = [];
+  mr.ondataavailable = e => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+
+  const stopped = new Promise(resolve => {
+    mr.onstop = () => resolve();
+  });
+
+  mr.start();
+  if (onStart) onStart(() => { try { mr.stop(); } catch {} });
+
+  await stopped;
+  try { stream.getTracks().forEach(t => t.stop()); } catch {}
+  if (onStop) onStop();
+
+  if (chunks.length === 0) return '';
+  const blob = new Blob(chunks, { type: mimeType || 'audio/mp4' });
+  return await transcribeWithWhisper(blob, state.config.keys.groq, mimeType);
+}
+
+// === Avaliação de pronúncia ===
+// Compara texto esperado com transcrição, retorna { score, feedback, spoken }.
+// score: 'correct' | 'close' | 'wrong'
+async function evaluatePronunciation(expected, spoken) {
+  const clean = s => s.toLowerCase().replace(/[^a-z0-9\s']/g, '').replace(/\s+/g, ' ').trim();
+  const exp = clean(expected);
+  const spk = clean(spoken);
+
+  // Heurística rápida: match exato = correct
+  if (exp === spk) {
+    return { score: 'correct', feedback: `Excellent! You said "${expected}" clearly.`, spoken };
+  }
+  if (!spk) {
+    return { score: 'wrong', feedback: `I didn't hear anything. Tap the mic and speak again — make sure your microphone is close.`, spoken };
+  }
+
+  // Se muito próximo em Levenshtein (2 ou menos), consideramos "close"
+  const dist = levenshtein(exp, spk);
+  const closeLimit = Math.max(1, Math.floor(exp.length * 0.25));
+
+  // Feedback via IA (mais rico) — se tiver key disponível, chama; se falhar, cai no heurístico
+  try {
+    const system = `You are Ms. Marie, a friendly English pronunciation coach for a Brazilian learner (Jean).
+He tried to say the word/phrase: "${expected}"
+The speech recognition heard: "${spoken}"
+
+Judge whether his pronunciation was:
+- "correct" — recognizer heard essentially the same word
+- "close" — recognizer heard a similar but different word (common Brazilian mistake)
+- "wrong" — recognizer heard something quite different
+
+Return ONLY valid JSON (no markdown):
+{
+  "score": "correct" | "close" | "wrong",
+  "feedback": "2-4 short sentences: praise if correct; if not, explain WHICH sound went wrong (in English) plus ONE quick tip in PORTUGUESE in parentheses. Do NOT prefix with your name."
+}`;
+    const messages = [
+      { role: 'system', content: system },
+      { role: 'user', content: `Expected: "${expected}"\nHeard: "${spoken}"` },
+    ];
+    const { text } = await callLLM(messages, { maxTokens: 300, temperature: 0.3 });
+    const cleaned = text.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim();
+    const parsed = JSON.parse(cleaned);
+    if (parsed.score && parsed.feedback) {
+      return { score: parsed.score, feedback: parsed.feedback, spoken };
+    }
+  } catch {}
+
+  // Fallback heurístico
+  if (dist <= closeLimit) {
+    return { score: 'close', feedback: `Almost! You said "${spoken}" — the target is "${expected}". Try again slowly.`, spoken };
+  }
+  return { score: 'wrong', feedback: `I heard "${spoken}" but the target was "${expected}". Listen again with 🐢 Slow and try one more time.`, spoken };
+}
+
+function levenshtein(a, b) {
+  if (!a.length) return b.length;
+  if (!b.length) return a.length;
+  const m = Array.from({ length: a.length + 1 }, () => new Array(b.length + 1).fill(0));
+  for (let i = 0; i <= a.length; i++) m[i][0] = i;
+  for (let j = 0; j <= b.length; j++) m[0][j] = j;
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      m[i][j] = Math.min(m[i - 1][j] + 1, m[i][j - 1] + 1, m[i - 1][j - 1] + cost);
+    }
+  }
+  return m[a.length][b.length];
+}
+
+// === UI DA ABA SPEAK ===
+function renderSpeakHome() {
+  const home = document.getElementById('speakHome');
+  home.style.display = 'block';
+  document.getElementById('speakMode').style.display = 'none';
+
+  const summary = getPronunciationSummary();
+  const summaryBlock = summary ? `
+    <div style="background:rgba(34,197,94,0.08); border:1px solid rgba(34,197,94,0.3); border-radius:12px; padding:10px 12px; margin-bottom:14px; font-size:12px;">
+      <strong style="color:#4ade80;">Your progress:</strong> ${summary.totalWords} words practiced · ${summary.totalAttempts} attempts · ${summary.overallAccuracy}% accuracy
+      ${summary.struggling.length ? `<br><span style="opacity:0.85;">🎯 Still working on: <em>${summary.struggling.slice(0, 5).join(', ')}</em></span>` : ''}
+    </div>
+  ` : '';
+
+  home.innerHTML = `
+    <div class="speak-intro">
+      🗣️ Train your English pronunciation. Choose a mode below — the IA gives you specific feedback on each try. Needs your <strong>Groq key</strong> for voice recognition (already set in Settings).
+    </div>
+    ${summaryBlock}
+    <div class="speak-mode-card" data-mode="pairs">
+      <div class="emoji">🎯</div>
+      <div class="info">
+        <div class="title">Minimal Pairs Challenge</div>
+        <div class="desc">Words that sound almost the same (Sun / Son). Train your ear.</div>
+      </div>
+    </div>
+    <div class="speak-mode-card" data-mode="repeat">
+      <div class="emoji">🔁</div>
+      <div class="info">
+        <div class="title">Repeat After Me</div>
+        <div class="desc">Ms. Marie says a word, you repeat, IA gives feedback.</div>
+      </div>
+    </div>
+    <div class="speak-mode-card" data-mode="sounds">
+      <div class="emoji">🎓</div>
+      <div class="info">
+        <div class="title">Difficult Sounds</div>
+        <div class="desc">TH, R, W, silent letters, word stress. Learn HOW to make each sound.</div>
+      </div>
+    </div>
+    <div class="speak-mode-card" data-mode="free">
+      <div class="emoji">📝</div>
+      <div class="info">
+        <div class="title">Practice ANY word</div>
+        <div class="desc">Type any word or sentence you want to train.</div>
+      </div>
+    </div>
+  `;
+  home.querySelectorAll('.speak-mode-card').forEach(card => {
+    card.onclick = () => openSpeakMode(card.dataset.mode);
+  });
+}
+
+function openSpeakMode(mode) {
+  document.getElementById('speakHome').style.display = 'none';
+  const modeEl = document.getElementById('speakMode');
+  modeEl.style.display = 'block';
+  modeEl.innerHTML = '';
+
+  if (mode === 'pairs') renderModePairs(modeEl);
+  else if (mode === 'repeat') renderModeRepeat(modeEl);
+  else if (mode === 'sounds') renderModeSounds(modeEl);
+  else if (mode === 'free') renderModeFree(modeEl);
+}
+
+function speakModeHeader(title) {
+  return `
+    <div class="speak-header">
+      <button class="back-btn" id="speakBackBtn">‹</button>
+      <h2>${title}</h2>
+    </div>
+  `;
+}
+
+// === MODO 1: Minimal Pairs ===
+let currentPairIndex = 0;
+let currentPairAnswer = null; // 'a' ou 'b' — qual foi tocada
+function renderModePairs(container) {
+  const pair = MINIMAL_PAIRS[currentPairIndex];
+  container.innerHTML = `
+    ${speakModeHeader('🎯 Minimal Pairs')}
+    <div style="text-align:center; font-size:11px; opacity:0.6; margin-bottom:8px;">Pair ${currentPairIndex + 1} / ${MINIMAL_PAIRS.length}</div>
+    <div class="pair-grid">
+      <div class="pair-item">
+        <div style="font-size:36px; line-height:1; margin-bottom:4px;">${pair.a.emoji}</div>
+        <div class="pair-word">${pair.a.word}</div>
+        <div class="pair-meaning">${pair.a.meaning}</div>
+      </div>
+      <div class="pair-item">
+        <div style="font-size:36px; line-height:1; margin-bottom:4px;">${pair.b.emoji}</div>
+        <div class="pair-word">${pair.b.word}</div>
+        <div class="pair-meaning">${pair.b.meaning}</div>
+      </div>
+    </div>
+    <div class="practice-btns">
+      <button id="hearA">🔊 Hear "${pair.a.word}"</button>
+      <button id="hearB">🔊 Hear "${pair.b.word}"</button>
+      <button id="hearBoth">🔊 Hear both</button>
+    </div>
+    <div style="text-align:center; margin: 16px 0 8px; opacity:0.85; font-size:13px;">
+      ⬇️ Ready? Tap "Play random" then say the word you hear:
+    </div>
+    <div class="practice-btns">
+      <button class="primary" id="playRandom">🎧 Play a random one</button>
+      <button id="speakGuess" disabled>🎤 Speak the word</button>
+    </div>
+    <div id="pairResult"></div>
+    <div class="practice-btns" style="margin-top:16px;">
+      <button id="prevPair">◀ Previous</button>
+      <button id="nextPair" class="primary">Next ▶</button>
+    </div>
+  `;
+
+  document.getElementById('speakBackBtn').onclick = renderSpeakHome;
+
+  const play = (which) => {
+    currentPairAnswer = which;
+    speakText(pair[which].word);
+  };
+  document.getElementById('hearA').onclick = () => play('a');
+  document.getElementById('hearB').onclick = () => play('b');
+  document.getElementById('hearBoth').onclick = async () => {
+    speakText(pair.a.word);
+    setTimeout(() => speakText(pair.b.word), 1300);
+  };
+  document.getElementById('playRandom').onclick = () => {
+    const which = Math.random() < 0.5 ? 'a' : 'b';
+    currentPairAnswer = which;
+    speakText(pair[which].word);
+    document.getElementById('speakGuess').disabled = false;
+    document.getElementById('pairResult').innerHTML = '';
+  };
+  document.getElementById('speakGuess').onclick = async () => {
+    if (!currentPairAnswer) { toast('Play a random one first!'); return; }
+    await runPronunciationCapture({
+      expected: pair[currentPairAnswer].word,
+      button: document.getElementById('speakGuess'),
+      resultEl: document.getElementById('pairResult'),
+      onDone: (score) => {
+        // Registra estatística contra a palavra que ele TENTOU dizer
+        recordPronunciationAttempt(pair[currentPairAnswer].word, score);
+      },
+    });
+  };
+  document.getElementById('prevPair').onclick = () => {
+    currentPairIndex = (currentPairIndex - 1 + MINIMAL_PAIRS.length) % MINIMAL_PAIRS.length;
+    currentPairAnswer = null;
+    renderModePairs(container);
+  };
+  document.getElementById('nextPair').onclick = () => {
+    currentPairIndex = (currentPairIndex + 1) % MINIMAL_PAIRS.length;
+    currentPairAnswer = null;
+    renderModePairs(container);
+  };
+}
+
+// === MODO 2: Repeat After Me ===
+const REPEAT_POOL = [
+  'comfortable', 'vegetable', 'important', 'delicious', 'beautiful',
+  'available', 'restaurant', 'temperature', 'refrigerator', 'photography',
+  'necessary', 'interesting', 'business', 'everything', 'usually',
+  'clothes', 'through', 'thought', 'thirty', 'weather',
+  'world', 'work', 'walk', 'water', 'winter',
+  'schedule', 'February', 'Wednesday', 'chocolate', 'dessert',
+];
+
+function renderModeRepeat(container) {
+  let currentWord = REPEAT_POOL[Math.floor(Math.random() * REPEAT_POOL.length)];
+
+  const draw = () => {
+    container.innerHTML = `
+      ${speakModeHeader('🔁 Repeat After Me')}
+      <div class="word-panel">
+        <div class="word" id="repeatWord">${currentWord}</div>
+        <div class="meaning">Listen, then repeat</div>
+        <div class="practice-btns">
+          <button id="hearNormal" class="primary">🔊 Hear</button>
+          <button id="hearSlow">🐢 Slow</button>
+        </div>
+        <div class="practice-btns" style="margin-top:8px;">
+          <button id="doRepeat" class="primary" style="min-width:160px;">🎤 Repeat now</button>
+        </div>
+        <div id="repeatResult"></div>
+      </div>
+      <div class="free-input-block">
+        <div style="font-size:11px; opacity:0.7; margin-bottom:4px;">Try a specific word:</div>
+        <input type="text" id="customWord" placeholder="Type any word or sentence...">
+        <div class="practice-btns" style="margin-top:8px;">
+          <button id="useCustom" class="primary">Use this</button>
+          <button id="randomWord">🎲 Random word</button>
+        </div>
+      </div>
+    `;
+    document.getElementById('speakBackBtn').onclick = renderSpeakHome;
+    document.getElementById('hearNormal').onclick = () => speakText(currentWord);
+    document.getElementById('hearSlow').onclick = () => speakSlow(currentWord);
+    document.getElementById('doRepeat').onclick = async () => {
+      await runPronunciationCapture({
+        expected: currentWord,
+        button: document.getElementById('doRepeat'),
+        resultEl: document.getElementById('repeatResult'),
+        onDone: (score) => recordPronunciationAttempt(currentWord, score),
+      });
+    };
+    document.getElementById('useCustom').onclick = () => {
+      const v = document.getElementById('customWord').value.trim();
+      if (!v) { toast('Type a word first'); return; }
+      currentWord = v;
+      draw();
+    };
+    document.getElementById('randomWord').onclick = () => {
+      currentWord = REPEAT_POOL[Math.floor(Math.random() * REPEAT_POOL.length)];
+      draw();
+    };
+  };
+  draw();
+}
+
+// === MODO 3: Difficult Sounds ===
+function renderModeSounds(container) {
+  container.innerHTML = `
+    ${speakModeHeader('🎓 Difficult Sounds')}
+    <div style="font-size:12px; opacity:0.7; margin-bottom:12px;">Choose a sound category to practice. Each shows how to produce the sound + words to try.</div>
+    <div id="soundsList"></div>
+  `;
+  document.getElementById('speakBackBtn').onclick = renderSpeakHome;
+  const list = document.getElementById('soundsList');
+  for (const cat of DIFFICULT_SOUNDS) {
+    const card = document.createElement('div');
+    card.className = 'sound-cat-card';
+    card.innerHTML = `
+      <div class="emoji">${cat.emoji}</div>
+      <div class="info">
+        <div class="title">${cat.title}</div>
+        <div class="desc">${cat.desc}</div>
+      </div>
+    `;
+    card.onclick = () => openSoundCategory(container, cat);
+    list.appendChild(card);
+  }
+}
+
+function openSoundCategory(container, cat) {
+  const stats = loadPronunciationStats();
+  const wordRows = cat.words.map(w => {
+    const s = stats[w.toLowerCase()] || { attempts: 0, correct: 0 };
+    const acc = s.attempts ? Math.round(100 * s.correct / s.attempts) : null;
+    return `
+      <div class="word-row" data-word="${escapeHtml(w)}">
+        <div class="wr-word">${escapeHtml(w)}</div>
+        <div class="wr-stats">${acc !== null ? acc + '% (' + s.attempts + ')' : 'new'}</div>
+        <button class="wr-btn wr-hear" title="Hear">🔊</button>
+        <button class="wr-btn wr-slow" title="Slow">🐢</button>
+        <button class="wr-btn wr-practice" title="Practice">🎤</button>
+      </div>
+    `;
+  }).join('');
+
+  container.innerHTML = `
+    ${speakModeHeader(cat.emoji + ' ' + cat.title)}
+    <div class="sound-cat-tip">💡 ${cat.tip}</div>
+    <div>${wordRows}</div>
+    <div id="soundResult"></div>
+  `;
+  document.getElementById('speakBackBtn').onclick = () => renderModeSounds(container);
+
+  container.querySelectorAll('.word-row').forEach(row => {
+    const word = row.dataset.word;
+    row.querySelector('.wr-hear').onclick = () => speakText(word);
+    row.querySelector('.wr-slow').onclick = () => speakSlow(word);
+    row.querySelector('.wr-practice').onclick = async () => {
+      const btn = row.querySelector('.wr-practice');
+      await runPronunciationCapture({
+        expected: word,
+        button: btn,
+        resultEl: document.getElementById('soundResult'),
+        onDone: (score) => {
+          recordPronunciationAttempt(word, score);
+          // Atualiza stats na linha
+          const s = loadPronunciationStats()[word.toLowerCase()];
+          const acc = s.attempts ? Math.round(100 * s.correct / s.attempts) : 0;
+          row.querySelector('.wr-stats').textContent = acc + '% (' + s.attempts + ')';
+        },
+      });
+    };
+  });
+}
+
+// === MODO 4: Practice any word ===
+function renderModeFree(container) {
+  const stats = loadPronunciationStats();
+  const recent = Object.entries(stats)
+    .sort(([, a], [, b]) => (b.lastPracticed || '').localeCompare(a.lastPracticed || ''))
+    .slice(0, 8);
+
+  container.innerHTML = `
+    ${speakModeHeader('📝 Practice ANY word')}
+    <div class="free-input-block">
+      <div style="font-size:11px; opacity:0.7; margin-bottom:6px;">Type a word or short sentence:</div>
+      <textarea id="freeText" placeholder="Ex: umbrella  /  I would like some coffee" rows="2"></textarea>
+      <div class="practice-btns" style="margin-top:8px;">
+        <button id="freeHear" class="primary">🔊 Hear</button>
+        <button id="freeSlow">🐢 Slow</button>
+        <button id="freePractice" class="primary">🎤 Practice</button>
+      </div>
+    </div>
+    <div id="freeResult"></div>
+    ${recent.length ? `
+      <div class="practice-history">
+        <h4>Recent practice</h4>
+        ${recent.map(([w, s]) => {
+          const acc = s.attempts ? Math.round(100 * s.correct / s.attempts) : 0;
+          return `<div class="word-row" data-recent="${escapeHtml(w)}">
+            <div class="wr-word">${escapeHtml(w)}</div>
+            <div class="wr-stats">${acc}% (${s.attempts})</div>
+            <button class="wr-btn wr-load">↩</button>
+          </div>`;
+        }).join('')}
+      </div>
+    ` : ''}
+  `;
+  document.getElementById('speakBackBtn').onclick = renderSpeakHome;
+
+  const getText = () => (document.getElementById('freeText').value || '').trim();
+  document.getElementById('freeHear').onclick = () => {
+    const t = getText(); if (!t) { toast('Type something first'); return; }
+    speakText(t);
+  };
+  document.getElementById('freeSlow').onclick = () => {
+    const t = getText(); if (!t) { toast('Type something first'); return; }
+    speakSlow(t);
+  };
+  document.getElementById('freePractice').onclick = async () => {
+    const t = getText(); if (!t) { toast('Type something first'); return; }
+    await runPronunciationCapture({
+      expected: t,
+      button: document.getElementById('freePractice'),
+      resultEl: document.getElementById('freeResult'),
+      onDone: (score) => recordPronunciationAttempt(t, score),
+    });
+  };
+  container.querySelectorAll('[data-recent]').forEach(row => {
+    row.querySelector('.wr-load').onclick = () => {
+      document.getElementById('freeText').value = row.dataset.recent;
+    };
+  });
+}
+
+// === Runner comum: grava, transcreve, avalia, renderiza feedback ===
+async function runPronunciationCapture({ expected, button, resultEl, onDone }) {
+  if (!state.config.keys.groq) { toast('Add Groq key in Settings'); return; }
+  const originalText = button.textContent;
+  button.disabled = true;
+  button.classList.add('rec-pulse');
+  button.textContent = '🔴 Listening (tap to stop)';
+  resultEl.innerHTML = '';
+
+  let stopFn = null;
+  const clickHandler = () => { if (stopFn) stopFn(); };
+  button.onclick = clickHandler;
+
+  try {
+    const spoken = await captureVoiceOnce(
+      (stop) => { stopFn = stop; },
+      () => {}
+    );
+    button.textContent = '🤔 Evaluating...';
+    const result = await evaluatePronunciation(expected, spoken);
+    resultEl.innerHTML = `
+      <div class="practice-result ${result.score}">
+        ${result.feedback}
+        ${result.spoken ? `<div class="heard">🎧 I heard: "${escapeHtml(result.spoken)}"</div>` : ''}
+      </div>
+    `;
+    if (onDone) onDone(result.score);
+  } catch (err) {
+    resultEl.innerHTML = `<div class="practice-result wrong">⚠️ ${escapeHtml(err.message || 'Error')}</div>`;
+  } finally {
+    button.disabled = false;
+    button.classList.remove('rec-pulse');
+    button.textContent = originalText;
+    button.onclick = null;
+  }
+}
+
 // ===== ONBOARDING =====
 function hasAnyKey() {
   return Object.values(state.config.keys).some(k => k && k.length > 5);
@@ -4315,6 +5237,9 @@ function switchTab(name) {
   } else if (name === 'topics') {
     document.getElementById('topicsList').style.display = 'block';
     document.getElementById('subtopicsList').style.display = 'none';
+  }
+  if (name === 'speak') {
+    renderSpeakHome();
   }
 }
 
