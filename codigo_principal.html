@@ -1068,7 +1068,7 @@
 <nav class="bottom">
   <button data-tab="chat" class="active"><span class="icon">💬</span><span>Chat</span></button>
   <button data-tab="topics"><span class="icon">📚</span><span>Topics</span></button>
-  <button data-tab="speak"><span class="icon">🗣️</span><span>Speak</span></button>
+  <button data-tab="speak"><span class="icon">🗣️</span><span>Pronunciation</span></button>
   <button data-tab="ask"><span class="icon">❓</span><span>Ask</span></button>
   <button data-tab="settings"><span class="icon">⚙️</span><span>Settings</span></button>
 </nav>
@@ -2637,7 +2637,7 @@ const VOCABULARY_DATA = {
     { word: 'chair', emoji: '🪑', definition: 'A seat for one person', example: 'Please sit on this chair.' },
     { word: 'lamp', emoji: '💡', definition: 'It gives light in a room', example: 'Turn on the lamp, please.' },
     { word: 'key', emoji: '🔑', definition: 'You use it to open a door', example: 'I lost my house key.' },
-    { word: 'garden', emoji: '🌳', definition: 'The green area outside the house', example: 'We grow flowers in the garden.' },
+    { word: 'garden', emoji: '🌷', definition: 'The green area outside the house with plants', example: 'We grow flowers in the garden.' },
     { word: 'stairs', emoji: '🪜', definition: 'Steps to go up or down', example: 'The bedroom is up the stairs.' },
   ],
   'Kitchen & Food': [
@@ -2663,10 +2663,12 @@ const VOCABULARY_DATA = {
     { word: 'beer', emoji: '🍺', definition: 'An alcoholic drink, common at parties', example: 'Let\'s grab a beer after work.' },
     { word: 'wine', emoji: '🍷', definition: 'An alcoholic drink made from grapes', example: 'Red wine goes well with steak.' },
     { word: 'soda', emoji: '🥤', definition: 'A sweet fizzy drink, like Coke', example: 'I try not to drink too much soda.' },
-    { word: 'smoothie', emoji: '🥤', definition: 'A thick drink from fruits and ice', example: 'I make a banana smoothie for breakfast.' },
+    { word: 'smoothie', emoji: '🥭', definition: 'A thick blended drink from fruits and ice', example: 'I make a banana smoothie for breakfast.' },
   ],
   'Body & Health': [
-    { word: 'head', emoji: '🧠', definition: 'The top part of your body, has your brain', example: 'I have a headache.' },
+    { word: 'head', emoji: '🗣️', definition: 'The top part of your body, above your neck', example: 'I have a headache.' },
+    { word: 'brain', emoji: '🧠', definition: 'The organ inside your head — you use it to think', example: 'Reading is good for your brain.' },
+    { word: 'face', emoji: '😊', definition: 'The front of your head — has eyes, nose and mouth', example: 'She has a friendly face.' },
     { word: 'eyes', emoji: '👀', definition: 'You use them to see', example: 'Her eyes are blue.' },
     { word: 'hand', emoji: '✋', definition: 'What you use to write and touch', example: 'Wash your hands before eating.' },
     { word: 'foot', emoji: '🦶', definition: 'Bottom of your leg, you stand on it', example: 'My foot hurts from walking so much.' },
@@ -2683,7 +2685,7 @@ const VOCABULARY_DATA = {
     { word: 'tennis', emoji: '🎾', definition: 'A sport with rackets and a small yellow ball', example: 'She plays tennis every weekend.' },
     { word: 'swim', emoji: '🏊', definition: 'To move through water using your arms and legs', example: 'I swim at the pool three times a week.' },
     { word: 'run', emoji: '🏃', definition: 'To move very fast on your feet', example: 'I run in the park every morning.' },
-    { word: 'gym', emoji: '💪', definition: 'A place to exercise with machines', example: 'I go to the gym after work.' },
+    { word: 'gym', emoji: '🏋️', definition: 'A place to exercise with machines and weights', example: 'I go to the gym after work.' },
     { word: 'bike', emoji: '🚴', definition: 'A two-wheeled vehicle you pedal', example: 'I ride my bike to work.' },
     { word: 'win', emoji: '🏆', definition: 'To be first / to be the best', example: 'Our team won the championship!' },
   ],
@@ -2773,7 +2775,7 @@ const VOCABULARY_DATA = {
     { word: 'phone', emoji: '📱', definition: 'A device to call and text people', example: 'Please answer your phone.' },
     { word: 'money', emoji: '💰', definition: 'What you use to pay for things', example: 'I need more money to travel.' },
     { word: 'deadline', emoji: '⏰', definition: 'The day something must be finished', example: 'The deadline is Friday.' },
-    { word: 'coworker', emoji: '🤵', definition: 'A person you work with', example: 'My coworkers are really nice.' },
+    { word: 'coworker', emoji: '🧑‍💼', definition: 'A person you work with', example: 'My coworkers are really nice.' },
   ],
   'School & Study': [
     { word: 'book', emoji: '📖', definition: 'Pages with words and pictures to read', example: 'I read a book every month.' },
@@ -4456,7 +4458,7 @@ Estrutura obrigatória (use estes cabeçalhos exatos com emoji):
 (Lista das palavras novas mais relevantes, em inglês com tradução curta entre parênteses.)
 
 🗣️ PRONÚNCIA
-(Se houver dados de pronúncia: taxa de acerto geral, palavras dominadas, palavras/sons ainda desafiadores. Se não houver dados: sugira usar a aba Speak.)
+(Se houver dados de pronúncia: taxa de acerto geral, palavras dominadas, palavras/sons ainda desafiadores. Se não houver dados: sugira usar a aba Pronunciation.)
 
 🎓 PLANO DE ESTUDO SUGERIDO
 (3-5 sugestões concretas e práticas, em bullet. Cada uma com um VERBO no infinitivo. Inclua pelo menos 1 sugestão de pronúncia se houver dados dela.)
