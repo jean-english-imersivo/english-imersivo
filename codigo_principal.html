@@ -4470,7 +4470,9 @@ Regras:
 - Use Markdown simples (negrito com **texto**, bullets com •).
 - NÃO traduza os títulos.
 - NÃO invente dados que não estão no JSON.
-- Se houver poucos dados, seja honesto: "Ainda estou conhecendo seu estilo — quanto mais você conversar e praticar, melhor fica este relatório."`;
+- Se houver poucos dados, seja honesto: "Ainda estou conhecendo seu estilo — quanto mais você conversar e praticar, melhor fica este relatório."
+- IMPORTANTE: SEMPRE inclua TODAS as 7 seções (🎯 NÍVEL ATUAL, 💪 PONTOS FORTES, ⚠️ ÁREAS PARA TRABALHAR, 📚 PALAVRAS E EXPRESSÕES QUE VOCÊ APRENDEU, 🗣️ PRONÚNCIA, 🎓 PLANO DE ESTUDO SUGERIDO, ✨ MENSAGEM FINAL). Mesmo com poucos dados, escreva algo em cada seção. NUNCA interrompa no meio de uma frase.
+- Antes de terminar, verifique se todas as 7 seções foram escritas. Se algo ficou faltando, continue.`;
 
   const userBlock = 'Dados das conversas do Jean (JSON):\n\n' + dataBlock;
 
@@ -4478,7 +4480,7 @@ Regras:
     const { text } = await callLLM([
       { role: 'system', content: system },
       { role: 'user', content: userBlock },
-    ], { maxTokens: 1200, temperature: 0.4 });
+    ], { maxTokens: 2500, temperature: 0.4 });
 
     const content = document.getElementById('progressContent');
     if (content) {
