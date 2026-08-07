@@ -390,6 +390,102 @@
     padding: 0 4px;
   }
 
+  /* DOUBTS VIEW (dúvidas pra aula) */
+  .doubts-tool-btn {
+    flex: 1;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.85);
+    padding: 9px 10px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .doubts-tool-btn:active { background: rgba(255,255,255,0.14); }
+  .doubts-section-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    opacity: 0.45;
+    margin: 18px 0 8px;
+  }
+  .doubt-item {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 10px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .doubt-item.done {
+    opacity: 0.5;
+    border-color: rgba(34,197,94,0.25);
+  }
+  .doubt-check {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.3);
+    background: transparent;
+    color: #22c55e;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+  .doubt-item.done .doubt-check {
+    border-color: #22c55e;
+    background: rgba(34,197,94,0.15);
+  }
+  .doubt-body { flex: 1; min-width: 0; }
+  .doubt-text {
+    font-size: 14px;
+    line-height: 1.45;
+    word-wrap: break-word;
+  }
+  .doubt-item.done .doubt-text { text-decoration: line-through; }
+  .doubt-date { font-size: 10px; opacity: 0.4; margin-top: 4px; }
+  .doubt-answer {
+    background: rgba(34,197,94,0.08);
+    border-left: 3px solid rgba(34,197,94,0.5);
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-top: 8px;
+    font-size: 12.5px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+  }
+  .doubt-btns { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+  .doubt-btns button {
+    background: rgba(255,255,255,0.08);
+    border: none;
+    color: rgba(255,255,255,0.8);
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 11.5px;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .doubt-btns button.ai {
+    background: rgba(139,92,246,0.2);
+    color: #c4b5fd;
+  }
+  .doubt-btns button.del { color: rgba(248,113,113,0.9); }
+  .doubts-empty {
+    text-align: center;
+    padding: 26px 16px;
+    opacity: 0.5;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
   /* SETTINGS VIEW */
   .settings-content {
     flex: 1;
@@ -529,18 +625,43 @@
   }
   nav.bottom button {
     flex: 1;
+    min-width: 0;
+    position: relative;
     background: transparent;
     border: none;
     color: rgba(255,255,255,0.5);
-    padding: 10px 4px 8px;
-    font-size: 11px;
+    padding: 10px 2px 8px;
+    font-size: 10px;
+    line-height: 1.1;
     cursor: pointer;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 2px;
   }
-  nav.bottom button .icon { font-size: 22px; }
+  nav.bottom button .icon { font-size: 20px; }
+  nav.bottom button .label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+  /* bolinha com o total de dúvidas em aberto */
+  nav.bottom button .badge {
+    position: absolute;
+    transform: translate(14px, -4px);
+    background: #ef4444;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    min-width: 15px;
+    height: 15px;
+    line-height: 15px;
+    border-radius: 8px;
+    padding: 0 3px;
+    display: none;
+  }
+  nav.bottom button .badge.show { display: block; }
   nav.bottom button.active {
     color: #a78bfa;
   }
@@ -923,10 +1044,32 @@
         <div class="ask-examples">Tip: ask in English to stay immersive.</div>
         <div class="ask-row">
           <button class="mic" id="askMicBtn" title="Speak">🎤</button>
-          <button id="askSendBtn">Ask Ms. Marie</button>
+          <button id="askSendBtn">Ask Ms. Mary</button>
         </div>
       </div>
       <div class="ask-history-block" id="askHistory"></div>
+    </div>
+  </section>
+
+  <!-- DOUBTS VIEW (dúvidas pra levar pra aula de inglês) -->
+  <section class="view" id="view-doubts">
+    <div class="ask-container">
+      <div class="ask-intro">
+        📝 Save here anything you want to ask your teacher in the next class.
+        Tap the circle when you've already asked it — then you can write down the answer.
+      </div>
+      <div class="ask-input-block">
+        <textarea id="doubtInput" placeholder="Ex: When do I use 'used to' and when do I use 'would'?" rows="3"></textarea>
+        <div class="ask-examples">Tip: write it the moment the doubt appears, even if it's short.</div>
+        <div class="ask-row">
+          <button class="mic" id="doubtMicBtn" title="Speak">🎤</button>
+          <button id="doubtAddBtn">+ Save doubt</button>
+        </div>
+      </div>
+      <div id="doubtsToolbar" style="display:none; gap:8px; margin-bottom:14px;">
+        <button id="doubtsShareBtn" class="doubts-tool-btn">📤 Share / copy list</button>
+      </div>
+      <div id="doubtsList"></div>
     </div>
   </section>
 
@@ -942,7 +1085,7 @@
       <div class="settings-group">
         <h3>🎙️ Voice</h3>
         <div class="settings-row">
-          <label>Ms. Marie speaks out loud
+          <label>Ms. Mary speaks out loud
             <span class="hint">Tap a message to hear it</span>
           </label>
           <div class="switch">
@@ -974,7 +1117,7 @@
             <span class="hint">Auto-pick masculine or feminine voice</span>
           </label>
           <select id="cfgVoiceGender">
-            <option value="female">Female (Ms. Marie)</option>
+            <option value="female">Female (Ms. Mary)</option>
             <option value="male">Male</option>
             <option value="auto">Auto / system default</option>
           </select>
@@ -1005,7 +1148,7 @@
         <h3>👨‍🏫 Teaching style</h3>
         <div class="settings-row">
           <label>Correction mode
-            <span class="hint">How Ms. Marie fixes your English</span>
+            <span class="hint">How Ms. Mary fixes your English</span>
           </label>
           <select id="cfgCorrection">
             <option value="off">Off — just talk</option>
@@ -1056,21 +1199,23 @@
         <h3>🗑️ Reset</h3>
         <button class="btn-danger" id="btnClearChat">Clear chat history</button>
         <button class="btn-danger" id="btnClearAsk">Clear Ask history</button>
+        <button class="btn-danger" id="btnClearDoubts">Clear doubts list</button>
         <button class="btn-danger" id="btnClearPastConvs">Clear long-term memory (past conversations)</button>
         <button class="btn-danger" id="btnResetQuotas">Reset quota state (test)</button>
       </div>
 
-      <div class="info-line">English Imersivo v1.0 — Jean Edition</div>
+      <div class="info-line">English Imersivo v1.1 — Jean Edition</div>
     </div>
   </section>
 </main>
 
 <nav class="bottom">
-  <button data-tab="chat" class="active"><span class="icon">💬</span><span>Chat</span></button>
-  <button data-tab="topics"><span class="icon">📚</span><span>Topics</span></button>
-  <button data-tab="speak"><span class="icon">🗣️</span><span>Pronunciation</span></button>
-  <button data-tab="ask"><span class="icon">❓</span><span>Ask</span></button>
-  <button data-tab="settings"><span class="icon">⚙️</span><span>Settings</span></button>
+  <button data-tab="chat" class="active"><span class="icon">💬</span><span class="label">Chat</span></button>
+  <button data-tab="topics"><span class="icon">📚</span><span class="label">Topics</span></button>
+  <button data-tab="speak"><span class="icon">🗣️</span><span class="label">Speak</span></button>
+  <button data-tab="ask"><span class="icon">❓</span><span class="label">Ask</span></button>
+  <button data-tab="doubts"><span class="icon">📝</span><span class="badge" id="doubtsBadge"></span><span class="label">Doubts</span></button>
+  <button data-tab="settings"><span class="icon">⚙️</span><span class="label">Settings</span></button>
 </nav>
 
 <div class="toast" id="toast"></div>
@@ -1110,8 +1255,8 @@ const PROVIDERS = {
   },
 };
 
-// === System prompt da Ms. Marie (adaptado do English Assistant desktop) ===
-const MS_MARIE_SYSTEM = `You are "Ms. Marie", a patient and friendly English conversation teacher.
+// === System prompt da Ms. Mary (adaptado do English Assistant desktop) ===
+const MS_MARY_SYSTEM = `You are "Ms. Mary", a patient and friendly English conversation teacher.
 Your student is Jean, a Brazilian beginner who has been studying English
 for several months at TopWay, an immersive English school in Brazil.
 He feels stuck and shy about speaking.
@@ -1203,9 +1348,9 @@ Every message has 3 parts:
   to say.
 
 == NAME PREFIX (very important) ==
-- NEVER start your reply with "Ms. Marie:" or any name tag.
+- NEVER start your reply with "Ms. Mary:" or any name tag.
 - NEVER write your name at all. Just answer directly as if you were speaking.
-- Bad: "Ms. Marie: That's great, Jean!"
+- Bad: "Ms. Mary: That's great, Jean!"
 - Good: "That's great, Jean!"
 
 == USING PAST CONVERSATIONS ==
@@ -1219,7 +1364,7 @@ Every message has 3 parts:
   moment ("by the way, last time you struggled with X — want to try
   again now?"), but do not lecture.
 
-You are Ms. Marie. Begin every reply directly as Ms. Marie would, with
+You are Ms. Mary. Begin every reply directly as Ms. Mary would, with
 NO name prefix and NO meta-comments.`;
 
 // === Topics data ===
@@ -2811,7 +2956,7 @@ function loadConfig() {
     voiceOn: true,
     autoSpeak: false,
     accent: 'en-US',
-    voiceName: '',           // nome específico da voz (vazio = auto, preferindo feminino - Ms. Marie)
+    voiceName: '',           // nome específico da voz (vazio = auto, preferindo feminino - Ms. Mary)
     voiceGender: 'female',   // 'male' | 'female' | 'auto'
     useWhisper: true,        // STT via Groq Whisper (muito mais preciso) — fallback Web Speech
     correction: 'gentle',
@@ -2970,7 +3115,7 @@ async function callMistral(messages, key, maxTokens, temperature) {
   return txt.trim();
 }
 
-// ===== CHAT (Ms. Marie) =====
+// ===== CHAT (Ms. Mary) =====
 async function sendChatMessage(text) {
   if (!text.trim()) return;
   if (!hasAnyKey()) { showOnboarding(); return; }
@@ -3000,7 +3145,7 @@ ${conversationSoFar || '(this is the first message)'}
 ${text}`;
 
   const messages = [
-    { role: 'system', content: MS_MARIE_SYSTEM },
+    { role: 'system', content: MS_MARY_SYSTEM },
     { role: 'user', content: userBlock },
   ];
 
@@ -3018,13 +3163,13 @@ ${text}`;
   }
 }
 
-// Remove prefixos "Ms. Marie:" / "Mr. Wilson:" / "Teacher:" no início da resposta
+// Remove prefixos "Ms. Mary:" / "Ms. Marie:" (nome antigo) / "Mr. Wilson:" / "Teacher:" no início da resposta
 function stripNamePrefix(text) {
   if (!text) return text;
-  return text.replace(/^\s*(Ms\.?\s*Marie|Mrs\.?\s*Marie|Miss\s+Marie|Marie|Mr\.?\s*Wilson|Teacher|Professor)\s*[:\-—]\s*/i, '').trim();
+  return text.replace(/^\s*((Ms|Mrs|Miss|Mr)\.?\s*)?(Mary|Marie|Wilson|Teacher|Professor)\s*[:\-—]\s*/i, '').trim();
 }
 
-// Monta bloco [PAST CONVERSATIONS SUMMARY] pro prompt da Ms. Marie
+// Monta bloco [PAST CONVERSATIONS SUMMARY] pro prompt da Ms. Mary
 function buildPastConvsBlock() {
   if (!state.pastConvs || state.pastConvs.length === 0) return '';
   // Pega últimos 10 resumos pra não estourar tokens
@@ -3104,7 +3249,7 @@ function renderChatFromHistory() {
   if (state.chatHistory.length === 0) {
     const intro = document.createElement('div');
     intro.className = 'msg system';
-    intro.textContent = "Tap 'Send' or 🎤 to start. Ms. Marie is ready to chat with you in English!";
+    intro.textContent = "Tap 'Send' or 🎤 to start. Ms. Mary is ready to chat with you in English!";
     container.appendChild(intro);
     return;
   }
@@ -3118,13 +3263,13 @@ async function explainTopic(topicLabel, subtopic, btnEl) {
   if (!hasAnyKey()) { showOnboarding(); return; }
   if (btnEl) btnEl.textContent = 'Loading...';
 
-  const system = `You are Ms. Marie teaching Jean (Brazilian beginner, TopWay immersive English school).
+  const system = `You are Ms. Mary teaching Jean (Brazilian beginner, TopWay immersive English school).
 Topic: "${topicLabel}". Specific item: "${subtopic}".
 Style: 100% immersive English (never translate unless Jean explicitly asks).
 Use real-life DIALOGUES, SITUATIONS and ACTIONS — not just object names.
 Show how the word lives in real conversation. Use simple vocabulary.
 4 to 8 short sentences. Plain text (will be spoken). No markdown.
-Do NOT prefix your reply with "Ms. Marie:" or any name tag.`;
+Do NOT prefix your reply with "Ms. Mary:" or any name tag.`;
 
   const userBlock = `Please explain "${subtopic}" so I can really understand and remember it. Give clear examples in real-life situations.`;
 
@@ -3147,11 +3292,15 @@ function renderTopicsList() {
   for (const t of TOPICOS) {
     const card = document.createElement('div');
     card.className = 'topic-card';
+    // Vocabulary conta os temas na hora (Jean pode criar novos)
+    const desc = t.id === 'vocabulary'
+      ? `${getAllThemes().length} themes · search & add your own`
+      : t.descricao;
     card.innerHTML = `
       <div class="emoji">${t.emoji}</div>
       <div class="info">
         <div class="title">${t.titulo}</div>
-        <div class="desc">${t.descricao}</div>
+        <div class="desc">${desc}</div>
       </div>
       <div class="arrow">›</div>
     `;
@@ -3182,17 +3331,10 @@ function openSubtopics(topic) {
   inner.style.overflowY = 'auto';
   inner.style.flex = '1';
 
-  // Caso especial: Vocabulary → cada subtópico é uma categoria (abre grid de palavras)
+  // Caso especial: Vocabulary → pesquisa global + lista de temas (nativos + criados por Jean)
   if (topic.id === 'vocabulary') {
-    for (const cat of topic.subtopicos) {
-      const item = document.createElement('div');
-      item.className = 'subtopic-item';
-      const wordsCount = (VOCABULARY_DATA[cat] || []).length + getCustomWords(cat).length;
-      item.innerHTML = `<div class="label">${cat}</div><div style="font-size:11px;opacity:0.5;margin-top:2px;">${wordsCount} words</div>`;
-      item.onclick = () => openVocabularyCategory(topic, cat);
-      inner.appendChild(item);
-    }
     sub.appendChild(inner);
+    renderVocabThemesScreen(topic, inner);
     return;
   }
 
@@ -3294,7 +3436,7 @@ async function toggleSubtopicExplain(item, topic, subtopic) {
     askResp.innerHTML = '<div style="opacity:0.6; font-size:12px;">Thinking...</div>';
 
     try {
-      const system = `You are Ms. Marie, helping Jean (Brazilian beginner, TopWay immersive English school) with a specific English topic.
+      const system = `You are Ms. Mary, helping Jean (Brazilian beginner, TopWay immersive English school) with a specific English topic.
 
 He is currently studying the topic "${topic.titulo}", specifically the sub-item "${subtopic}".
 
@@ -3371,6 +3513,9 @@ function getStaticContent(topicId, subtopicLabel) {
 }
 
 // ===== VOCABULARY GRID (dentro de Topics -> Vocabulary by theme) =====
+// Palavras adicionadas por Jean: localStorage 'ei_custom_words' = { "Tema": [ {word, emoji, definition, example, custom:true} ] }
+// Temas criados por Jean:       localStorage 'ei_custom_themes' = [ {name, emoji, createdAt} ]
+
 function getCustomWords(category) {
   try {
     const all = JSON.parse(localStorage.getItem('ei_custom_words') || '{}');
@@ -3385,10 +3530,239 @@ function saveCustomWord(category, entry) {
     // Evita duplicata pelo campo "word" (case-insensitive)
     const w = (entry.word || '').toLowerCase();
     if (all[category].some(x => (x.word || '').toLowerCase() === w)) return false;
-    all[category].push({ ...entry, custom: true, addedAt: '2026-07-07' });
+    all[category].push({ ...entry, custom: true, addedAt: new Date().toISOString().slice(0, 10) });
     localStorage.setItem('ei_custom_words', JSON.stringify(all));
     return true;
   } catch { return false; }
+}
+
+function deleteCustomWord(category, word) {
+  try {
+    const all = JSON.parse(localStorage.getItem('ei_custom_words') || '{}');
+    if (!all[category]) return false;
+    const w = (word || '').toLowerCase();
+    all[category] = all[category].filter(x => (x.word || '').toLowerCase() !== w);
+    localStorage.setItem('ei_custom_words', JSON.stringify(all));
+    return true;
+  } catch { return false; }
+}
+
+// ----- TEMAS -----
+function getNativeThemes() {
+  const t = TOPICOS.find(x => x.id === 'vocabulary');
+  return t ? t.subtopicos.slice() : [];
+}
+
+function getCustomThemes() {
+  try {
+    const arr = JSON.parse(localStorage.getItem('ei_custom_themes') || '[]');
+    return Array.isArray(arr) ? arr : [];
+  } catch { return []; }
+}
+
+function getAllThemes() {
+  return [...getNativeThemes(), ...getCustomThemes().map(t => t.name)];
+}
+
+function isCustomTheme(name) {
+  return getCustomThemes().some(t => t.name === name);
+}
+
+function themeEmoji(name) {
+  const t = getCustomThemes().find(x => x.name === name);
+  return (t && t.emoji) || '📂';
+}
+
+function saveCustomTheme(name, emoji) {
+  const clean = (name || '').trim();
+  if (!clean) return { ok: false, msg: 'Type a theme name first' };
+  if (clean.length > 40) return { ok: false, msg: 'Theme name too long' };
+  const exists = getAllThemes().some(t => t.toLowerCase() === clean.toLowerCase());
+  if (exists) return { ok: false, msg: `Theme "${clean}" already exists` };
+  try {
+    const arr = getCustomThemes();
+    arr.push({ name: clean, emoji: emoji || '📂', createdAt: new Date().toISOString().slice(0, 10) });
+    localStorage.setItem('ei_custom_themes', JSON.stringify(arr));
+    return { ok: true, name: clean };
+  } catch {
+    return { ok: false, msg: 'Could not save the theme' };
+  }
+}
+
+function deleteCustomTheme(name) {
+  try {
+    localStorage.setItem('ei_custom_themes', JSON.stringify(getCustomThemes().filter(t => t.name !== name)));
+    const all = JSON.parse(localStorage.getItem('ei_custom_words') || '{}');
+    delete all[name];
+    localStorage.setItem('ei_custom_words', JSON.stringify(all));
+    return true;
+  } catch { return false; }
+}
+
+function countWordsInTheme(name) {
+  return (VOCABULARY_DATA[name] || []).length + getCustomWords(name).length;
+}
+
+// Todas as palavras de todos os temas, com a etiqueta do tema — base da pesquisa
+function getAllVocabWords() {
+  const out = [];
+  for (const theme of getAllThemes()) {
+    for (const w of (VOCABULARY_DATA[theme] || [])) out.push({ ...w, theme });
+    for (const w of getCustomWords(theme)) out.push({ ...w, theme });
+  }
+  return out;
+}
+
+// Pesquisa por nome OU descrição (também olha exemplo e nome do tema).
+// Ordena: começa com o termo > nome contém > resto.
+function searchVocabWords(term) {
+  const q = (term || '').trim().toLowerCase();
+  if (q.length < 2) return [];
+  const hits = [];
+  for (const w of getAllVocabWords()) {
+    const word = (w.word || '').toLowerCase();
+    const def = (w.definition || '').toLowerCase();
+    const ex = (w.example || '').toLowerCase();
+    const th = (w.theme || '').toLowerCase();
+    let score = -1;
+    if (word === q) score = 0;
+    else if (word.startsWith(q)) score = 1;
+    else if (word.includes(q)) score = 2;
+    else if (def.includes(q)) score = 3;
+    else if (ex.includes(q)) score = 4;
+    else if (th.includes(q)) score = 5;
+    if (score >= 0) hits.push({ w, score });
+  }
+  hits.sort((a, b) => a.score - b.score || a.w.word.localeCompare(b.w.word));
+  return hits.map(h => h.w);
+}
+
+// ----- TELA DE TEMAS (com pesquisa + criar tema) -----
+let vocabSearchTerm = '';
+
+function renderVocabThemesScreen(topic, container) {
+  container.innerHTML = '';
+
+  // Campo de pesquisa (procura em TODOS os temas de uma vez)
+  const searchWrap = document.createElement('div');
+  searchWrap.style.cssText = 'position:relative; margin-bottom:10px;';
+  searchWrap.innerHTML = `
+    <input id="vocabSearchInput" type="search" autocapitalize="off" autocorrect="off"
+      placeholder="🔍 Search a word (name or meaning)..."
+      style="width:100%; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); border-radius:12px; padding:11px 12px; color:#fff; font-size:15px; font-family:inherit; outline:none; -webkit-appearance:none;">
+  `;
+  container.appendChild(searchWrap);
+
+  const btnNewTheme = document.createElement('button');
+  btnNewTheme.textContent = '➕ New theme';
+  btnNewTheme.style.cssText = 'width:100%; background:rgba(139,92,246,0.18); border:1px solid rgba(139,92,246,0.4); color:#c4b5fd; padding:10px; border-radius:12px; font-size:13px; font-family:inherit; cursor:pointer; margin-bottom:14px;';
+  btnNewTheme.onclick = () => openNewThemeModal(() => renderVocabThemesScreen(topic, container));
+  container.appendChild(btnNewTheme);
+
+  const results = document.createElement('div');
+  results.id = 'vocabResults';
+  container.appendChild(results);
+
+  const input = searchWrap.querySelector('#vocabSearchInput');
+  input.value = vocabSearchTerm;
+
+  const paint = () => {
+    vocabSearchTerm = input.value;
+    if (vocabSearchTerm.trim().length >= 2) {
+      btnNewTheme.style.display = 'none';
+      renderVocabSearchResults(results, vocabSearchTerm, topic, container);
+    } else {
+      btnNewTheme.style.display = 'block';
+      renderThemesList(results, topic, container);
+    }
+  };
+  input.oninput = paint;
+  paint();
+}
+
+function renderThemesList(el, topic, container) {
+  el.innerHTML = '';
+  for (const cat of getAllThemes()) {
+    const custom = isCustomTheme(cat);
+    const item = document.createElement('div');
+    item.className = 'subtopic-item';
+    if (custom) item.style.borderColor = 'rgba(139,92,246,0.35)';
+    item.style.display = 'flex';
+    item.style.alignItems = 'center';
+    item.style.gap = '10px';
+
+    const info = document.createElement('div');
+    info.style.flex = '1';
+    info.style.minWidth = '0';
+    info.innerHTML = `
+      <div class="label">${custom ? themeEmoji(cat) + ' ' : ''}${escapeHtml(cat)}</div>
+      <div style="font-size:11px;opacity:0.5;margin-top:2px;">${countWordsInTheme(cat)} words${custom ? ' · your theme' : ''}</div>
+    `;
+    item.appendChild(info);
+
+    if (custom) {
+      const del = document.createElement('button');
+      del.textContent = '🗑️';
+      del.style.cssText = 'background:transparent; border:none; color:rgba(248,113,113,0.85); font-size:15px; padding:6px; cursor:pointer; flex-shrink:0;';
+      del.onclick = (ev) => {
+        ev.stopPropagation();
+        const n = countWordsInTheme(cat);
+        if (confirm(`Apagar o tema "${cat}"${n ? ` e as ${n} palavras dentro dele` : ''}?`)) {
+          deleteCustomTheme(cat);
+          toast('Theme deleted');
+          renderVocabThemesScreen(topic, container);
+        }
+      };
+      item.appendChild(del);
+    }
+
+    item.onclick = () => openVocabularyCategory(topic, cat);
+    el.appendChild(item);
+  }
+}
+
+function renderVocabSearchResults(el, term, topic, container) {
+  el.innerHTML = '';
+  const found = searchVocabWords(term);
+  const q = term.trim();
+
+  const head = document.createElement('div');
+  head.style.cssText = 'font-size:12px; opacity:0.6; margin-bottom:10px;';
+  head.textContent = found.length
+    ? `${found.length} word${found.length > 1 ? 's' : ''} found for "${q}"`
+    : `Nothing found for "${q}"`;
+  el.appendChild(head);
+
+  if (found.length === 0) {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'text-align:center; padding:10px 6px 4px; font-size:13px; line-height:1.6; opacity:0.75;';
+    empty.innerHTML = `This word isn't in your vocabulary yet.<br>Ms. Mary can look it up and file it in the right theme for you.`;
+    el.appendChild(empty);
+
+    const btn = document.createElement('button');
+    btn.textContent = `🤖 Add "${q}" with Ms. Mary`;
+    btn.style.cssText = 'width:100%; background:linear-gradient(135deg,#6366f1,#8b5cf6); border:none; color:#fff; padding:11px; border-radius:12px; font-size:14px; font-family:inherit; cursor:pointer; margin-top:14px;';
+    btn.onclick = () => openAddWordModal(null, () => renderVocabThemesScreen(topic, container), q);
+    el.appendChild(btn);
+    return;
+  }
+
+  const grid = document.createElement('div');
+  grid.style.cssText = 'display:grid; grid-template-columns: repeat(2, 1fr); gap:10px;';
+  for (const w of found) {
+    const card = document.createElement('div');
+    card.className = 'vocab-card';
+    card.style.cssText = 'background: rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:12px; display:flex; flex-direction:column; align-items:center; text-align:center; cursor:pointer;' + (w.custom ? ' border-color: rgba(139,92,246,0.4);' : '');
+    card.innerHTML = `
+      <div style="font-size:40px; line-height:1; margin-bottom:6px;">${w.emoji || '📌'}</div>
+      <div style="font-size:15px; font-weight:600; margin-bottom:4px;">${escapeHtml(w.word)}</div>
+      <div style="font-size:11px; opacity:0.7; line-height:1.4;">${escapeHtml(w.definition || '')}</div>
+      <div style="font-size:9.5px; color:#a78bfa; margin-top:6px; opacity:0.9;">${escapeHtml(w.theme || '')}</div>
+    `;
+    card.onclick = () => showWordDetail(w, { onChange: () => renderVocabThemesScreen(topic, container) });
+    grid.appendChild(card);
+  }
+  el.appendChild(grid);
 }
 
 function openVocabularyCategory(topic, category) {
@@ -3399,7 +3773,7 @@ function openVocabularyCategory(topic, category) {
   header.className = 'subtopic-header';
   header.innerHTML = `
     <button class="back-btn">‹</button>
-    <h2>📚 ${category}</h2>
+    <h2>${isCustomTheme(category) ? themeEmoji(category) : '📚'} ${escapeHtml(category)}</h2>
   `;
   header.querySelector('.back-btn').onclick = () => openSubtopics(topic);
   sub.appendChild(header);
@@ -3407,7 +3781,7 @@ function openVocabularyCategory(topic, category) {
   const toolbar = document.createElement('div');
   toolbar.style.cssText = 'padding: 8px 12px; display:flex; gap:8px; border-bottom:1px solid rgba(255,255,255,0.05); flex-shrink:0;';
   toolbar.innerHTML = `
-    <button id="btnAddWord" style="flex:1; background:linear-gradient(135deg,#6366f1,#8b5cf6); border:none; color:#fff; padding:8px 12px; border-radius:10px; font-size:13px; cursor:pointer;">+ Add word to this category</button>
+    <button id="btnAddWord" style="flex:1; background:linear-gradient(135deg,#6366f1,#8b5cf6); border:none; color:#fff; padding:8px 12px; border-radius:10px; font-size:13px; font-family:inherit; cursor:pointer;">+ Add word to this theme</button>
   `;
   sub.appendChild(toolbar);
 
@@ -3418,7 +3792,11 @@ function openVocabularyCategory(topic, category) {
 
   renderVocabularyGrid(grid, category);
 
-  document.getElementById('btnAddWord').onclick = () => openAddWordModal(category, () => renderVocabularyGrid(grid, category));
+  document.getElementById('btnAddWord').onclick = () => openAddWordModal(category, (savedTheme) => {
+    // Se a IA arquivou a palavra em outro tema, abre aquele tema pra Jean ver
+    if (savedTheme && savedTheme !== category) openVocabularyCategory(topic, savedTheme);
+    else renderVocabularyGrid(grid, category);
+  });
 }
 
 function renderVocabularyGrid(gridEl, category) {
@@ -3442,24 +3820,28 @@ function renderVocabularyGrid(gridEl, category) {
       <div style="font-size:11px; opacity:0.7; line-height:1.4;">${escapeHtml(w.definition || '')}</div>
       ${w.custom ? '<div style="font-size:9px; color:#a78bfa; margin-top:4px;">✨ Custom</div>' : ''}
     `;
-    card.onclick = () => showWordDetail(w);
+    card.onclick = () => showWordDetail({ ...w, theme: w.theme || category }, {
+      onChange: () => renderVocabularyGrid(gridEl, category),
+    });
     gridEl.appendChild(card);
   }
 }
 
-function showWordDetail(word) {
+function showWordDetail(word, opts = {}) {
   const ov = document.createElement('div');
   ov.className = 'overlay';
   ov.innerHTML = `
     <div class="overlay-card" style="max-width:380px; text-align:center;">
       <div style="font-size:80px; line-height:1; margin-bottom:8px;">${word.emoji || '📌'}</div>
       <h2 style="font-size:24px;">${escapeHtml(word.word)}</h2>
+      ${word.theme ? `<div style="font-size:11px; color:#a78bfa; margin-bottom:6px;">${escapeHtml(word.theme)}</div>` : ''}
       <p style="font-size:14px; opacity:0.85;">${escapeHtml(word.definition || '')}</p>
       ${word.example ? `<div style="background:rgba(255,255,255,0.05); padding:10px 12px; border-radius:10px; margin-top:12px; font-size:13px; font-style:italic; text-align:left;">💬 ${escapeHtml(word.example)}</div>` : ''}
       <div style="display:flex; gap:8px; margin-top:14px;">
-        <button id="wordHearBtn" style="flex:1; background:rgba(139,92,246,0.2); border:1px solid rgba(139,92,246,0.4); color:#a78bfa; padding:10px; border-radius:10px; font-size:13px; cursor:pointer;">🔊 Hear</button>
-        <button id="wordCloseBtn" style="flex:1; background:rgba(255,255,255,0.1); border:none; color:#fff; padding:10px; border-radius:10px; font-size:13px; cursor:pointer;">Close</button>
+        <button id="wordHearBtn" style="flex:1; background:rgba(139,92,246,0.2); border:1px solid rgba(139,92,246,0.4); color:#a78bfa; padding:10px; border-radius:10px; font-size:13px; font-family:inherit; cursor:pointer;">🔊 Hear</button>
+        <button id="wordCloseBtn" style="flex:1; background:rgba(255,255,255,0.1); border:none; color:#fff; padding:10px; border-radius:10px; font-size:13px; font-family:inherit; cursor:pointer;">Close</button>
       </div>
+      ${word.custom && word.theme ? `<button id="wordDelBtn" style="width:100%; margin-top:8px; background:transparent; border:none; color:rgba(248,113,113,0.85); padding:8px; font-size:12px; font-family:inherit; cursor:pointer;">🗑️ Remove this word</button>` : ''}
     </div>
   `;
   document.body.appendChild(ov);
@@ -3467,23 +3849,67 @@ function showWordDetail(word) {
     speakText(`${word.word}. ${word.definition}. Example: ${word.example || ''}`);
   };
   document.getElementById('wordCloseBtn').onclick = () => ov.remove();
+  const delBtn = document.getElementById('wordDelBtn');
+  if (delBtn) {
+    delBtn.onclick = () => {
+      if (!confirm(`Remover "${word.word}" do tema "${word.theme}"?`)) return;
+      deleteCustomWord(word.theme, word.word);
+      ov.remove();
+      toast('Word removed');
+      if (opts.onChange) opts.onChange();
+    };
+  }
 }
 
-function openAddWordModal(category, onSuccess) {
+// ----- CRIAR TEMA NOVO (na mão) -----
+function openNewThemeModal(onDone) {
+  const ov = document.createElement('div');
+  ov.className = 'overlay';
+  ov.innerHTML = `
+    <div class="overlay-card" style="max-width:420px;">
+      <h2>➕ New theme</h2>
+      <p style="font-size:12px; opacity:0.8;">Group words the way that helps you: <strong>Music</strong>, <strong>My job</strong>, <strong>Travel & airport</strong>...</p>
+      <input id="newThemeName" placeholder="Theme name" maxlength="40"
+        style="width:100%; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:10px 12px; color:#fff; font-size:15px; font-family:inherit; margin-top:10px; outline:none;">
+      <input id="newThemeEmoji" placeholder="Emoji (optional) — ex: 🎵" maxlength="4"
+        style="width:100%; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:10px 12px; color:#fff; font-size:15px; font-family:inherit; margin-top:8px; outline:none;">
+      <div style="display:flex; gap:8px; margin-top:12px;">
+        <button id="newThemeCancel" style="flex:1; background:rgba(255,255,255,0.1); border:none; color:#fff; padding:10px; border-radius:10px; font-size:14px; font-family:inherit; cursor:pointer;">Cancel</button>
+        <button id="newThemeSave" style="flex:2; background:linear-gradient(135deg,#22c55e,#16a34a); border:none; color:#fff; padding:10px; border-radius:10px; font-size:14px; font-weight:500; font-family:inherit; cursor:pointer;">✓ Create theme</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(ov);
+  const nameEl = document.getElementById('newThemeName');
+  document.getElementById('newThemeCancel').onclick = () => ov.remove();
+  document.getElementById('newThemeSave').onclick = () => {
+    const r = saveCustomTheme(nameEl.value, document.getElementById('newThemeEmoji').value.trim());
+    if (!r.ok) { toast(r.msg); return; }
+    ov.remove();
+    toast(`Theme "${r.name}" created ✨`);
+    if (onDone) onDone(r.name);
+  };
+  nameEl.focus();
+}
+
+// ----- ADICIONAR PALAVRA (a IA confere o tema) -----
+// category = tema de origem, ou null quando vem da pesquisa (aí a IA escolhe o tema)
+function openAddWordModal(category, onSuccess, prefill = '') {
   const ov = document.createElement('div');
   ov.className = 'overlay';
   ov.id = 'addWordOverlay';
   ov.innerHTML = `
     <div class="overlay-card" style="max-width:420px;">
-      <h2>➕ Add word to "${escapeHtml(category)}"</h2>
+      <h2>➕ Add word${category ? ` to "${escapeHtml(category)}"` : ''}</h2>
       <p style="font-size:12px; opacity:0.8;">Type either:</p>
       <div class="step">Direct word: <strong>church</strong>, <strong>umbrella</strong>, <strong>curious</strong>...</div>
       <div class="step">Or a question: <strong>"What's a word for a house of prayers?"</strong>, <strong>"How do you say 'guarda-chuva' in English?"</strong></div>
+      <p style="font-size:11px; opacity:0.6; margin-top:8px;">Ms. Mary checks which theme fits best — and suggests creating a new one if none does.</p>
       <textarea id="addWordInput" placeholder="Type here..." style="width:100%; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:10px 12px; color:#fff; font-size:15px; font-family:inherit; margin-top:8px; min-height:60px; outline:none;"></textarea>
       <div id="addWordPreview" style="margin-top:12px; display:none;"></div>
-      <div style="display:flex; gap:8px; margin-top:12px;">
-        <button id="addWordCancel" style="flex:1; background:rgba(255,255,255,0.1); border:none; color:#fff; padding:10px; border-radius:10px; font-size:14px; cursor:pointer;">Cancel</button>
-        <button id="addWordSuggest" style="flex:2; background:linear-gradient(135deg,#6366f1,#8b5cf6); border:none; color:#fff; padding:10px; border-radius:10px; font-size:14px; font-weight:500; cursor:pointer;">🔍 Look up</button>
+      <div id="addWordButtons" style="display:flex; gap:8px; margin-top:12px;">
+        <button id="addWordCancel" style="flex:1; background:rgba(255,255,255,0.1); border:none; color:#fff; padding:10px; border-radius:10px; font-size:14px; font-family:inherit; cursor:pointer;">Cancel</button>
+        <button id="addWordSuggest" style="flex:2; background:linear-gradient(135deg,#6366f1,#8b5cf6); border:none; color:#fff; padding:10px; border-radius:10px; font-size:14px; font-weight:500; font-family:inherit; cursor:pointer;">🔍 Look up</button>
       </div>
     </div>
   `;
@@ -3493,8 +3919,38 @@ function openAddWordModal(category, onSuccess) {
   const preview = document.getElementById('addWordPreview');
   const btnSuggest = document.getElementById('addWordSuggest');
   const btnCancel = document.getElementById('addWordCancel');
+  input.value = prefill;
 
   btnCancel.onclick = () => ov.remove();
+
+  // Enquanto o cartao da palavra esta na tela, esconde a linha Cancel/Look up —
+  // senao o botao fica parado em "Thinking..." e parece travado.
+  const btnRow = document.getElementById('addWordButtons');
+  const resetSuggestBtn = () => {
+    btnSuggest.disabled = false;
+    btnSuggest.textContent = '🔍 Look up';
+    btnRow.style.display = 'flex';
+  };
+
+  // Grava a palavra no tema escolhido e fecha
+  const commit = (suggestion, theme, createTheme) => {
+    if (createTheme) {
+      const r = saveCustomTheme(theme, createTheme.emoji);
+      // se o tema já existir (corrida/erro da IA), segue e usa o existente
+      if (!r.ok && !getAllThemes().some(t => t.toLowerCase() === theme.toLowerCase())) {
+        toast(r.msg);
+        return;
+      }
+    }
+    const ok = saveCustomWord(theme, suggestion);
+    if (ok) {
+      toast(`"${suggestion.word}" added to ${theme}! ✨`);
+      ov.remove();
+      if (onSuccess) onSuccess(theme);
+    } else {
+      toast(`"${suggestion.word}" is already in ${theme}.`);
+    }
+  };
 
   btnSuggest.onclick = async () => {
     const raw = input.value.trim();
@@ -3506,10 +3962,38 @@ function openAddWordModal(category, onSuccess) {
     preview.style.display = 'none';
 
     try {
-      const suggestion = await lookupWordViaAI(raw);
+      const suggestion = await lookupWordViaAI(raw, category);
       if (!suggestion) throw new Error('Could not understand');
 
+      const themes = getAllThemes();
+      const best = themes.find(t => t.toLowerCase() === String(suggestion.bestTheme || '').toLowerCase()) || null;
+      const nt = suggestion.newTheme && suggestion.newTheme.name ? suggestion.newTheme : null;
+
+      // Decide o que oferecer:
+      //  - tema sugerido igual ao atual (ou vindo da pesquisa) -> um botão só
+      //  - tema sugerido diferente -> sugerido em destaque + "add here anyway"
+      //  - nenhum tema serve -> criar tema novo + "add here anyway"
+      let target = category, createTheme = null, note = '';
+      if (nt && !best) {
+        target = nt.name;
+        createTheme = nt;
+        note = `No existing theme fits well. Ms. Mary suggests a new theme: <strong>${escapeHtml(nt.emoji || '📂')} ${escapeHtml(nt.name)}</strong>`;
+      } else if (best && best !== category) {
+        target = best;
+        note = category
+          ? `This word fits better in <strong>${escapeHtml(best)}</strong> than in "${escapeHtml(category)}".`
+          : `Ms. Mary filed it under <strong>${escapeHtml(best)}</strong>.`;
+      } else if (best) {
+        target = best;
+      } else if (!category) {
+        // IA não devolveu tema utilizável e não há tema de origem
+        target = 'Vocabulary'; // vira tema novo genérico
+        createTheme = { name: 'Vocabulary', emoji: '📂' };
+        note = 'Ms. Mary could not pick a theme — saving in a general theme.';
+      }
+
       preview.style.display = 'block';
+      btnRow.style.display = 'none';
       preview.innerHTML = `
         <div style="background:rgba(139,92,246,0.1); border:1px solid rgba(139,92,246,0.3); border-radius:12px; padding:14px; text-align:center;">
           <div style="font-size:60px; line-height:1;">${suggestion.emoji}</div>
@@ -3517,62 +4001,64 @@ function openAddWordModal(category, onSuccess) {
           <div style="font-size:13px; opacity:0.85; line-height:1.5;">${escapeHtml(suggestion.definition)}</div>
           ${suggestion.example ? `<div style="font-size:12px; font-style:italic; margin-top:8px; opacity:0.7;">💬 ${escapeHtml(suggestion.example)}</div>` : ''}
         </div>
+        ${note ? `<div style="background:rgba(251,191,36,0.12); border:1px solid rgba(251,191,36,0.3); color:#fde68a; border-radius:10px; padding:10px 12px; margin-top:10px; font-size:12px; line-height:1.5;">💡 ${note}</div>` : ''}
         <div style="display:flex; gap:8px; margin-top:10px;">
-          <button id="addWordReject" style="flex:1; background:rgba(255,255,255,0.1); border:none; color:#fff; padding:9px; border-radius:8px; font-size:13px; cursor:pointer;">Try another</button>
-          <button id="addWordConfirm" style="flex:2; background:linear-gradient(135deg,#22c55e,#16a34a); border:none; color:#fff; padding:9px; border-radius:8px; font-size:13px; font-weight:500; cursor:pointer;">✓ Add to "${escapeHtml(category)}"</button>
+          <button id="addWordReject" style="flex:1; background:rgba(255,255,255,0.1); border:none; color:#fff; padding:9px; border-radius:8px; font-size:13px; font-family:inherit; cursor:pointer;">Try another</button>
+          <button id="addWordConfirm" style="flex:2; background:linear-gradient(135deg,#22c55e,#16a34a); border:none; color:#fff; padding:9px; border-radius:8px; font-size:13px; font-weight:500; font-family:inherit; cursor:pointer;">${createTheme ? `✨ Create "${escapeHtml(target)}" &amp; add` : `✓ Add to "${escapeHtml(target)}"`}</button>
         </div>
+        ${category && target !== category ? `<button id="addWordKeepHere" style="width:100%; margin-top:8px; background:rgba(255,255,255,0.08); border:none; color:rgba(255,255,255,0.8); padding:9px; border-radius:8px; font-size:12.5px; font-family:inherit; cursor:pointer;">Add to "${escapeHtml(category)}" anyway</button>` : ''}
       `;
 
       document.getElementById('addWordReject').onclick = () => {
         preview.style.display = 'none';
-        btnSuggest.disabled = false;
-        btnSuggest.textContent = '🔍 Look up';
+        resetSuggestBtn();
       };
-
-      document.getElementById('addWordConfirm').onclick = () => {
-        const ok = saveCustomWord(category, suggestion);
-        if (ok) {
-          toast(`"${suggestion.word}" added! ✨`);
-          ov.remove();
-          if (onSuccess) onSuccess();
-        } else {
-          toast('This word is already in your list.');
-        }
-      };
+      document.getElementById('addWordConfirm').onclick = () => commit(suggestion, target, createTheme);
+      const keepHere = document.getElementById('addWordKeepHere');
+      if (keepHere) keepHere.onclick = () => commit(suggestion, category, null);
     } catch (err) {
       toast('Error: ' + err.message);
-      btnSuggest.disabled = false;
-      btnSuggest.textContent = '🔍 Look up';
+      resetSuggestBtn();
     }
   };
 
   input.focus();
 }
 
-async function lookupWordViaAI(userInput) {
-  const system = `You help Jean (Brazilian beginner learning English) add a word to his vocabulary.
+async function lookupWordViaAI(userInput, currentTheme = null) {
+  const themes = getAllThemes();
+  const system = `You help Jean (Brazilian beginner learning English) add a word to his vocabulary app.
 Analyze his input. It's EITHER a direct English word (e.g., "church") OR a description in English or Portuguese (e.g., "What's a word for a house of prayers?" / "Como se diz guarda-chuva em inglês?").
+
+His existing themes are:
+${themes.map(t => '- ' + t).join('\n')}
+${currentTheme ? `He is adding this word from the theme "${currentTheme}".` : 'He is adding this word from the search screen, so there is no current theme.'}
 
 Return ONLY valid JSON (no markdown, no commentary):
 {
   "word": "single English word or 2-3 word phrase",
   "emoji": "ONE emoji that visually represents the word",
   "definition": "short simple English definition (max 15 words, no translations)",
-  "example": "one natural English example sentence"
+  "example": "one natural English example sentence",
+  "bestTheme": "the EXACT name of the existing theme that fits best, or empty string if none fits",
+  "newTheme": { "name": "short new theme name (2-3 words max)", "emoji": "ONE emoji" }
 }
 
 Rules:
 - If input is already an English word, use it as-is.
 - If input is a Portuguese word or a descriptive question, identify the best English equivalent.
 - The definition must be in ENGLISH ONLY (simple English, no Portuguese).
-- Use a specific emoji that visually matches the word. If no perfect emoji exists, pick the closest one.`;
+- Use a specific emoji that visually matches the word. If no perfect emoji exists, pick the closest one.
+- "bestTheme" MUST be copied character by character from the list above, or be an empty string.
+- Prefer an existing theme whenever it is a reasonable fit. Only leave "bestTheme" empty when the word clearly belongs to a subject none of the themes cover.
+- Set "newTheme" to null when "bestTheme" is filled. When "bestTheme" is empty, "newTheme" must propose a theme that groups this word with similar future words (e.g. "Music", "Law & Justice"), never a theme for this single word.`;
 
   const messages = [
     { role: 'system', content: system },
     { role: 'user', content: userInput },
   ];
 
-  const { text } = await callLLM(messages, { maxTokens: 300, temperature: 0.3 });
+  const { text } = await callLLM(messages, { maxTokens: 400, temperature: 0.3 });
   const cleaned = text.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim();
   const json = JSON.parse(cleaned);
   if (!json.word || !json.emoji || !json.definition) return null;
@@ -3589,12 +4075,12 @@ async function askAnything(question) {
   askSendBtn.disabled = true;
   askSendBtn.textContent = 'Thinking...';
 
-  const system = `You are Ms. Marie, an immersive English teacher.
+  const system = `You are Ms. Mary, an immersive English teacher.
 Jean (Brazilian beginner, TopWay immersive school) asks an open question.
 Answer in 100% immersive English (never translate unless explicitly asked).
 Use examples with REAL-LIFE situations, dialogues, verbs, actions — not just object names.
 Plain text. 4 to 10 short sentences. No markdown, no emojis.
-Do NOT prefix your reply with "Ms. Marie:" or any name tag.`;
+Do NOT prefix your reply with "Ms. Mary:" or any name tag.`;
 
   const messages = [
     { role: 'system', content: system },
@@ -3614,7 +4100,7 @@ Do NOT prefix your reply with "Ms. Marie:" or any name tag.`;
     renderAskHistory();
   } finally {
     askSendBtn.disabled = false;
-    askSendBtn.textContent = 'Ask Ms. Marie';
+    askSendBtn.textContent = 'Ask Ms. Mary';
   }
 }
 
@@ -3643,6 +4129,234 @@ function renderAskHistory() {
 
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ===== DOUBTS (dúvidas pra levar pra aula de inglês) =====
+// Guardadas em localStorage 'ei_doubts':
+// [{ id, text, createdAt, done, answer, doneAt }]
+function loadDoubts() {
+  try {
+    const arr = JSON.parse(localStorage.getItem('ei_doubts') || '[]');
+    return Array.isArray(arr) ? arr : [];
+  } catch { return []; }
+}
+
+function saveDoubts(list) {
+  try { localStorage.setItem('ei_doubts', JSON.stringify(list)); } catch {}
+  updateDoubtsBadge();
+}
+
+function newDoubtId() {
+  return 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+function addDoubt(text) {
+  const t = (text || '').trim();
+  if (!t) { toast('Write your doubt first'); return false; }
+  const list = loadDoubts();
+  list.unshift({ id: newDoubtId(), text: t, createdAt: new Date().toISOString(), done: false, answer: '' });
+  saveDoubts(list);
+  renderDoubts();
+  toast('Doubt saved 📝');
+  return true;
+}
+
+function updateDoubtsBadge() {
+  const badge = document.getElementById('doubtsBadge');
+  if (!badge) return;
+  const open = loadDoubts().filter(d => !d.done).length;
+  badge.textContent = open > 99 ? '99+' : String(open);
+  badge.classList.toggle('show', open > 0);
+}
+
+function formatDoubtDate(iso) {
+  if (!iso) return '';
+  try {
+    return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  } catch { return ''; }
+}
+
+function renderDoubts() {
+  const box = document.getElementById('doubtsList');
+  if (!box) return;
+  const list = loadDoubts();
+  const open = list.filter(d => !d.done);
+  const done = list.filter(d => d.done);
+
+  document.getElementById('doubtsToolbar').style.display = list.length ? 'flex' : 'none';
+  box.innerHTML = '';
+
+  if (list.length === 0) {
+    box.innerHTML = `<div class="doubts-empty">No doubts saved yet.<br>Whenever something confuses you, write it here — you'll have the whole list ready for your next class.</div>`;
+    updateDoubtsBadge();
+    return;
+  }
+
+  if (open.length) {
+    box.appendChild(doubtsSectionTitle(`To ask in class (${open.length})`));
+    for (const d of open) box.appendChild(buildDoubtItem(d));
+  }
+  if (done.length) {
+    box.appendChild(doubtsSectionTitle(`Already asked (${done.length})`));
+    for (const d of done) box.appendChild(buildDoubtItem(d));
+  }
+  updateDoubtsBadge();
+}
+
+function doubtsSectionTitle(text) {
+  const el = document.createElement('div');
+  el.className = 'doubts-section-title';
+  el.textContent = text;
+  return el;
+}
+
+function buildDoubtItem(d) {
+  const item = document.createElement('div');
+  item.className = 'doubt-item' + (d.done ? ' done' : '');
+
+  const check = document.createElement('button');
+  check.className = 'doubt-check';
+  check.title = d.done ? 'Mark as not asked yet' : 'I already asked this in class';
+  check.textContent = d.done ? '✓' : '';
+  check.onclick = () => toggleDoubtDone(d.id);
+  item.appendChild(check);
+
+  const body = document.createElement('div');
+  body.className = 'doubt-body';
+  body.innerHTML = `
+    <div class="doubt-text">${escapeHtml(d.text)}</div>
+    <div class="doubt-date">Saved ${formatDoubtDate(d.createdAt)}${d.done && d.doneAt ? ' · asked ' + formatDoubtDate(d.doneAt) : ''}</div>
+    ${d.answer ? `<div class="doubt-answer">📌 ${escapeHtml(d.answer)}</div>` : ''}
+  `;
+
+  const btns = document.createElement('div');
+  btns.className = 'doubt-btns';
+
+  const askAi = document.createElement('button');
+  askAi.className = 'ai';
+  askAi.textContent = '🤖 Ask Ms. Mary';
+  askAi.onclick = () => askMaryAboutDoubt(d);
+  btns.appendChild(askAi);
+
+  const noteBtn = document.createElement('button');
+  noteBtn.textContent = d.answer ? '✏️ Edit answer' : '📌 Write answer';
+  noteBtn.onclick = () => editDoubtAnswer(d.id);
+  btns.appendChild(noteBtn);
+
+  const delBtn = document.createElement('button');
+  delBtn.className = 'del';
+  delBtn.textContent = '🗑️';
+  delBtn.title = 'Delete';
+  delBtn.onclick = () => deleteDoubt(d.id);
+  btns.appendChild(delBtn);
+
+  body.appendChild(btns);
+  item.appendChild(body);
+  return item;
+}
+
+function toggleDoubtDone(id) {
+  const list = loadDoubts();
+  const d = list.find(x => x.id === id);
+  if (!d) return;
+  d.done = !d.done;
+  d.doneAt = d.done ? new Date().toISOString() : null;
+  saveDoubts(list);
+  renderDoubts();
+  if (d.done && !d.answer) {
+    toast('Marked as asked ✓ — tap "Write answer" to save what the teacher said');
+  }
+}
+
+function deleteDoubt(id) {
+  const list = loadDoubts();
+  const d = list.find(x => x.id === id);
+  if (!d) return;
+  if (!confirm(`Apagar esta dúvida?\n\n"${d.text}"`)) return;
+  saveDoubts(list.filter(x => x.id !== id));
+  renderDoubts();
+  toast('Deleted');
+}
+
+function editDoubtAnswer(id) {
+  const list = loadDoubts();
+  const d = list.find(x => x.id === id);
+  if (!d) return;
+  const current = d.answer || '';
+  const val = prompt('O que o professor respondeu? (fica guardado junto da dúvida)', current);
+  if (val === null) return;
+  d.answer = val.trim();
+  saveDoubts(list);
+  renderDoubts();
+}
+
+// Joga a dúvida pro fluxo do "Ask" — a Ms. Mary responde na hora
+function askMaryAboutDoubt(d) {
+  switchTab('ask');
+  const input = document.getElementById('askInput');
+  input.value = d.text;
+  askAnything(d.text);
+}
+
+// Copia/compartilha a lista. Usa o compartilhamento nativo do iPhone quando existe.
+async function shareDoubts() {
+  const list = loadDoubts();
+  if (!list.length) { toast('Nothing to share yet'); return; }
+  const open = list.filter(x => !x.done);
+  const done = list.filter(x => x.done);
+
+  const lines = ['DÚVIDAS DE INGLÊS — English Imersivo', ''];
+  if (open.length) {
+    lines.push('PARA PERGUNTAR NA AULA:');
+    open.forEach((d, i) => lines.push(`${i + 1}. ${d.text}`));
+    lines.push('');
+  }
+  if (done.length) {
+    lines.push('JÁ PERGUNTADAS:');
+    done.forEach((d, i) => {
+      lines.push(`${i + 1}. ${d.text}`);
+      if (d.answer) lines.push(`   → ${d.answer}`);
+    });
+  }
+  const text = lines.join('\n');
+
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: 'Dúvidas de inglês', text });
+      return;
+    } catch (err) {
+      if (err && err.name === 'AbortError') return; // usuário cancelou
+      // qualquer outro erro: cai pro clipboard abaixo
+    }
+  }
+  copyTextToClipboard(text);
+}
+
+function copyTextToClipboard(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => toast('List copied! Paste it anywhere 📋'))
+      .catch(() => legacyCopy(text));
+  } else {
+    legacyCopy(text);
+  }
+}
+
+// Fallback pra Safari antigo / contexto sem permissão de clipboard
+function legacyCopy(text) {
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed; top:-1000px; opacity:0;';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    const ok = document.execCommand('copy');
+    ta.remove();
+    toast(ok ? 'List copied! 📋' : 'Could not copy — select the text manually');
+  } catch {
+    toast('Could not copy on this browser');
+  }
 }
 
 // ===== VOICE — TTS =====
@@ -4156,8 +4870,10 @@ function applyMicVisibility() {
 
   const chatBtn = document.getElementById('chatMicBtn');
   const askBtn = document.getElementById('askMicBtn');
+  const doubtBtn = document.getElementById('doubtMicBtn');
   if (chatBtn) chatBtn.style.display = usable ? 'flex' : 'none';
   if (askBtn) askBtn.style.display = usable ? 'flex' : 'none';
+  if (doubtBtn) doubtBtn.style.display = usable ? 'flex' : 'none';
 }
 
 // ===== SETTINGS RENDER =====
@@ -4236,7 +4952,7 @@ function bindSettings() {
   });
 
   document.getElementById('btnTestVoice').onclick = () => {
-    speakText("Hi Jean! I'm Ms. Marie. This is how I sound. Ready to practice your English?");
+    speakText("Hi Jean! I'm Ms. Mary. This is how I sound. Ready to practice your English?");
   };
 
   document.getElementById('btnVoiceDiag').onclick = showVoiceDiagnostic;
@@ -4274,6 +4990,15 @@ function bindSettings() {
       toast('Ask history cleared');
     }
   };
+  document.getElementById('btnClearDoubts').onclick = () => {
+    const count = loadDoubts().length;
+    if (count === 0) { toast('No doubts saved.'); return; }
+    if (confirm(`Apagar todas as ${count} dúvidas salvas (inclusive as já perguntadas)?`)) {
+      saveDoubts([]);
+      renderDoubts();
+      toast('Doubts cleared');
+    }
+  };
   document.getElementById('btnResetQuotas').onclick = () => {
     state.quotaState = {};
     saveQuotaState();
@@ -4283,7 +5008,7 @@ function bindSettings() {
   document.getElementById('btnClearPastConvs').onclick = () => {
     const count = state.pastConvs.length;
     if (count === 0) { toast('No past conversations to clear.'); return; }
-    if (confirm(`Apagar a memória de longo prazo (${count} conversas resumidas)?\n\nMs. Marie vai esquecer o que conversamos antes. As conversas atuais não são afetadas.`)) {
+    if (confirm(`Apagar a memória de longo prazo (${count} conversas resumidas)?\n\nMs. Mary vai esquecer o que conversamos antes. As conversas atuais não são afetadas.`)) {
       state.pastConvs = [];
       savePastConvs();
       toast('Long-term memory cleared');
@@ -4323,7 +5048,7 @@ async function startNewConversation() {
   }
   const choice = await confirmModal(
     'Nova conversa',
-    'Quer salvar um resumo desta conversa pra acompanhar sua evolução? Ms. Marie vai lembrar dos pontos principais nas próximas conversas.',
+    'Quer salvar um resumo desta conversa pra acompanhar sua evolução? Ms. Mary vai lembrar dos pontos principais nas próximas conversas.',
     [
       { label: 'Sim, salvar e começar nova', value: 'save' },
       { label: 'Não, só apagar', value: 'discard' },
@@ -4392,7 +5117,7 @@ async function showProgressReport() {
   if (!hasAnyKey()) { showOnboarding(); return; }
   const total = state.pastConvs.length;
   if (total === 0 && state.chatHistory.length < 4) {
-    toast('Converse com Ms. Marie um pouco antes para gerar relatório.');
+    toast('Converse com Ms. Mary um pouco antes para gerar relatório.');
     return;
   }
 
@@ -4767,7 +5492,7 @@ async function evaluatePronunciation(expected, spoken) {
 
   // Feedback via IA (mais rico) — se tiver key disponível, chama; se falhar, cai no heurístico
   try {
-    const system = `You are Ms. Marie, a friendly English pronunciation coach for a Brazilian learner (Jean).
+    const system = `You are Ms. Mary, a friendly English pronunciation coach for a Brazilian learner (Jean).
 He tried to say the word/phrase: "${expected}"
 The speech recognition heard: "${spoken}"
 
@@ -4845,7 +5570,7 @@ function renderSpeakHome() {
       <div class="emoji">🔁</div>
       <div class="info">
         <div class="title">Repeat After Me</div>
-        <div class="desc">Ms. Marie says a word, you repeat, IA gives feedback.</div>
+        <div class="desc">Ms. Mary says a word, you repeat, IA gives feedback.</div>
       </div>
     </div>
     <div class="speak-mode-card" data-mode="sounds">
@@ -5245,6 +5970,9 @@ function switchTab(name) {
   if (name === 'speak') {
     renderSpeakHome();
   }
+  if (name === 'doubts') {
+    renderDoubts();
+  }
 }
 
 // ===== TOAST =====
@@ -5264,7 +5992,7 @@ function init() {
   state.quotaState = loadQuotaState();
   state.pastConvs = loadPastConvs();
 
-  // Limpa prefixos "Mr. Wilson:" / "Ms. Marie:" de mensagens antigas salvas
+  // Limpa prefixos "Mr. Wilson:" / "Ms. Mary:" de mensagens antigas salvas
   let anyChanged = false;
   for (const m of state.chatHistory) {
     if (m.role === 'assistant') {
@@ -5314,6 +6042,17 @@ function init() {
     startListening(askInput, document.getElementById('askMicBtn'));
   };
   renderAskHistory();
+
+  // Doubts (dúvidas pra aula)
+  const doubtInput = document.getElementById('doubtInput');
+  document.getElementById('doubtAddBtn').onclick = () => {
+    if (addDoubt(doubtInput.value)) doubtInput.value = '';
+  };
+  document.getElementById('doubtMicBtn').onclick = () => {
+    startListening(doubtInput, document.getElementById('doubtMicBtn'));
+  };
+  document.getElementById('doubtsShareBtn').onclick = shareDoubts;
+  renderDoubts();
 
   // Settings
   renderApiKeys();
