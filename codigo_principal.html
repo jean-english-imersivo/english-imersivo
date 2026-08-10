@@ -1204,7 +1204,7 @@
         <button class="btn-danger" id="btnResetQuotas">Reset quota state (test)</button>
       </div>
 
-      <div class="info-line">English Imersivo v1.2 — Jean Edition</div>
+      <div class="info-line">English Imersivo v1.3 — Jean Edition</div>
     </div>
   </section>
 </main>
@@ -3808,6 +3808,41 @@ function renderThemesList(el, topic, container) {
   }
 }
 
+// A palavra pesquisada já existe exatamente como está no vocabulário?
+// (só a igualdade conta — "these" achar "pants" pelo exemplo NÃO é ter a palavra)
+function vocabHasExactWord(term) {
+  const q = (term || '').trim().toLowerCase();
+  if (!q) return false;
+  return getAllVocabWords().some(w => (w.word || '').trim().toLowerCase() === q);
+}
+
+// O botão "Add with Ms. Mary" tem que existir SEMPRE que a palavra exata não
+// estiver no vocabulário — mesmo que a pesquisa tenha achado outras palavras
+// parecidas. Antes ele só aparecia com zero resultados, e aí quem pesquisava
+// "these" (que casa com o exemplo de "pants") ficava sem opção de adicionar.
+function appendAddWordCta(el, q, topic, container, hasResults) {
+  const wrap = document.createElement('div');
+  wrap.style.cssText = hasResults
+    ? 'margin-top:16px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.08);'
+    : 'margin-top:14px;';
+
+  const hint = document.createElement('div');
+  hint.style.cssText = 'text-align:center; font-size:12.5px; line-height:1.6; opacity:0.75; margin-bottom:12px;';
+  hint.innerHTML = hasResults
+    ? `Not the word you wanted? <b>"${escapeHtml(q)}"</b> isn't in your vocabulary yet.`
+    : `This word isn't in your vocabulary yet.<br>Ms. Mary can look it up and file it in the right theme for you.`;
+  wrap.appendChild(hint);
+
+  const btn = document.createElement('button');
+  btn.id = 'btnAddSearchedWord';
+  btn.textContent = `🤖 Add "${q}" with Ms. Mary`;
+  btn.style.cssText = 'width:100%; background:linear-gradient(135deg,#6366f1,#8b5cf6); border:none; color:#fff; padding:11px; border-radius:12px; font-size:14px; font-weight:500; font-family:inherit; cursor:pointer;';
+  btn.onclick = () => openAddWordModal(null, () => renderVocabThemesScreen(topic, container), q);
+  wrap.appendChild(btn);
+
+  el.appendChild(wrap);
+}
+
 function renderVocabSearchResults(el, term, topic, container) {
   el.innerHTML = '';
   const found = searchVocabWords(term);
@@ -3821,16 +3856,7 @@ function renderVocabSearchResults(el, term, topic, container) {
   el.appendChild(head);
 
   if (found.length === 0) {
-    const empty = document.createElement('div');
-    empty.style.cssText = 'text-align:center; padding:10px 6px 4px; font-size:13px; line-height:1.6; opacity:0.75;';
-    empty.innerHTML = `This word isn't in your vocabulary yet.<br>Ms. Mary can look it up and file it in the right theme for you.`;
-    el.appendChild(empty);
-
-    const btn = document.createElement('button');
-    btn.textContent = `🤖 Add "${q}" with Ms. Mary`;
-    btn.style.cssText = 'width:100%; background:linear-gradient(135deg,#6366f1,#8b5cf6); border:none; color:#fff; padding:11px; border-radius:12px; font-size:14px; font-family:inherit; cursor:pointer; margin-top:14px;';
-    btn.onclick = () => openAddWordModal(null, () => renderVocabThemesScreen(topic, container), q);
-    el.appendChild(btn);
+    appendAddWordCta(el, q, topic, container, false);
     return;
   }
 
@@ -3850,6 +3876,9 @@ function renderVocabSearchResults(el, term, topic, container) {
     grid.appendChild(card);
   }
   el.appendChild(grid);
+
+  // Achou parecidas, mas a palavra pesquisada em si ainda não existe -> deixa adicionar
+  if (!vocabHasExactWord(q)) appendAddWordCta(el, q, topic, container, true);
 }
 
 function openVocabularyCategory(topic, category) {
