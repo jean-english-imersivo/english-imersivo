@@ -1204,7 +1204,7 @@
         <button class="btn-danger" id="btnResetQuotas">Reset quota state (test)</button>
       </div>
 
-      <div class="info-line">English Imersivo v1.1 — Jean Edition</div>
+      <div class="info-line">English Imersivo v1.2 — Jean Edition</div>
     </div>
   </section>
 </main>
@@ -3005,10 +3005,80 @@ function savePastConvs() {
   localStorage.setItem(STORAGE_KEYS.pastConvs, JSON.stringify(trimmed));
 }
 
+// ===== JSON DA IA (à prova de resposta cortada) =====
+// A IA às vezes devolve o JSON com ```json em volta, com texto antes/depois,
+// ou CORTADO no meio (quando estoura o limite de tokens). Esta função entende
+// todos esses casos em vez de estourar "JSON Parse error" na cara do Jean.
+function parseAIJson(rawText) {
+  const text = String(rawText || '');
+
+  // 1) tira cercas de markdown em qualquer posição
+  let s = text.replace(/```[a-z]*\s*/gi, '').replace(/```/g, '').trim();
+
+  // 2) recorta do primeiro "{" em diante (descarta comentário antes do JSON)
+  const start = s.indexOf('{');
+  if (start === -1) throw new Error('AI_NO_JSON');
+  s = s.slice(start);
+
+  // 3) tentativa direta (inclui o caso de sobrar texto depois: corta no fecho certo)
+  const candidates = [s];
+  const balancedEnd = findBalancedEnd(s);
+  if (balancedEnd > 0) candidates.unshift(s.slice(0, balancedEnd));
+  for (const c of candidates) {
+    try { return JSON.parse(c); } catch {}
+  }
+
+  // 4) resposta CORTADA: fecha aspas/chaves que ficaram abertas e tenta de novo
+  try { return JSON.parse(repairTruncatedJson(s)); } catch {}
+
+  throw new Error('AI_BAD_JSON');
+}
+
+// Devolve a posição logo após a chave que fecha o primeiro objeto, ou -1.
+function findBalancedEnd(s) {
+  let depth = 0, inStr = false, esc = false;
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i];
+    if (esc) { esc = false; continue; }
+    if (ch === '\\') { esc = true; continue; }
+    if (ch === '"') { inStr = !inStr; continue; }
+    if (inStr) continue;
+    if (ch === '{' || ch === '[') depth++;
+    else if (ch === '}' || ch === ']') { depth--; if (depth === 0) return i + 1; }
+  }
+  return -1;
+}
+
+// Fecha um JSON que veio pela metade (limite de tokens estourado).
+function repairTruncatedJson(s) {
+  let out = '', inStr = false, esc = false;
+  const stack = [];
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i];
+    out += ch;
+    if (esc) { esc = false; continue; }
+    if (ch === '\\') { esc = true; continue; }
+    if (ch === '"') { inStr = !inStr; continue; }
+    if (inStr) continue;
+    if (ch === '{' || ch === '[') stack.push(ch === '{' ? '}' : ']');
+    else if (ch === '}' || ch === ']') stack.pop();
+  }
+  if (esc) out = out.slice(0, -1);      // barra invertida solta no fim
+  if (inStr) out += '"';                 // string aberta -> fecha
+  out = out.replace(/,\s*$/, '');        // vírgula sobrando
+  out = out.replace(/[:,]\s*$/, '');     // ":" ou "," pendurado no fim
+  // se a última chave ficou sem valor ("word": ) remove essa chave inteira
+  out = out.replace(/,\s*"[^"]*"\s*$/, '');
+  out = out.replace(/\{\s*"[^"]*"\s*$/, '{');
+  while (stack.length) out += stack.pop();
+  return out;
+}
+
 // ===== LLM ROTATION =====
 async function callLLM(messages, opts = {}) {
   const maxTokens = opts.maxTokens || 800;
   const temperature = opts.temperature || 0.7;
+  const wantJson = !!opts.json;
   const order = state.config.order || ['gemini', 'groq', 'mistral'];
   const now = Date.now();
   const errors = [];
@@ -3021,7 +3091,7 @@ async function callLLM(messages, opts = {}) {
     if (exhaustedUntil > now) { errors.push(`${providerId}: cooling down`); continue; }
 
     try {
-      const text = await callProvider(providerId, messages, key, maxTokens, temperature);
+      const text = await callProvider(providerId, messages, key, maxTokens, temperature, wantJson);
       updateQuotaBanner();
       return { text, provider: providerId };
     } catch (err) {
@@ -3041,14 +3111,14 @@ async function callLLM(messages, opts = {}) {
   throw new Error('All IAs are resting right now. Try again in a few minutes or check your API keys in Settings.\n\nDetails: ' + errors.join(' | '));
 }
 
-async function callProvider(providerId, messages, key, maxTokens, temperature) {
-  if (providerId === 'gemini') return callGemini(messages, key, maxTokens, temperature);
-  if (providerId === 'groq') return callGroq(messages, key, maxTokens, temperature);
-  if (providerId === 'mistral') return callMistral(messages, key, maxTokens, temperature);
+async function callProvider(providerId, messages, key, maxTokens, temperature, wantJson) {
+  if (providerId === 'gemini') return callGemini(messages, key, maxTokens, temperature, wantJson);
+  if (providerId === 'groq') return callGroq(messages, key, maxTokens, temperature, wantJson);
+  if (providerId === 'mistral') return callMistral(messages, key, maxTokens, temperature, wantJson);
   throw new Error('Unknown provider');
 }
 
-async function callGemini(messages, key, maxTokens, temperature) {
+async function callGemini(messages, key, maxTokens, temperature, wantJson) {
   const systemMsg = messages.find(m => m.role === 'system');
   const turns = messages.filter(m => m.role !== 'system').map(m => ({
     role: m.role === 'assistant' ? 'model' : 'user',
@@ -3056,8 +3126,16 @@ async function callGemini(messages, key, maxTokens, temperature) {
   }));
   const body = {
     contents: turns,
-    generationConfig: { temperature, maxOutputTokens: maxTokens },
+    generationConfig: {
+      temperature,
+      maxOutputTokens: maxTokens,
+      // O gemini-2.5-flash "pensa" antes de responder e esse pensamento GASTA
+      // o mesmo limite de tokens da resposta. Sem isso a resposta chegava
+      // cortada no meio (era a causa do "JSON Parse error" ao adicionar palavra).
+      thinkingConfig: { thinkingBudget: 0 },
+    },
   };
+  if (wantJson) body.generationConfig.responseMimeType = 'application/json';
   if (systemMsg) body.systemInstruction = { parts: [{ text: systemMsg.content }] };
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(key)}`;
@@ -3068,24 +3146,31 @@ async function callGemini(messages, key, maxTokens, temperature) {
   });
   if (!r.ok) { const e = new Error(`Gemini HTTP ${r.status}`); e.status = r.status; throw e; }
   const data = await r.json();
-  const txt = data.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!txt) throw new Error('Gemini: empty response');
-  return txt.trim();
+  const cand = data.candidates?.[0];
+  const txt = (cand?.content?.parts || []).map(p => p.text || '').join('').trim();
+  if (!txt) {
+    // MAX_TOKENS aqui = o modelo gastou tudo antes de escrever a resposta
+    const why = cand?.finishReason ? ` (${cand.finishReason})` : '';
+    throw new Error('Gemini: empty response' + why);
+  }
+  return txt;
 }
 
-async function callGroq(messages, key, maxTokens, temperature) {
+async function callGroq(messages, key, maxTokens, temperature, wantJson) {
+  const payload = {
+    model: 'llama-3.3-70b-versatile',
+    messages,
+    temperature,
+    max_tokens: maxTokens,
+  };
+  if (wantJson) payload.response_format = { type: 'json_object' };
   const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer ' + key,
     },
-    body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
-      messages,
-      temperature,
-      max_tokens: maxTokens,
-    }),
+    body: JSON.stringify(payload),
   });
   if (!r.ok) { const e = new Error(`Groq HTTP ${r.status}`); e.status = r.status; throw e; }
   const data = await r.json();
@@ -3094,19 +3179,21 @@ async function callGroq(messages, key, maxTokens, temperature) {
   return txt.trim();
 }
 
-async function callMistral(messages, key, maxTokens, temperature) {
+async function callMistral(messages, key, maxTokens, temperature, wantJson) {
+  const payload = {
+    model: 'mistral-small-latest',
+    messages,
+    temperature,
+    max_tokens: maxTokens,
+  };
+  if (wantJson) payload.response_format = { type: 'json_object' };
   const r = await fetch('https://api.mistral.ai/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer ' + key,
     },
-    body: JSON.stringify({
-      model: 'mistral-small-latest',
-      messages,
-      temperature,
-      max_tokens: maxTokens,
-    }),
+    body: JSON.stringify(payload),
   });
   if (!r.ok) { const e = new Error(`Mistral HTTP ${r.status}`); e.status = r.status; throw e; }
   const data = await r.json();
@@ -4058,11 +4145,22 @@ Rules:
     { role: 'user', content: userInput },
   ];
 
-  const { text } = await callLLM(messages, { maxTokens: 400, temperature: 0.3 });
-  const cleaned = text.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim();
-  const json = JSON.parse(cleaned);
-  if (!json.word || !json.emoji || !json.definition) return null;
-  return json;
+  // Duas tentativas: se a 1ª vier cortada/estranha, tenta de novo com mais espaço.
+  let ultimoErro = null;
+  for (const tokens of [900, 1400]) {
+    try {
+      const { text } = await callLLM(messages, { maxTokens: tokens, temperature: 0.3, json: true });
+      const json = parseAIJson(text);
+      if (!json.word || !json.emoji || !json.definition) { ultimoErro = new Error('AI_BAD_JSON'); continue; }
+      return json;
+    } catch (err) {
+      ultimoErro = err;
+      // erro de rede/cota: não adianta repetir aqui, a rotação já tentou as 3 IAs
+      if (err.message !== 'AI_BAD_JSON' && err.message !== 'AI_NO_JSON') throw err;
+    }
+  }
+  console.log('lookupWordViaAI falhou:', ultimoErro);
+  throw new Error("Ms. Mary's answer came back incomplete. Tap 🔍 Look up again.");
 }
 
 // ===== ASK ANYTHING =====
@@ -5103,10 +5201,8 @@ Rules:
     const { text } = await callLLM([
       { role: 'system', content: system },
       { role: 'user', content: user },
-    ], { maxTokens: 500, temperature: 0.3 });
-    const cleaned = text.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim();
-    const json = JSON.parse(cleaned);
-    return json;
+    ], { maxTokens: 900, temperature: 0.3, json: true });
+    return parseAIJson(text);
   } catch (e) {
     console.log('Summary parse failed:', e);
     return null;
@@ -5510,9 +5606,8 @@ Return ONLY valid JSON (no markdown):
       { role: 'system', content: system },
       { role: 'user', content: `Expected: "${expected}"\nHeard: "${spoken}"` },
     ];
-    const { text } = await callLLM(messages, { maxTokens: 300, temperature: 0.3 });
-    const cleaned = text.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim();
-    const parsed = JSON.parse(cleaned);
+    const { text } = await callLLM(messages, { maxTokens: 600, temperature: 0.3, json: true });
+    const parsed = parseAIJson(text);
     if (parsed.score && parsed.feedback) {
       return { score: parsed.score, feedback: parsed.feedback, spoken };
     }
