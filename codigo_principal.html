@@ -1204,7 +1204,7 @@
         <button class="btn-danger" id="btnResetQuotas">Reset quota state (test)</button>
       </div>
 
-      <div class="info-line">English Imersivo v1.3 — Jean Edition</div>
+      <div class="info-line">English Imersivo v1.4 — Jean Edition</div>
     </div>
   </section>
 </main>
@@ -1494,6 +1494,26 @@ const TOPICOS = [
       'understand (understood — understood)',
       'wear (wore — worn)',
       'meet (met — met)',
+    ],
+  },
+  {
+    id: 'comparatives',
+    emoji: '⚖️',
+    titulo: 'Comparatives & Superlatives',
+    descricao: 'Bigger, the biggest — and the irregulars',
+    subtopicos: [
+      'The rule: -er / -est (short adjectives)',
+      'The rule: more / the most (long adjectives)',
+      'Spelling changes (big → bigger, easy → easier)',
+      'good — better — the best (irregular)',
+      'bad — worse — the worst (irregular)',
+      'far — farther/further — the farthest/furthest (irregular)',
+      'little — less — the least (irregular)',
+      'much/many — more — the most (irregular)',
+      'old — older/elder — the oldest/eldest (irregular)',
+      'Comparing two things: "than"',
+      'Same level: "as ... as"',
+      'Common mistakes (more better, the most best)',
     ],
   },
   {
@@ -2766,6 +2786,152 @@ Examples:
 - We met in college.
 - I've met her before, I think.`,
   },
+
+  'comparatives': {
+    'The rule: -er / -est (short adjectives)': `Short adjectives (1 syllable, or 2 syllables ending in -y) add -ER to compare TWO things, and THE + -EST to compare THREE OR MORE (the top one).
+
+Comparative (-ER): tall → taller, fast → faster, happy → happier
+Superlative (THE + -EST): tall → the tallest, fast → the fastest, happy → the happiest
+
+Examples:
+- My brother is taller than me.
+- This is the fastest car in the race.
+- She's happier today than yesterday.
+- He is the happiest person I know.
+
+Tip: "short" usually means 1 syllable (big, fast, tall) or 2 syllables ending in -y (happy, easy, busy).`,
+
+    'The rule: more / the most (long adjectives)': `Long adjectives (2+ syllables, not ending in -y) use MORE to compare two things, and THE MOST to compare three or more.
+
+Comparative: MORE + adjective — beautiful → more beautiful, expensive → more expensive
+Superlative: THE MOST + adjective — beautiful → the most beautiful, expensive → the most expensive
+
+Examples:
+- This dress is more beautiful than that one.
+- It's the most expensive restaurant in the city.
+- Her new job is more interesting than the old one.
+- He's the most intelligent student in the class.
+
+Tip: Never mix the two rules — don't say "more taller" or "beautifullest". Pick ONE: -er/-est OR more/the most.`,
+
+    'Spelling changes (big → bigger, easy → easier)': `Some short adjectives change spelling before adding -ER/-EST.
+
+1. One vowel + one consonant at the end → double the consonant: big → bigger → the biggest; hot → hotter → the hottest; thin → thinner → the thinnest.
+
+2. Ends in -y (after a consonant) → change Y to I: easy → easier → the easiest; happy → happier → the happiest; funny → funnier → the funniest.
+
+3. Ends in -e → just add -R/-ST: nice → nicer → the nicest; large → larger → the largest; safe → safer → the safest.
+
+Examples:
+- Today is hotter than yesterday.
+- This test was easier than I expected.
+- Let's take the safest route home.`,
+
+    'good — better — the best (irregular)': `GOOD does NOT follow any rule — it has its own special forms. This is one of the most common irregulars in English.
+
+Forms: GOOD → BETTER → THE BEST
+
+Examples:
+- This coffee is good.
+- This coffee is better than the one at the other café.
+- This is the best coffee I've ever had.
+- She's a good singer, but her sister is better, and their mother is the best.`,
+
+    'bad — worse — the worst (irregular)': `BAD is also irregular — it doesn't become "badder" or "the baddest" (in standard English).
+
+Forms: BAD → WORSE → THE WORST
+
+Examples:
+- The traffic today is bad.
+- The traffic is worse than yesterday.
+- This is the worst traffic I've ever seen.
+- My Portuguese is bad, my English is worse, and my French is the worst!`,
+
+    'far — farther/further — the farthest/furthest (irregular)': `FAR has TWO accepted irregular forms — both are correct, so don't worry about choosing wrong.
+
+Forms: FAR → FARTHER / FURTHER → THE FARTHEST / THE FURTHEST
+(FARTHER/FARTHEST are common for physical distance. FURTHER/FURTHEST work for distance AND for ideas — "further information", "further questions".)
+
+Examples:
+- My office is far from home.
+- Your office is farther than mine. (or: further than mine)
+- Of all of us, she lives the farthest. (or: the furthest)
+- Do you have any further questions? (idea, not distance — only "further" works here)`,
+
+    'little — less — the least (irregular)': `LITTLE (meaning "a small amount") is irregular. Use it with things you CANNOT count — water, time, money, patience.
+
+Forms: LITTLE → LESS → THE LEAST
+
+Examples:
+- I have little free time this week.
+- I have less free time than you.
+- Of the three of us, I have the least free time.
+- Can you make less noise, please?
+
+Tip: Don't confuse this with "little" meaning "small size" (a little dog) — that one is regular: little → smaller → the smallest.`,
+
+    'much/many — more — the most (irregular)': `MUCH and MANY share the same irregular comparative and superlative. Use MUCH with things you can't count (water, money, time) and MANY with things you can count (books, people, cars).
+
+Forms: MUCH / MANY → MORE → THE MOST
+
+Examples:
+- I don't have much money this month.
+- She has more money than me.
+- Of everyone here, he has the most money.
+- I have many friends, but you have more friends than me, and she has the most friends of all.`,
+
+    'old — older/elder — the oldest/eldest (irregular)': `OLD is mostly regular (old → older → the oldest) — but when comparing people in the SAME FAMILY, English also allows the more formal ELDER / THE ELDEST.
+
+Forms: OLD → OLDER (or ELDER, family only) → THE OLDEST (or THE ELDEST, family only)
+
+Examples:
+- This building is old.
+- My car is older than yours.
+- This is the oldest church in the city.
+- My elder brother lives in São Paulo. (family — more formal)
+- She is the eldest of five children. (family — more formal)
+
+Tip: "elder/eldest" ONLY works for family members and ONLY before a noun (my elder brother). For everything else, use older/the oldest.`,
+
+    'Comparing two things: "than"': `Use THAN to connect the two things you're comparing. It always comes AFTER the comparative form.
+
+Structure: [Thing A] + [comparative adjective] + THAN + [Thing B]
+
+Examples:
+- Brazil is bigger than Portugal.
+- This exercise is more difficult than the last one.
+- My sister is younger than me.
+- Today is worse than yesterday.
+
+Tip: Don't forget the THAN — "She's taller me" is wrong. It has to be "She's taller THAN me."`,
+
+    'Same level: "as ... as"': `When two things are EQUAL (not more, not less), use AS + adjective + AS. In the negative, "not as ... as" means "less than".
+
+Structure: [Thing A] + AS + adjective + AS + [Thing B]
+
+Examples:
+- My phone is as expensive as yours. (equal)
+- She is as tall as her brother. (equal)
+- This movie isn't as good as the last one. (the last one was better)
+- I don't run as fast as you. (you run faster)
+
+Tip: In "as...as", the adjective stays in its BASE form — never say "as better as" or "as biggest as".`,
+
+    'Common mistakes (more better, the most best)': `The #1 mistake for Portuguese speakers: mixing the two comparative rules. Pick ONE — never both.
+
+WRONG: more better ✗ | more taller ✗ | the most best ✗ | the most biggest ✗
+RIGHT: better ✓ | taller ✓ | the best ✓ | the biggest ✓
+
+Other common mistakes:
+- Forgetting THE before superlatives: "She's tallest" ✗ → "She's THE tallest" ✓
+- Forgetting THAN: "He's smarter me" ✗ → "He's smarter THAN me" ✓
+- Regularizing irregulars: "gooder" ✗ → "better" ✓ ; "badder" ✗ → "worse" ✓
+
+Examples (correct):
+- This is the most beautiful beach I've ever seen.
+- He's smarter than his brother.
+- It's getting better every day.`,
+  },
 };
 
 // === DADOS DE VOCABULARY (grid com imagens/emojis, sem IA) ===
@@ -2946,6 +3112,7 @@ let state = {
   isListening: false,
   voicesLoaded: false,
   userWantsListening: false,
+  chatSending: false, // trava contra duas perguntas de chat correndo ao mesmo tempo
 };
 
 // ===== STORAGE =====
@@ -3074,6 +3241,27 @@ function repairTruncatedJson(s) {
   return out;
 }
 
+// Some fetch() com tempo limite. Sem isso, se a rede engasgar no meio da
+// chamada (tela bloqueada, troca de app, Wi-Fi caindo), a promise nunca
+// resolve nem rejeita — e quem chamou (ex.: as bolinhas "..." do chat) fica
+// esperando pra sempre. Com o AbortController, em 30s ela desiste sozinha.
+async function fetchComTempoLimite(url, options, ms = 30000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } catch (err) {
+    if (err.name === 'AbortError') {
+      const e = new Error(`timed out after ${Math.round(ms / 1000)}s`);
+      e.timedOut = true;
+      throw e;
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 // ===== LLM ROTATION =====
 async function callLLM(messages, opts = {}) {
   const maxTokens = opts.maxTokens || 800;
@@ -3139,7 +3327,7 @@ async function callGemini(messages, key, maxTokens, temperature, wantJson) {
   if (systemMsg) body.systemInstruction = { parts: [{ text: systemMsg.content }] };
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(key)}`;
-  const r = await fetch(url, {
+  const r = await fetchComTempoLimite(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -3164,7 +3352,7 @@ async function callGroq(messages, key, maxTokens, temperature, wantJson) {
     max_tokens: maxTokens,
   };
   if (wantJson) payload.response_format = { type: 'json_object' };
-  const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+  const r = await fetchComTempoLimite('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -3187,7 +3375,7 @@ async function callMistral(messages, key, maxTokens, temperature, wantJson) {
     max_tokens: maxTokens,
   };
   if (wantJson) payload.response_format = { type: 'json_object' };
-  const r = await fetch('https://api.mistral.ai/v1/chat/completions', {
+  const r = await fetchComTempoLimite('https://api.mistral.ai/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -3203,14 +3391,22 @@ async function callMistral(messages, key, maxTokens, temperature, wantJson) {
 }
 
 // ===== CHAT (Ms. Mary) =====
-async function sendChatMessage(text) {
+async function sendChatMessage(text, opts = {}) {
   if (!text.trim()) return;
   if (!hasAnyKey()) { showOnboarding(); return; }
+  if (state.chatSending) return; // evita duas perguntas correndo ao mesmo tempo
+  state.chatSending = true;
 
-  appendChatMsg('user', text);
-  state.chatHistory.push({ role: 'user', content: text });
-  saveChatHistory();
+  // No retry (botão "Try again"), a mensagem do Jean já está na tela e no
+  // histórico — não duplica.
+  if (!opts.isRetry) {
+    appendChatMsg('user', text);
+    state.chatHistory.push({ role: 'user', content: text });
+    saveChatHistory();
+  }
 
+  const sendBtn = document.getElementById('chatSendBtn');
+  if (sendBtn) sendBtn.disabled = true;
   showTyping(true);
 
   const historyForPrompt = state.chatHistory.slice(-32);
@@ -3239,14 +3435,16 @@ ${text}`;
   try {
     const { text: rawReply } = await callLLM(messages, { maxTokens: 900 });
     const reply = stripNamePrefix(rawReply);
-    showTyping(false);
     appendChatMsg('bot', reply);
     state.chatHistory.push({ role: 'assistant', content: reply });
     saveChatHistory();
     if (state.config.voiceOn && state.config.autoSpeak) speakText(reply);
   } catch (err) {
+    appendChatMsg('system', '⚠️ ' + err.message, { retryText: text });
+  } finally {
     showTyping(false);
-    appendChatMsg('system', '⚠️ ' + err.message);
+    state.chatSending = false;
+    if (sendBtn) sendBtn.disabled = false;
   }
 }
 
@@ -3281,7 +3479,7 @@ function buildPronunciationBlock() {
   return `\n[PRONUNCIATION PROGRESS — silent context; you may naturally reuse mastered words or gently prompt struggling ones, but do NOT quote this block]\n${lines.join('\n')}\n`;
 }
 
-function appendChatMsg(role, text) {
+function appendChatMsg(role, text, opts = {}) {
   const container = document.getElementById('chatMessages');
   const div = document.createElement('div');
   div.className = 'msg ' + role;
@@ -3311,6 +3509,18 @@ function appendChatMsg(role, text) {
     div.appendChild(speakBtn);
   }
 
+  // Mensagem de erro: bota um botão pra tentar de novo sem reescrever a frase
+  if (role === 'system' && opts.retryText) {
+    const retryBtn = document.createElement('button');
+    retryBtn.className = 'speak-btn';
+    retryBtn.textContent = '🔄 Try again';
+    retryBtn.onclick = () => {
+      div.remove();
+      sendChatMessage(opts.retryText, { isRetry: true });
+    };
+    div.appendChild(retryBtn);
+  }
+
   container.appendChild(div);
   container.scrollTop = container.scrollHeight;
 }
@@ -3319,11 +3529,15 @@ function showTyping(on) {
   const container = document.getElementById('chatMessages');
   let typing = document.getElementById('typingIndicator');
   if (on) {
-    if (typing) return;
-    const wrap = document.createElement('div');
-    wrap.id = 'typingIndicator';
-    wrap.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
-    container.appendChild(wrap);
+    // Se já existe (ex.: ficou órfã de uma resposta anterior), tira do lugar
+    // velho e recoloca no fim — nunca deixa a bolinha presa acima de uma
+    // mensagem nova.
+    if (!typing) {
+      typing = document.createElement('div');
+      typing.id = 'typingIndicator';
+      typing.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+    }
+    container.appendChild(typing);
     container.scrollTop = container.scrollHeight;
   } else {
     if (typing) typing.remove();
@@ -3425,7 +3639,10 @@ function openSubtopics(topic) {
     return;
   }
 
-  // Caso geral: cada subtópico expande em uma explicação estática
+  // Caso geral: cada subtópico expande em uma explicação estática.
+  // Monta os itens primeiro (pra ter o texto de cada um pronto pra busca).
+  const itemsWrap = document.createElement('div');
+  const itemEls = [];
   for (const st of topic.subtopicos) {
     const item = document.createElement('div');
     item.className = 'subtopic-item';
@@ -3435,8 +3652,47 @@ function openSubtopics(topic) {
       if (ev.target.closest('.ctrl') || ev.target.closest('.topic-ask-area')) return;
       toggleSubtopicExplain(item, topic, st);
     };
-    inner.appendChild(item);
+    itemsWrap.appendChild(item);
+    const haystack = (st + ' ' + (getStaticContent(topic.id, st) || '')).toLowerCase();
+    itemEls.push({ el: item, haystack });
   }
+
+  // Listas compridas (Irregular Verbs, Comparatives, etc.) ganham busca —
+  // procura no nome do subtópico E no texto da explicação (acha "caught" em
+  // "catch (caught — caught)" e acha "worse" em "bad — worse — the worst").
+  if (topic.subtopicos.length >= 10) {
+    const searchWrap = document.createElement('div');
+    searchWrap.style.cssText = 'position:relative; margin-bottom:6px;';
+    searchWrap.innerHTML = `
+      <input id="subtopicSearchInput" type="search" autocapitalize="off" autocorrect="off"
+        placeholder="🔍 Search in this list..."
+        style="width:100%; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); border-radius:12px; padding:11px 12px; color:#fff; font-size:15px; font-family:inherit; outline:none; -webkit-appearance:none;">
+    `;
+    inner.appendChild(searchWrap);
+
+    const counter = document.createElement('div');
+    counter.style.cssText = 'font-size:12px; opacity:0.6; margin:0 2px 8px;';
+    inner.appendChild(counter);
+
+    const emptyMsg = document.createElement('div');
+    emptyMsg.style.cssText = 'display:none; text-align:center; opacity:0.6; font-size:13px; padding:20px;';
+    inner.appendChild(emptyMsg);
+
+    searchWrap.querySelector('#subtopicSearchInput').oninput = (ev) => {
+      const q = ev.target.value.trim().toLowerCase();
+      let shown = 0;
+      for (const { el, haystack } of itemEls) {
+        const match = !q || haystack.includes(q);
+        el.style.display = match ? '' : 'none';
+        if (match) shown++;
+      }
+      counter.textContent = q ? `${shown} of ${itemEls.length}` : '';
+      emptyMsg.style.display = shown === 0 ? 'block' : 'none';
+      emptyMsg.textContent = `Nothing found for "${ev.target.value.trim()}"`;
+    };
+  }
+
+  inner.appendChild(itemsWrap);
   sub.appendChild(inner);
 }
 
@@ -4930,7 +5186,7 @@ async function transcribeWithWhisper(blob, key, mimeType) {
   form.append('response_format', 'json');
   form.append('temperature', '0');
 
-  const r = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
+  const r = await fetchComTempoLimite('https://api.groq.com/openai/v1/audio/transcriptions', {
     method: 'POST',
     headers: { 'Authorization': 'Bearer ' + key },
     body: form,
