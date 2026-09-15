@@ -1204,7 +1204,7 @@
         <button class="btn-danger" id="btnResetQuotas">Reset quota state (test)</button>
       </div>
 
-      <div class="info-line">English Imersivo v1.4.1 — Jean Edition</div>
+      <div class="info-line">English Imersivo v1.4.2 — Jean Edition</div>
     </div>
   </section>
 </main>
@@ -3364,6 +3364,10 @@ async function callGroq(messages, key, maxTokens, temperature, wantJson) {
     messages,
     temperature,
     max_tokens: maxTokens,
+    // gpt-oss "pensa" antes de responder por padrao (reasoning_effort medio),
+    // igual o Gemini fazia antes do thinkingBudget:0 — 'low' mantem a resposta
+    // rapida pro uso de conversa/consulta deste app.
+    reasoning_effort: 'low',
   };
   if (wantJson) payload.response_format = { type: 'json_object' };
   const r = await fetchComTempoLimite('https://api.groq.com/openai/v1/chat/completions', {
