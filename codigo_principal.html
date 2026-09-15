@@ -1204,7 +1204,7 @@
         <button class="btn-danger" id="btnResetQuotas">Reset quota state (test)</button>
       </div>
 
-      <div class="info-line">English Imersivo v1.4 — Jean Edition</div>
+      <div class="info-line">English Imersivo v1.4.1 — Jean Edition</div>
     </div>
   </section>
 </main>
@@ -1245,7 +1245,7 @@ const PROVIDERS = {
     name: 'Groq',
     keyHelp: 'console.groq.com/keys',
     keyHelpUrl: 'https://console.groq.com/keys',
-    quotaLabel: 'llama-3.3-70b — ~14000/dia',
+    quotaLabel: 'gpt-oss-120b — ~14000/dia',
   },
   mistral: {
     name: 'Mistral',
@@ -3360,7 +3360,7 @@ async function callGemini(messages, key, maxTokens, temperature, wantJson) {
 
 async function callGroq(messages, key, maxTokens, temperature, wantJson) {
   const payload = {
-    model: 'llama-3.3-70b-versatile',
+    model: 'openai/gpt-oss-120b',
     messages,
     temperature,
     max_tokens: maxTokens,
