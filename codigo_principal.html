@@ -389,6 +389,43 @@
     margin-top: 6px;
     padding: 0 4px;
   }
+  .ask-input-block button.img {
+    flex: 0 0 44px;
+    padding: 10px;
+    background: rgba(255,255,255,0.1);
+  }
+  .ask-image-preview {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    padding: 8px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 10px;
+  }
+  .ask-image-preview.show { display: flex; }
+  .ask-image-preview img {
+    width: 48px; height: 48px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+  .ask-image-preview .label { flex: 1; font-size: 12px; opacity: 0.7; }
+  .ask-image-preview .remove {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: #fff;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .ask-response .thumb {
+    width: 56px; height: 56px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    display: block;
+  }
 
   /* DOUBTS VIEW (dúvidas pra aula) */
   .doubts-tool-btn {
@@ -1041,9 +1078,16 @@
       </div>
       <div class="ask-input-block">
         <textarea id="askInput" placeholder="Tell me about..." rows="3"></textarea>
+        <div class="ask-image-preview" id="askImagePreview">
+          <img id="askImagePreviewThumb" alt="">
+          <div class="label">Image attached — Ms. Mary will look at it</div>
+          <button class="remove" id="askImageRemoveBtn" title="Remove image">✕</button>
+        </div>
         <div class="ask-examples">Tip: ask in English to stay immersive.</div>
+        <input type="file" id="askImageInput" accept="image/*" style="display:none;">
         <div class="ask-row">
           <button class="mic" id="askMicBtn" title="Speak">🎤</button>
+          <button class="img" id="askImageBtn" title="Attach image">📷</button>
           <button id="askSendBtn">Ask Ms. Mary</button>
         </div>
       </div>
@@ -1204,7 +1248,7 @@
         <button class="btn-danger" id="btnResetQuotas">Reset quota state (test)</button>
       </div>
 
-      <div class="info-line">English Imersivo v1.4.4 — Jean Edition</div>
+      <div class="info-line">English Imersivo v1.5 — Jean Edition</div>
     </div>
   </section>
 </main>
@@ -3144,6 +3188,7 @@ let state = {
   config: {},
   chatHistory: [],
   askHistory: [],
+  askImage: null, // {base64, mimeType, thumb} da imagem anexada na aba Ask, aguardando envio
   quotaState: {},
   pastConvs: [], // resumos de conversas anteriores (memória de longo prazo)
   topicViewing: null, // {topicId, expandedSubtopic, explanation}
@@ -3190,7 +3235,9 @@ function loadAskHistory() {
   catch { return []; }
 }
 function saveAskHistory() {
-  const trimmed = state.askHistory.slice(-20);
+  // Lista fica com o mais novo primeiro (unshift) — slice(0,20) guarda os
+  // 20 MAIS NOVOS. slice(-20) guardava os 20 mais antigos por engano.
+  const trimmed = state.askHistory.slice(0, 20);
   localStorage.setItem(STORAGE_KEYS.askHistory, JSON.stringify(trimmed));
 }
 function loadQuotaState() {
@@ -3305,7 +3352,11 @@ async function callLLM(messages, opts = {}) {
   const maxTokens = opts.maxTokens || 800;
   const temperature = opts.temperature || 0.7;
   const wantJson = !!opts.json;
-  const order = state.config.order || ['gemini', 'groq', 'mistral'];
+  // onlyProviders restringe a lista (usado por pergunta com imagem: só o
+  // Gemini le imagem, Groq/Mistral nem tentam — cooldown/cota continuam
+  // funcionando normalmente pro Gemini).
+  const fullOrder = state.config.order || ['gemini', 'groq', 'mistral'];
+  const order = opts.onlyProviders ? fullOrder.filter(p => opts.onlyProviders.includes(p)) : fullOrder;
   const now = Date.now();
   const errors = [];
 
@@ -3346,10 +3397,14 @@ async function callProvider(providerId, messages, key, maxTokens, temperature, w
 
 async function callGemini(messages, key, maxTokens, temperature, wantJson) {
   const systemMsg = messages.find(m => m.role === 'system');
-  const turns = messages.filter(m => m.role !== 'system').map(m => ({
-    role: m.role === 'assistant' ? 'model' : 'user',
-    parts: [{ text: m.content }],
-  }));
+  const turns = messages.filter(m => m.role !== 'system').map(m => {
+    const parts = [{ text: m.content }];
+    if (m.image) parts.push({ inline_data: { mime_type: m.image.mimeType, data: m.image.base64 } });
+    return {
+      role: m.role === 'assistant' ? 'model' : 'user',
+      parts,
+    };
+  });
   const body = {
     contents: turns,
     generationConfig: {
@@ -4491,8 +4546,58 @@ Rules:
 }
 
 // ===== ASK ANYTHING =====
+// Redimensiona uma imagem já carregada (elemento <img>) pro lado maior caber
+// em maxLado, e devolve um data URL JPEG. Usado pra imagem grande (envio,
+// ate 1024px — economiza tokens/cota) e miniatura (historico, ate 160px).
+function redimensionarEmCanvas(img, maxLado, qualidade) {
+  const maior = Math.max(img.width, img.height);
+  const escala = maior > maxLado ? maxLado / maior : 1;
+  const width = Math.round(img.width * escala) || 1;
+  const height = Math.round(img.height * escala) || 1;
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+  return canvas.toDataURL('image/jpeg', qualidade);
+}
+
+// Recebe um File (escolhido no 📷 ou colado) e devolve {base64, mimeType, thumb}.
+// Rejeita se não for imagem.
+function prepararImagemAsk(file) {
+  return new Promise((resolve, reject) => {
+    if (!file || !file.type || !file.type.startsWith('image/')) {
+      reject(new Error('not an image'));
+      return;
+    }
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const big = redimensionarEmCanvas(img, 1024, 0.8);
+      const thumb = redimensionarEmCanvas(img, 160, 0.7);
+      resolve({ base64: big.split(',')[1], mimeType: 'image/jpeg', thumb });
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('image load failed')); };
+    img.src = url;
+  });
+}
+
+function showAskImagePreview() {
+  const box = document.getElementById('askImagePreview');
+  document.getElementById('askImagePreviewThumb').src = state.askImage.thumb;
+  box.classList.add('show');
+}
+
+function clearAskImage() {
+  state.askImage = null;
+  document.getElementById('askImagePreview').classList.remove('show');
+  document.getElementById('askImageInput').value = '';
+}
+
 async function askAnything(question) {
-  if (!question.trim()) return;
+  question = (question || '').trim();
+  const hasImage = !!state.askImage;
+  if (!question && !hasImage) return;
   if (!hasAnyKey()) { showOnboarding(); return; }
 
   const askInput = document.getElementById('askInput');
@@ -4500,29 +4605,45 @@ async function askAnything(question) {
   askSendBtn.disabled = true;
   askSendBtn.textContent = 'Thinking...';
 
-  const system = `You are Ms. Mary, an immersive English teacher.
+  let system = `You are Ms. Mary, an immersive English teacher.
 Jean (Brazilian beginner, TopWay immersive school) asks an open question.
 Answer in 100% immersive English (never translate unless explicitly asked).
 Use examples with REAL-LIFE situations, dialogues, verbs, actions — not just object names.
 Plain text. 4 to 10 short sentences. No markdown, no emojis.
 Do NOT prefix your reply with "Ms. Mary:" or any name tag.`;
+  if (hasImage) system += `\nJean also sent an image along with his question. Look at the image and answer about it in English.`;
+
+  const effectiveQuestion = question || 'What is this? Explain the English in this image.';
+  const userMsg = { role: 'user', content: effectiveQuestion };
+  if (hasImage) userMsg.image = { mimeType: state.askImage.mimeType, base64: state.askImage.base64 };
+  const thumb = hasImage ? state.askImage.thumb : null;
 
   const messages = [
     { role: 'system', content: system },
-    { role: 'user', content: question },
+    userMsg,
   ];
 
   try {
-    const { text } = await callLLM(messages, { maxTokens: 900 });
-    state.askHistory.unshift({ q: question, a: text, ts: Date.now() });
+    // Imagem só o Gemini lê — Groq/Mistral nem entram na rotação aqui.
+    const opts = { maxTokens: 900 };
+    if (hasImage) opts.onlyProviders = ['gemini'];
+    const { text } = await callLLM(messages, opts);
+    state.askHistory.unshift({ q: effectiveQuestion, a: text, ts: Date.now(), thumb });
     saveAskHistory();
     renderAskHistory();
     askInput.value = '';
+    clearAskImage();
     if (state.config.voiceOn && state.config.autoSpeak) speakText(text);
   } catch (err) {
-    state.askHistory.unshift({ q: question, a: '⚠️ ' + err.message, ts: Date.now() });
-    saveAskHistory();
-    renderAskHistory();
+    if (hasImage) {
+      // Sem rede de segurança pra imagem: nada de erro tecnico, e o
+      // texto/imagem digitados continuam ali pro Jean tentar de novo depois.
+      toast("Images only work with Gemini, and Gemini is resting right now. You can still ask by text!", 4000);
+    } else {
+      state.askHistory.unshift({ q: effectiveQuestion, a: '⚠️ ' + err.message, ts: Date.now() });
+      saveAskHistory();
+      renderAskHistory();
+    }
   } finally {
     askSendBtn.disabled = false;
     askSendBtn.textContent = 'Ask Ms. Mary';
@@ -4535,7 +4656,7 @@ function renderAskHistory() {
   for (const it of state.askHistory) {
     const div = document.createElement('div');
     div.className = 'ask-response';
-    div.innerHTML = `<div class="q">${escapeHtml(it.q)}</div>`;
+    div.innerHTML = (it.thumb ? `<img class="thumb" src="${it.thumb}" alt="">` : '') + `<div class="q">${escapeHtml(it.q)}</div>`;
     const ans = document.createElement('div');
     ans.textContent = it.a;
     div.appendChild(ans);
@@ -6458,11 +6579,37 @@ function init() {
   const askInput = document.getElementById('askInput');
   document.getElementById('askSendBtn').onclick = () => {
     const q = askInput.value.trim();
-    if (q) askAnything(q);
+    if (q || state.askImage) askAnything(q);
   };
   document.getElementById('askMicBtn').onclick = () => {
     startListening(askInput, document.getElementById('askMicBtn'));
   };
+  const askImageInputEl = document.getElementById('askImageInput');
+  document.getElementById('askImageBtn').onclick = () => askImageInputEl.click();
+  askImageInputEl.onchange = () => {
+    const file = askImageInputEl.files[0];
+    if (!file) return;
+    prepararImagemAsk(file).then((img) => {
+      state.askImage = img;
+      showAskImagePreview();
+    }).catch(() => toast("Couldn't read that image — try another one"));
+  };
+  document.getElementById('askImageRemoveBtn').onclick = () => clearAskImage();
+  // Colar imagem direto no campo (funciona no computador; no iPhone o botao
+  // 📷 acima e o caminho garantido).
+  askInput.addEventListener('paste', (ev) => {
+    const items = ev.clipboardData?.items || [];
+    for (const item of items) {
+      if (item.type && item.type.startsWith('image/')) {
+        ev.preventDefault();
+        prepararImagemAsk(item.getAsFile()).then((img) => {
+          state.askImage = img;
+          showAskImagePreview();
+        }).catch(() => toast("Couldn't read that image — try another one"));
+        break;
+      }
+    }
+  });
   renderAskHistory();
 
   // Doubts (dúvidas pra aula)
