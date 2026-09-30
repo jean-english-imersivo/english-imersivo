@@ -1254,6 +1254,12 @@
       </div>
 
       <div class="settings-group">
+        <h3>📤 Export</h3>
+        <button id="btnExportHistory" style="width:100%;background:rgba(139,92,246,0.2);border:1px solid rgba(139,92,246,0.4);color:#a78bfa;padding:8px 14px;border-radius:10px;font-size:13px;cursor:pointer;">Export learning history (share / email)</button>
+        <div style="font-size:11px; opacity:0.6; margin-top:6px;">Sends your progress summaries + current chat as text — share to Mail, Notes, or WhatsApp.</div>
+      </div>
+
+      <div class="settings-group">
         <h3>🗑️ Reset</h3>
         <button class="btn-danger" id="btnClearChat">Clear chat history</button>
         <button class="btn-danger" id="btnClearAsk">Clear Ask history</button>
@@ -1263,7 +1269,7 @@
         <button class="btn-danger" id="btnResetQuotas">Reset quota state (test)</button>
       </div>
 
-      <div class="info-line">English Imersivo v1.6 — Jean Edition</div>
+      <div class="info-line">English Imersivo v1.7 — Jean Edition</div>
     </div>
   </section>
 </main>
@@ -6201,6 +6207,7 @@ function bindSettings() {
     updateQuotaBanner();
     toast('Quota state reset');
   };
+  document.getElementById('btnExportHistory').onclick = exportLearningHistory;
   document.getElementById('btnClearPastConvs').onclick = () => {
     const count = state.pastConvs.length;
     if (count === 0) { toast('No past conversations to clear.'); return; }
@@ -6305,6 +6312,60 @@ Rules:
     console.log('Summary parse failed:', e);
     return null;
   }
+}
+
+// Junta os resumos de longo prazo + a conversa atual (ainda não resumida)
+// num texto legível, pra Jean compartilhar (Mail/Notes/WhatsApp) e mandar
+// pra análise fora do app.
+async function exportLearningHistory() {
+  const past = state.pastConvs || [];
+  const chat = state.chatHistory || [];
+  if (!past.length && chat.length < 2) {
+    toast('Nothing to export yet — talk with Ms. Mary first.');
+    return;
+  }
+
+  const lines = ['HISTÓRICO DE APRENDIZADO — English Imersivo (Jean)', ''];
+  lines.push(`Exportado em: ${new Date().toLocaleString('pt-BR')}`);
+  lines.push('');
+
+  if (past.length) {
+    lines.push('=== RESUMOS DE CONVERSAS ANTERIORES (mais recente primeiro) ===');
+    lines.push('');
+    past.slice().reverse().forEach((c, i) => {
+      const data = c.date ? new Date(c.date).toLocaleDateString('pt-BR') : '?';
+      lines.push(`--- Conversa ${i + 1} (${data}) ---`);
+      if (c.levelEstimate) lines.push(`Nível estimado: ${c.levelEstimate}`);
+      if (c.topics && c.topics.length) lines.push(`Temas: ${c.topics.join(', ')}`);
+      if (c.strengths && c.strengths.length) lines.push(`Pontos fortes: ${c.strengths.join(', ')}`);
+      if (c.difficulties && c.difficulties.length) lines.push(`Dificuldades: ${c.difficulties.join(', ')}`);
+      if (c.newWords && c.newWords.length) lines.push(`Palavras novas: ${c.newWords.join(', ')}`);
+      if (c.encouragement) lines.push(`Nota: ${c.encouragement}`);
+      lines.push('');
+    });
+  }
+
+  if (chat.length >= 2) {
+    lines.push('=== CONVERSA ATUAL (ainda não resumida) ===');
+    lines.push('');
+    chat.forEach((m) => {
+      lines.push((m.role === 'user' ? 'JEAN' : 'MS. MARY') + ': ' + m.content);
+    });
+    lines.push('');
+  }
+
+  const text = lines.join('\n');
+
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: 'Histórico de aprendizado — English Imersivo', text });
+      return;
+    } catch (err) {
+      if (err && err.name === 'AbortError') return; // usuário cancelou
+      // qualquer outro erro: cai pro clipboard abaixo
+    }
+  }
+  copyTextToClipboard(text);
 }
 
 async function showProgressReport() {
