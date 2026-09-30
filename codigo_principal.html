@@ -83,6 +83,49 @@
   }
   .chat-toolbar button:active { background: rgba(255,255,255,0.15); }
 
+  /* FOCUS CARD (v1.8) */
+  .focus-card {
+    margin: 10px 12px 0;
+    padding: 10px 12px;
+    background: rgba(139,92,246,0.15);
+    border: 1px solid rgba(139,92,246,0.35);
+    border-radius: 14px;
+    flex-shrink: 0;
+  }
+  .focus-card-title {
+    color: #a78bfa;
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+  .focus-card-example {
+    font-size: 12px;
+    opacity: 0.85;
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+  .focus-card-actions {
+    display: flex;
+    gap: 8px;
+  }
+  .focus-card-actions button {
+    background: rgba(139,92,246,0.25);
+    border: 1px solid rgba(139,92,246,0.4);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  #focusDismissBtn {
+    flex: 0 0 auto;
+    padding: 6px 10px;
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.7);
+  }
+
   /* CHAT VIEW */
   .messages {
     flex: 1;
@@ -1050,6 +1093,7 @@
       <button id="btnProgress" title="See your progress report">📊 Progress</button>
       <button id="btnNewConv" title="Start a new conversation">🔄 New</button>
     </div>
+    <div class="focus-card" id="focusCard" style="display:none;"></div>
     <div class="messages" id="chatMessages"></div>
     <div class="input-bar">
       <textarea id="chatInput" placeholder="Type in English... (Ctrl+Enter to send)" rows="1"></textarea>
@@ -1269,7 +1313,7 @@
         <button class="btn-danger" id="btnResetQuotas">Reset quota state (test)</button>
       </div>
 
-      <div class="info-line">English Imersivo v1.7 — Jean Edition</div>
+      <div class="info-line">English Imersivo v1.8 — Jean Edition</div>
     </div>
   </section>
 </main>
@@ -1318,6 +1362,55 @@ const PROVIDERS = {
     keyHelp: 'console.mistral.ai/api-keys',
     keyHelpUrl: 'https://console.mistral.ai/api-keys/',
     quotaLabel: 'mistral-small — ~500/dia',
+  },
+};
+
+// === Erros recorrentes (v1.8) — lista FECHADA. A IA so pode usar estes ids;
+// qualquer outro id que ela inventar e descartado pelo codigo (scanMistakes). ===
+const MISTAKE_TYPES = {
+  'past-we-was': {
+    label: 'Past tense with "we" (we were, not we was)',
+    hint: 'ask a question about a trip or activity he did WITH someone else, so he has to answer starting with "We were..." or "We did..."',
+  },
+  'past-form': {
+    label: 'Wrong past tense form (e.g. "was used" instead of "used")',
+    hint: 'ask him to describe something he did in the past using a simple action verb',
+  },
+  'pronoun-mix': {
+    label: 'Mixing up he/she/him/her for the same person',
+    hint: 'ask him to describe a family member or friend in 2-3 sentences, and check if the pronoun stays the same',
+  },
+  'me-and-i': {
+    label: '"me and X" instead of "X and I"',
+    hint: 'ask a question that needs an answer like "___ and I did something", e.g. "Who helped you with X?"',
+  },
+  'question-order': {
+    label: 'Question word order (translated word-for-word from Portuguese)',
+    hint: 'ask him to FORM a question in English about a topic, instead of just answering one',
+  },
+  'missing-to': {
+    label: 'Missing "to" before a verb (e.g. "would like schedule")',
+    hint: 'ask him what he would like to do next, so he practices "I would like to + verb"',
+  },
+  'third-person-s': {
+    label: 'Missing -s on he/she/it verbs (e.g. "the system have")',
+    hint: 'ask him to describe what something (a system, a place, a person) DOES or HAS, using he/she/it',
+  },
+  'uncountable-plural': {
+    label: 'Adding -s to words that have no plural (e.g. "softwares")',
+    hint: 'ask him about an uncountable thing (software, money, information, advice) and see if he adds an "s"',
+  },
+  'preposition': {
+    label: 'Wrong preposition (in/on/at/for/with...)',
+    hint: 'ask a question that needs a preposition in the answer, e.g. about time, place, or "for someone"',
+  },
+  'word-order': {
+    label: 'Word order inside a phrase (e.g. adjective order)',
+    hint: 'ask him to describe something using two or more adjectives together',
+  },
+  'unfinished-sentence': {
+    label: 'Starting a longer sentence and not finishing the idea',
+    hint: 'ask him to explain something with 2-3 connected steps or reasons, encouraging him to finish each sentence',
   },
 };
 
@@ -3442,6 +3535,11 @@ let state = {
   voicesLoaded: false,
   userWantsListening: false,
   chatSending: false, // trava contra duas perguntas de chat correndo ao mesmo tempo
+  mistakeLog: [], // erros classificados: {type, said, better, date}
+  mistakeScanned: [], // frases do Jean que ja foram conferidas pela IA
+  mistakeScanning: false, // trava contra duas varreduras ao mesmo tempo
+  focusDismissed: null, // {type, until} — cartao escondido pelo ✕ até essa data
+  focusPractice: null, // {type, remaining} durante o "Practice now"
 };
 
 // ===== STORAGE =====
@@ -3501,6 +3599,30 @@ function savePastConvs() {
   // Limita a 30 conversas (mais antigas caem fora)
   const trimmed = state.pastConvs.slice(-30);
   localStorage.setItem(STORAGE_KEYS.pastConvs, JSON.stringify(trimmed));
+}
+function loadMistakeLog() {
+  try { return JSON.parse(localStorage.getItem('ei_mistake_log') || '[]'); }
+  catch { return []; }
+}
+function saveMistakeLog() {
+  const trimmed = state.mistakeLog.slice(-200);
+  localStorage.setItem('ei_mistake_log', JSON.stringify(trimmed));
+}
+function loadMistakeScanned() {
+  try { return JSON.parse(localStorage.getItem('ei_mistake_scanned') || '[]'); }
+  catch { return []; }
+}
+function saveMistakeScanned() {
+  const trimmed = state.mistakeScanned.slice(-300);
+  localStorage.setItem('ei_mistake_scanned', JSON.stringify(trimmed));
+}
+function loadFocusDismissed() {
+  try { return JSON.parse(localStorage.getItem('ei_focus_dismissed') || 'null'); }
+  catch { return null; }
+}
+function saveFocusDismissed() {
+  if (state.focusDismissed) localStorage.setItem('ei_focus_dismissed', JSON.stringify(state.focusDismissed));
+  else localStorage.removeItem('ei_focus_dismissed');
 }
 
 // ===== JSON DA IA (à prova de resposta cortada) =====
@@ -3759,11 +3881,12 @@ async function sendChatMessage(text, opts = {}) {
 
   const pastBlock = buildPastConvsBlock();
   const pronBlock = buildPronunciationBlock();
+  const focusBlock = buildFocusPracticeBlock();
 
   const userBlock = `[SESSION SETTINGS]
 - Correction mode: ${state.config.correction}
 - Portuguese helper: ${state.config.ptHelper ? 'ENABLED' : 'DISABLED'}
-${pastBlock}${pronBlock}
+${pastBlock}${pronBlock}${focusBlock}
 [CONVERSATION SO FAR]
 ${conversationSoFar || '(this is the first message)'}
 
@@ -3782,13 +3905,33 @@ ${text}`;
     state.chatHistory.push({ role: 'assistant', content: reply });
     saveChatHistory();
     if (state.config.voiceOn && state.config.autoSpeak) speakText(reply);
+    if (state.focusPractice) {
+      state.focusPractice.remaining -= 1;
+      if (state.focusPractice.remaining <= 0) {
+        state.focusPractice = null;
+        toast('Practice complete! 🎉');
+      }
+      renderFocusCard();
+    }
   } catch (err) {
     appendChatMsg('system', '⚠️ ' + err.message, { retryText: text });
   } finally {
     showTyping(false);
     state.chatSending = false;
     if (sendBtn) sendBtn.disabled = false;
+    maybeScanMistakes();
   }
+}
+
+// Bloco curto usado SÓ durante "Practice now" — nunca fica dentro do
+// MS_MARY_SYSTEM fixo (prompt maior/mais complexo piorou o gpt-oss na v1.4.4).
+function buildFocusPracticeBlock() {
+  const fp = state.focusPractice;
+  if (!fp) return '';
+  const info = MISTAKE_TYPES[fp.type];
+  if (!info) return '';
+  const questionNum = 5 - fp.remaining + 1;
+  return `\n[FOCUS PRACTICE — question ${questionNum} of 5]\nAsk ONE short question that forces Jean to use this structure: ${info.label}. Hint: ${info.hint}. After his answer, gently correct it if needed, then move on.\n`;
 }
 
 // Remove prefixos "Ms. Mary:" / "Ms. Marie:" (nome antigo) / "Mr. Wilson:" / "Teacher:" no início da resposta
@@ -6314,6 +6457,162 @@ Rules:
   }
 }
 
+// ===== FOCO DA SEMANA (v1.8) — erro que se repete nas mensagens de verdade =====
+// Os resumos salvos (ei_past_conversations) guardam só rótulo genérico
+// ("sentence structure") — não dá pra contar repetição confiável com isso.
+// Por isso esta varredura olha direto as frases que o Jean escreveu.
+function pendingMistakeMessages() {
+  const scanned = new Set(state.mistakeScanned);
+  return (state.chatHistory || []).filter(m =>
+    m.role === 'user' && m.content && m.content.trim() && !scanned.has(m.content.trim())
+  );
+}
+
+async function scanMistakes() {
+  if (state.mistakeScanning) return;
+  const pending = pendingMistakeMessages();
+  if (pending.length < 3) return;
+
+  state.mistakeScanning = true;
+  try {
+    const numbered = pending.map((m, i) => `${i + 1}. ${m.content.trim()}`).join('\n');
+    const typesList = Object.entries(MISTAKE_TYPES).map(([id, t]) => `- ${id}: ${t.label}`).join('\n');
+    const system = `You analyze English sentences written by Jean, a Brazilian English learner, looking for recurring grammar/structure mistakes.
+Only use these mistake type ids (do not invent new ones):
+${typesList}
+For each sentence below that has a mistake matching one of these types, output one entry. A sentence can have zero, one, or more entries. Skip sentences with no matching mistake or only minor spelling issues.
+Output ONLY valid JSON (no markdown, no commentary) with this exact shape:
+{ "mistakes": [ { "type": "<id from the list above>", "said": "<copy the EXACT original sentence text, unchanged>", "better": "<short corrected version>" } ] }`;
+    const user = 'Sentences (numbered):\n\n' + numbered;
+
+    const { text } = await callLLM([
+      { role: 'system', content: system },
+      { role: 'user', content: user },
+    ], { maxTokens: 900, temperature: 0.2, json: true });
+
+    const parsed = parseAIJson(text);
+    const rawMistakes = Array.isArray(parsed?.mistakes) ? parsed.mistakes : [];
+
+    // A IA preenche, o código confere: descarta tipo fora da lista fechada
+    // e frase "dita" que não aparece de verdade numa mensagem do Jean —
+    // isso barra erro inventado pela IA.
+    const pendingSet = new Set(pending.map(m => m.content.trim()));
+    const seenThisScan = new Set();
+    const now = Date.now();
+    let added = false;
+    for (const m of rawMistakes) {
+      if (!m || typeof m !== 'object') continue;
+      const type = m.type;
+      const said = String(m.said || '').trim();
+      const better = String(m.better || '').trim();
+      if (!MISTAKE_TYPES[type]) continue;
+      if (!said || !pendingSet.has(said)) continue;
+      const dedupKey = type + '|' + said;
+      if (seenThisScan.has(dedupKey)) continue;
+      seenThisScan.add(dedupKey);
+      state.mistakeLog.push({ type, said, better, date: now });
+      added = true;
+    }
+    if (added) saveMistakeLog();
+
+    // Só marca como conferida a mensagem depois de uma resposta VÁLIDA —
+    // se a IA falhar (JSON quebrado), não marca nada e tenta de novo depois.
+    state.mistakeScanned.push(...pendingSet);
+    saveMistakeScanned();
+  } catch (e) {
+    console.log('Mistake scan failed:', e);
+  } finally {
+    state.mistakeScanning = false;
+  }
+}
+
+function maybeScanMistakes() {
+  if (pendingMistakeMessages().length >= 6) {
+    scanMistakes().then(() => { if (state.currentTab === 'chat') renderFocusCard(); });
+  }
+}
+
+// Conta cada tipo de erro nos últimos 30 dias; precisa de 3+ pra virar foco.
+// Quem tiver mais ocorrências vence; no empate, vence o mais recente.
+function getCurrentFocus() {
+  const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
+  const recent = (state.mistakeLog || []).filter(m => m.date >= cutoff);
+  const counts = {};
+  for (const m of recent) {
+    if (!counts[m.type]) counts[m.type] = { count: 0, latest: m };
+    counts[m.type].count++;
+    if (m.date >= counts[m.type].latest.date) counts[m.type].latest = m;
+  }
+  const dismissed = state.focusDismissed;
+  const now = Date.now();
+  let best = null;
+  for (const [type, info] of Object.entries(counts)) {
+    if (info.count < 3) continue;
+    if (dismissed && dismissed.type === type && dismissed.until > now) continue;
+    if (!best || info.count > best.count || (info.count === best.count && info.latest.date > best.latest.date)) {
+      best = { type, count: info.count, latest: info.latest };
+    }
+  }
+  return best;
+}
+
+function renderFocusCard() {
+  const card = document.getElementById('focusCard');
+  if (!card) return;
+  const focus = getCurrentFocus();
+  if (!focus || state.focusPractice) {
+    card.style.display = 'none';
+    card.innerHTML = '';
+    return;
+  }
+  const info = MISTAKE_TYPES[focus.type];
+  if (!info) { card.style.display = 'none'; return; }
+
+  card.innerHTML = '';
+  card.style.display = 'block';
+
+  const title = document.createElement('div');
+  title.className = 'focus-card-title';
+  title.textContent = '🎯 Your focus: ' + info.label;
+  card.appendChild(title);
+
+  const example = document.createElement('div');
+  example.className = 'focus-card-example';
+  example.textContent = `You said: "${focus.latest.said}"` +
+    (focus.latest.better ? ` → Better: "${focus.latest.better}"` : '');
+  card.appendChild(example);
+
+  const actions = document.createElement('div');
+  actions.className = 'focus-card-actions';
+
+  const practiceBtn = document.createElement('button');
+  practiceBtn.id = 'focusPracticeBtn';
+  practiceBtn.textContent = 'Practice now';
+  practiceBtn.onclick = () => startFocusPractice(focus.type);
+  actions.appendChild(practiceBtn);
+
+  const dismissBtn = document.createElement('button');
+  dismissBtn.id = 'focusDismissBtn';
+  dismissBtn.textContent = '✕';
+  dismissBtn.onclick = () => dismissFocus(focus.type);
+  actions.appendChild(dismissBtn);
+
+  card.appendChild(actions);
+}
+
+function dismissFocus(type) {
+  state.focusDismissed = { type, until: Date.now() + 24 * 60 * 60 * 1000 };
+  saveFocusDismissed();
+  renderFocusCard();
+}
+
+function startFocusPractice(type) {
+  const label = MISTAKE_TYPES[type]?.label || type;
+  state.focusPractice = { type, remaining: 5 };
+  renderFocusCard();
+  sendChatMessage(`Let's practice: ${label} 🎯`);
+}
+
 // Junta os resumos de longo prazo + a conversa atual (ainda não resumida)
 // num texto legível, pra Jean compartilhar (Mail/Notes/WhatsApp) e mandar
 // pra análise fora do app.
@@ -6343,6 +6642,27 @@ async function exportLearningHistory() {
       if (c.encouragement) lines.push(`Nota: ${c.encouragement}`);
       lines.push('');
     });
+  }
+
+  const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
+  const recentMistakes = (state.mistakeLog || []).filter(m => m.date >= cutoff);
+  if (recentMistakes.length) {
+    const counts = {};
+    for (const m of recentMistakes) {
+      if (!counts[m.type]) counts[m.type] = { count: 0, example: m };
+      counts[m.type].count++;
+      if (m.date >= counts[m.type].example.date) counts[m.type].example = m;
+    }
+    const entries = Object.entries(counts).sort((a, b) => b[1].count - a[1].count);
+    lines.push('=== PONTOS DE ATENÇÃO (últimos 30 dias) ===');
+    lines.push('');
+    entries.forEach(([type, info]) => {
+      const label = MISTAKE_TYPES[type]?.label || type;
+      lines.push(`${label} — ${info.count}x`);
+      lines.push(`  Exemplo: "${info.example.said}"`);
+      if (info.example.better) lines.push(`  Melhor: "${info.example.better}"`);
+    });
+    lines.push('');
   }
 
   if (chat.length >= 2) {
@@ -7248,6 +7568,9 @@ function init() {
   state.askHistory = loadAskHistory();
   state.quotaState = loadQuotaState();
   state.pastConvs = loadPastConvs();
+  state.mistakeLog = loadMistakeLog();
+  state.mistakeScanned = loadMistakeScanned();
+  state.focusDismissed = loadFocusDismissed();
 
   // Limpa prefixos "Mr. Wilson:" / "Ms. Mary:" de mensagens antigas salvas
   let anyChanged = false;
@@ -7343,6 +7666,12 @@ function init() {
 
   // Chat history initial render
   renderChatFromHistory();
+
+  // Foco da semana (v1.8): mostra o que já tiver, e varre em segundo plano
+  // se houver frases pendentes (assim o chat atual do Jean já gera o cartão
+  // na primeira vez que ele abrir a versão nova).
+  renderFocusCard();
+  scanMistakes().then(() => renderFocusCard());
 
   // Voice
   loadVoices();
