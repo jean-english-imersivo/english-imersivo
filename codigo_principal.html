@@ -1064,6 +1064,20 @@
     <div class="subtopics-list" id="subtopicsList" style="display:none;"></div>
   </section>
 
+  <!-- VERBS VIEW -->
+  <section class="view" id="view-verbs">
+    <div class="ask-container">
+      <div style="position:relative; margin-bottom:10px;">
+        <input id="verbSearchInput" type="search" autocapitalize="off" autocorrect="off"
+          placeholder="🔍 Search a verb (English or Portuguese)..."
+          style="width:100%; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); border-radius:12px; padding:11px 12px; color:#fff; font-size:15px; font-family:inherit; outline:none; -webkit-appearance:none;">
+      </div>
+      <div id="verbFilters" style="display:flex; gap:6px; margin-bottom:12px;"></div>
+      <button id="btnAddVerb" style="width:100%; background:linear-gradient(135deg,#6366f1,#8b5cf6); border:none; color:#fff; padding:10px; border-radius:12px; font-size:13px; font-family:inherit; cursor:pointer; margin-bottom:14px;">➕ Add a new verb</button>
+      <div id="verbsList"></div>
+    </div>
+  </section>
+
   <!-- SPEAK VIEW -->
   <section class="view" id="view-speak">
     <div class="speak-home" id="speakHome"></div>
@@ -1244,11 +1258,12 @@
         <button class="btn-danger" id="btnClearChat">Clear chat history</button>
         <button class="btn-danger" id="btnClearAsk">Clear Ask history</button>
         <button class="btn-danger" id="btnClearDoubts">Clear doubts list</button>
+        <button class="btn-danger" id="btnClearVerbs">Clear my verbs</button>
         <button class="btn-danger" id="btnClearPastConvs">Clear long-term memory (past conversations)</button>
         <button class="btn-danger" id="btnResetQuotas">Reset quota state (test)</button>
       </div>
 
-      <div class="info-line">English Imersivo v1.5 — Jean Edition</div>
+      <div class="info-line">English Imersivo v1.6 — Jean Edition</div>
     </div>
   </section>
 </main>
@@ -1256,6 +1271,7 @@
 <nav class="bottom">
   <button data-tab="chat" class="active"><span class="icon">💬</span><span class="label">Chat</span></button>
   <button data-tab="topics"><span class="icon">📚</span><span class="label">Topics</span></button>
+  <button data-tab="verbs"><span class="icon">📖</span><span class="label">Verbs</span></button>
   <button data-tab="speak"><span class="icon">🗣️</span><span class="label">Speak</span></button>
   <button data-tab="ask"><span class="icon">❓</span><span class="label">Ask</span></button>
   <button data-tab="doubts"><span class="icon">📝</span><span class="badge" id="doubtsBadge"></span><span class="label">Doubts</span></button>
@@ -3182,6 +3198,230 @@ const VOCABULARY_DATA = {
   ],
 };
 
+// ===== VERBS DATA (aba Verbs) =====
+// Cada verbo guarda so as partes principais: s (3a pessoa do presente),
+// past (passado simples), pp (particípio passado), ing (gerúndio).
+// "particle" é usado nos phrasal verbs (check IN, take OFF...) — fica sempre
+// depois da forma conjugada. Quem monta as 12 formas é buildVerbForms() lá
+// embaixo — os dados aqui NUNCA escrevem a tabela pronta, só as peças.
+const VERB_DATA = {
+  daily: [
+    { verb: 'be', pt: ['ser', 'estar'], explanation: '"Be" is the most important English verb. Use it to describe who or what something is, or a state like feelings or location. It has irregular forms: am/is/are, was/were.', examples: ['I am tired.', 'She is a teacher.', 'They were at home yesterday.'] },
+    { verb: 'agree', s: 'agrees', past: 'agreed', pp: 'agreed', ing: 'agreeing', pt: ['concordar'], explanation: 'Use "agree" when you have the same opinion as someone or you accept a plan.', examples: ['I agree with you.', 'We agreed to meet at 6 p.m.'] },
+    { verb: 'answer', s: 'answers', past: 'answered', pp: 'answered', ing: 'answering', pt: ['responder'], explanation: 'Use "answer" to reply to a question, a phone call, or a message.', examples: ['Can you answer the phone, please?'] },
+    { verb: 'apologize', s: 'apologizes', past: 'apologized', pp: 'apologized', ing: 'apologizing', pt: ['pedir desculpas', 'desculpar-se'], explanation: 'Use "apologize" to say sorry for something you did wrong.', examples: ['I apologized for being late.'] },
+    { verb: 'appear', s: 'appears', past: 'appeared', pp: 'appeared', ing: 'appearing', pt: ['aparecer', 'parecer'], explanation: '"Appear" means to become visible, or to seem a certain way.', examples: ['The sun appeared behind the clouds.', 'She appears tired today.'] },
+    { verb: 'ask', s: 'asks', past: 'asked', pp: 'asked', ing: 'asking', pt: ['perguntar', 'pedir'], explanation: 'Use "ask" to say a question, or to request something.', examples: ['Can I ask you a question?', 'He asked for more time.'] },
+    { verb: 'become', s: 'becomes', past: 'became', pp: 'become', ing: 'becoming', pt: ['tornar-se', 'ficar'], explanation: '"Become" describes a change from one state to another.', examples: ['She became a doctor last year.'] },
+    { verb: 'begin', s: 'begins', past: 'began', pp: 'begun', ing: 'beginning', pt: ['começar'], explanation: '"Begin" is a more formal way to say "start".', examples: ['The meeting begins at 9 a.m.'] },
+    { verb: 'believe', s: 'believes', past: 'believed', pp: 'believed', ing: 'believing', pt: ['acreditar'], explanation: 'Use "believe" when you think something is true.', examples: ['I believe you.'] },
+    { verb: 'borrow', s: 'borrows', past: 'borrowed', pp: 'borrowed', ing: 'borrowing', pt: ['pegar emprestado'], explanation: '"Borrow" means to take something for a while and give it back.', examples: ['Can I borrow your pen?'] },
+    { verb: 'break', s: 'breaks', past: 'broke', pp: 'broken', ing: 'breaking', pt: ['quebrar'], explanation: 'Use "break" when something stops working or splits into pieces.', examples: ['I broke my phone screen.'] },
+    { verb: 'bring', s: 'brings', past: 'brought', pp: 'brought', ing: 'bringing', pt: ['trazer'], explanation: '"Bring" means to carry something with you to a place.', examples: ['Please bring your ID tomorrow.'] },
+    { verb: 'build', s: 'builds', past: 'built', pp: 'built', ing: 'building', pt: ['construir'], explanation: 'Use "build" to make something by putting parts together.', examples: ['They are building a new house.'] },
+    { verb: 'buy', s: 'buys', past: 'bought', pp: 'bought', ing: 'buying', pt: ['comprar'], explanation: '"Buy" means to get something by paying for it.', examples: ['I bought a new laptop.'] },
+    { verb: 'call', s: 'calls', past: 'called', pp: 'called', ing: 'calling', pt: ['ligar (telefone)', 'chamar'], explanation: 'Use "call" to phone someone, or to shout a name to get attention.', examples: ['I will call you later.', 'She called my name.'] },
+    { verb: 'change', s: 'changes', past: 'changed', pp: 'changed', ing: 'changing', pt: ['mudar', 'trocar'], explanation: '"Change" means to become different, or to replace one thing with another.', examples: ['Things have changed a lot.'] },
+    { verb: 'check', s: 'checks', past: 'checked', pp: 'checked', ing: 'checking', pt: ['verificar', 'conferir'], explanation: 'Use "check" to look at something carefully to make sure it is correct or safe.', examples: ['Can you check my email for mistakes?'] },
+    { verb: 'choose', s: 'chooses', past: 'chose', pp: 'chosen', ing: 'choosing', pt: ['escolher'], explanation: '"Choose" means to pick one option among many.', examples: ['I chose the red one.'] },
+    { verb: 'clean', s: 'cleans', past: 'cleaned', pp: 'cleaned', ing: 'cleaning', pt: ['limpar'], explanation: 'Use "clean" to remove dirt from something.', examples: ['I need to clean my room.'] },
+    { verb: 'close', s: 'closes', past: 'closed', pp: 'closed', ing: 'closing', pt: ['fechar'], explanation: '"Close" means to shut something, like a door or a shop.', examples: ['Please close the window.'] },
+    { verb: 'come', s: 'comes', past: 'came', pp: 'come', ing: 'coming', pt: ['vir'], explanation: 'Use "come" to move toward the speaker or a place.', examples: ['Can you come here for a second?'] },
+    { verb: 'consider', s: 'considers', past: 'considered', pp: 'considered', ing: 'considering', pt: ['considerar'], explanation: '"Consider" means to think carefully about something before deciding.', examples: ['We are considering a trip to the beach.'] },
+    { verb: 'continue', s: 'continues', past: 'continued', pp: 'continued', ing: 'continuing', pt: ['continuar'], explanation: 'Use "continue" when something keeps going without stopping.', examples: ['We will continue this conversation later.'] },
+    { verb: 'cook', s: 'cooks', past: 'cooked', pp: 'cooked', ing: 'cooking', pt: ['cozinhar'], explanation: '"Cook" means to prepare food using heat.', examples: ['I cooked dinner for my family.'] },
+    { verb: 'cry', s: 'cries', past: 'cried', pp: 'cried', ing: 'crying', pt: ['chorar'], explanation: 'Use "cry" when tears come from your eyes, usually from sadness.', examples: ['The baby was crying all night.'] },
+    { verb: 'cut', s: 'cuts', past: 'cut', pp: 'cut', ing: 'cutting', pt: ['cortar'], explanation: '"Cut" means to divide something using something sharp, like a knife or scissors.', examples: ['Be careful with the knife.'] },
+    { verb: 'decide', s: 'decides', past: 'decided', pp: 'decided', ing: 'deciding', pt: ['decidir'], explanation: 'Use "decide" when you choose what to do after thinking about it.', examples: ['I decided to study English every day.'] },
+    { verb: 'do', s: 'does', past: 'did', pp: 'done', ing: 'doing', pt: ['fazer'], explanation: '"Do" is used for actions and daily tasks, and also as an auxiliary verb in questions and negatives.', examples: ['What do you do on weekends?', 'I did my homework.'] },
+    { verb: 'drive', s: 'drives', past: 'drove', pp: 'driven', ing: 'driving', pt: ['dirigir'], explanation: 'Use "drive" to control a car or another vehicle.', examples: ['She drives to work every day.'] },
+    { verb: 'eat', s: 'eats', past: 'ate', pp: 'eaten', ing: 'eating', pt: ['comer'], explanation: '"Eat" means to put food in your mouth and swallow it.', examples: ['We ate pizza last night.'] },
+    { verb: 'email', s: 'emails', past: 'emailed', pp: 'emailed', ing: 'emailing', pt: ['mandar e-mail'], explanation: 'Use "email" to send a message using electronic mail.', examples: ['I will email you the file tonight.'] },
+    { verb: 'enjoy', s: 'enjoys', past: 'enjoyed', pp: 'enjoyed', ing: 'enjoying', pt: ['aproveitar', 'curtir', 'gostar de (uma atividade)'], explanation: '"Enjoy" means to get pleasure from doing something.', examples: ['I really enjoy learning English.'] },
+    { verb: 'explain', s: 'explains', past: 'explained', pp: 'explained', ing: 'explaining', pt: ['explicar'], explanation: 'Use "explain" to make something clear or easy to understand.', examples: ['Can you explain this rule again?'] },
+    { verb: 'feel', s: 'feels', past: 'felt', pp: 'felt', ing: 'feeling', pt: ['sentir'], explanation: '"Feel" describes emotions or physical sensations.', examples: ['I feel much better today.'] },
+    { verb: 'find', s: 'finds', past: 'found', pp: 'found', ing: 'finding', pt: ['encontrar', 'achar'], explanation: 'Use "find" when you discover something you were or were not looking for.', examples: ['I finally found my keys.'] },
+    { verb: 'finish', s: 'finishes', past: 'finished', pp: 'finished', ing: 'finishing', pt: ['terminar'], explanation: '"Finish" means to complete something.', examples: ['I finished my report an hour ago.'] },
+    { verb: 'fix', s: 'fixes', past: 'fixed', pp: 'fixed', ing: 'fixing', pt: ['consertar'], explanation: 'Use "fix" to repair something that is broken.', examples: ['Can you fix my computer?'] },
+    { verb: 'follow', s: 'follows', past: 'followed', pp: 'followed', ing: 'following', pt: ['seguir'], explanation: '"Follow" means to go after someone or something, or to do what is expected.', examples: ['Please follow the instructions.'] },
+    { verb: 'forget', s: 'forgets', past: 'forgot', pp: 'forgotten', ing: 'forgetting', pt: ['esquecer'], explanation: 'Use "forget" when something leaves your memory.', examples: ['I forgot her birthday.'] },
+    { verb: 'get', s: 'gets', past: 'got', pp: 'gotten', ing: 'getting', pt: ['conseguir', 'pegar', 'ficar (tornar-se)', 'entender'], explanation: '"Get" is one of the most flexible verbs in English — it can mean to obtain, to receive, to become, or to understand.', examples: ['I got a new job.', 'She got angry.', 'Do you get it?'] },
+    { verb: 'give', s: 'gives', past: 'gave', pp: 'given', ing: 'giving', pt: ['dar'], explanation: 'Use "give" to hand something to someone.', examples: ['Can you give me a hand?'] },
+    { verb: 'go', s: 'goes', past: 'went', pp: 'gone', ing: 'going', pt: ['ir'], explanation: '"Go" means to move from one place to another.', examples: ['I go to the gym every morning.'] },
+    { verb: 'grow', s: 'grows', past: 'grew', pp: 'grown', ing: 'growing', pt: ['crescer', 'cultivar'], explanation: 'Use "grow" for getting bigger, or for planting and taking care of plants.', examples: ['He has grown a lot this year.', 'We grow tomatoes in the garden.'] },
+    { verb: 'happen', s: 'happens', past: 'happened', pp: 'happened', ing: 'happening', pt: ['acontecer'], explanation: '"Happen" means for something to take place.', examples: ['What happened at the meeting?'] },
+    { verb: 'hate', s: 'hates', past: 'hated', pp: 'hated', ing: 'hating', pt: ['odiar'], explanation: 'Use "hate" for a very strong dislike of something.', examples: ['I hate waking up early.'] },
+    { verb: 'have', s: 'has', past: 'had', pp: 'had', ing: 'having', pt: ['ter'], explanation: '"Have" shows possession, and is also the auxiliary verb for perfect tenses (have gone, has eaten).', examples: ['I have two brothers.', 'She has already left.'] },
+    { verb: 'hear', s: 'hears', past: 'heard', pp: 'heard', ing: 'hearing', pt: ['ouvir'], explanation: 'Use "hear" when a sound reaches your ears — it can happen without trying, unlike "listen".', examples: ['I heard a strange noise.'] },
+    { verb: 'help', s: 'helps', past: 'helped', pp: 'helped', ing: 'helping', pt: ['ajudar'], explanation: '"Help" means to make something easier for someone.', examples: ['Can you help me with this bag?'] },
+    { verb: 'hold', s: 'holds', past: 'held', pp: 'held', ing: 'holding', pt: ['segurar'], explanation: 'Use "hold" to have something in your hands or arms.', examples: ['Can you hold my coffee for a second?'] },
+    { verb: 'hope', s: 'hopes', past: 'hoped', pp: 'hoped', ing: 'hoping', pt: ['esperar (desejar)', 'ter esperança'], explanation: '"Hope" means to want something to happen, usually with a good feeling about it.', examples: ['I hope you feel better soon.'] },
+    { verb: 'invite', s: 'invites', past: 'invited', pp: 'invited', ing: 'inviting', pt: ['convidar'], explanation: 'Use "invite" to ask someone to come to an event.', examples: ['We invited them to the party.'] },
+    { verb: 'keep', s: 'keeps', past: 'kept', pp: 'kept', ing: 'keeping', pt: ['manter', 'guardar', 'continuar (keep doing)'], explanation: '"Keep" means to hold onto something, or to continue doing an action.', examples: ['You can keep the change.', 'Keep going, you are almost there!'] },
+    { verb: 'know', s: 'knows', past: 'knew', pp: 'known', ing: 'knowing', pt: ['saber', 'conhecer'], explanation: 'Use "know" for facts you have in your mind, or people/places you are familiar with.', examples: ['I know the answer.', 'Do you know him?'] },
+    { verb: 'laugh', s: 'laughs', past: 'laughed', pp: 'laughed', ing: 'laughing', pt: ['rir'], explanation: '"Laugh" is the sound you make when something is funny.', examples: ['That joke made me laugh.'] },
+    { verb: 'lead', s: 'leads', past: 'led', pp: 'led', ing: 'leading', pt: ['liderar', 'conduzir'], explanation: 'Use "lead" to guide a group, or to be in front.', examples: ['She leads the marketing team.'] },
+    { verb: 'learn', s: 'learns', past: 'learned', pp: 'learned', ing: 'learning', pt: ['aprender'], explanation: '"Learn" means to gain new knowledge or a new skill.', examples: ['I am learning English with Ms. Mary.'] },
+    { verb: 'leave', s: 'leaves', past: 'left', pp: 'left', ing: 'leaving', pt: ['sair', 'deixar', 'partir'], explanation: 'Use "leave" to go away from a place, or to let something stay somewhere.', examples: ['I have to leave now.', 'I left my umbrella at home.'] },
+    { verb: 'let', s: 'lets', past: 'let', pp: 'let', ing: 'letting', pt: ['deixar (permitir)'], explanation: '"Let" means to allow something to happen.', examples: ['My boss let me leave early.'] },
+    { verb: 'like', s: 'likes', past: 'liked', pp: 'liked', ing: 'liking', pt: ['gostar de', 'curtir (informal)'], explanation: 'Use "like" when something makes you happy or you enjoy it.', examples: ['I like coffee in the morning.'] },
+    { verb: 'listen', s: 'listens', past: 'listened', pp: 'listened', ing: 'listening', pt: ['ouvir com atenção', 'escutar'], explanation: '"Listen" means to pay attention to a sound on purpose — different from just "hear".', examples: ['Please listen carefully.'] },
+    { verb: 'live', s: 'lives', past: 'lived', pp: 'lived', ing: 'living', pt: ['morar', 'viver'], explanation: 'Use "live" for where your home is, or for being alive.', examples: ['I live in São Paulo.'] },
+    { verb: 'look', s: 'looks', past: 'looked', pp: 'looked', ing: 'looking', pt: ['olhar', 'parecer'], explanation: '"Look" means to direct your eyes somewhere, or to appear a certain way.', examples: ['Look at this photo!', 'You look tired today.'] },
+    { verb: 'lose', s: 'loses', past: 'lost', pp: 'lost', ing: 'losing', pt: ['perder'], explanation: 'Use "lose" when you no longer have something, or when you do not win.', examples: ['I lost my keys again.', 'We lost the game.'] },
+    { verb: 'love', s: 'loves', past: 'loved', pp: 'loved', ing: 'loving', pt: ['amar'], explanation: '"Love" is a very strong, positive feeling for someone or something.', examples: ['I love my family.'] },
+    { verb: 'make', s: 'makes', past: 'made', pp: 'made', ing: 'making', pt: ['fazer', 'fabricar', 'obrigar (make someone do something)'], explanation: 'Use "make" to create something, or to force someone to do something.', examples: ['She made a delicious cake.', 'They made me wait an hour.'] },
+    { verb: 'mean', s: 'means', past: 'meant', pp: 'meant', ing: 'meaning', pt: ['significar', 'ter intenção de'], explanation: '"Mean" describes the meaning of a word, or what someone intends.', examples: ['What does this word mean?', 'I did not mean to hurt you.'] },
+    { verb: 'meet', s: 'meets', past: 'met', pp: 'met', ing: 'meeting', pt: ['encontrar (uma pessoa)', 'conhecer (pela primeira vez)'], explanation: 'Use "meet" to see someone by arrangement, or to see someone for the first time.', examples: ['Let us meet at 7 p.m.', 'Nice to meet you!'] },
+    { verb: 'move', s: 'moves', past: 'moved', pp: 'moved', ing: 'moving', pt: ['mover', 'mudar de casa'], explanation: '"Move" means to change position, or to change where you live.', examples: ['Please do not move.', 'We moved to a new apartment.'] },
+    { verb: 'need', s: 'needs', past: 'needed', pp: 'needed', ing: 'needing', pt: ['precisar'], explanation: 'Use "need" for something that is necessary.', examples: ['I need more time.'] },
+    { verb: 'offer', s: 'offers', past: 'offered', pp: 'offered', ing: 'offering', pt: ['oferecer'], explanation: '"Offer" means to say you are willing to give or do something.', examples: ['She offered me some coffee.'] },
+    { verb: 'open', s: 'opens', past: 'opened', pp: 'opened', ing: 'opening', pt: ['abrir'], explanation: 'Use "open" to make something no longer closed.', examples: ['Can you open the door, please?'] },
+    { verb: 'pay', s: 'pays', past: 'paid', pp: 'paid', ing: 'paying', pt: ['pagar'], explanation: '"Pay" means to give money for something.', examples: ['I paid for dinner.'] },
+    { verb: 'plan', s: 'plans', past: 'planned', pp: 'planned', ing: 'planning', pt: ['planejar'], explanation: 'Use "plan" to decide what you are going to do in advance.', examples: ['We are planning a trip next month.'] },
+    { verb: 'play', s: 'plays', past: 'played', pp: 'played', ing: 'playing', pt: ['jogar', 'brincar', 'tocar (instrumento)'], explanation: '"Play" is used for games, children having fun, and musical instruments.', examples: ['The kids are playing outside.', 'He plays the guitar.'] },
+    { verb: 'practice', s: 'practices', past: 'practiced', pp: 'practiced', ing: 'practicing', pt: ['praticar'], explanation: 'Use "practice" to repeat an activity to get better at it.', examples: ['I practice English every day.'] },
+    { verb: 'prefer', s: 'prefers', past: 'preferred', pp: 'preferred', ing: 'preferring', pt: ['preferir'], explanation: '"Prefer" means to like one thing more than another.', examples: ['I prefer tea to coffee.'] },
+    { verb: 'promise', s: 'promises', past: 'promised', pp: 'promised', ing: 'promising', pt: ['prometer'], explanation: 'Use "promise" to say you will definitely do something.', examples: ['I promise I will call you.'] },
+    { verb: 'push', s: 'pushes', past: 'pushed', pp: 'pushed', ing: 'pushing', pt: ['empurrar'], explanation: '"Push" means to press something away from you.', examples: ['Push the door to open it.'] },
+    { verb: 'put', s: 'puts', past: 'put', pp: 'put', ing: 'putting', pt: ['colocar'], explanation: 'Use "put" to place something somewhere.', examples: ['Put your bag on the table.'] },
+    { verb: 'read', s: 'reads', past: 'read', pp: 'read', ing: 'reading', pt: ['ler'], explanation: '"Read" means to look at written words and understand them. Note: the past form "read" is spelled the same but sounds different (like "red").', examples: ['I read a book every week.'] },
+    { verb: 'remember', s: 'remembers', past: 'remembered', pp: 'remembered', ing: 'remembering', pt: ['lembrar'], explanation: 'Use "remember" when something stays in your memory.', examples: ['Do you remember her name?'] },
+    { verb: 'reply', s: 'replies', past: 'replied', pp: 'replied', ing: 'replying', pt: ['responder'], explanation: '"Reply" means to answer, usually in writing.', examples: ['She replied to my message quickly.'] },
+    { verb: 'run', s: 'runs', past: 'ran', pp: 'run', ing: 'running', pt: ['correr', 'administrar (um negócio)', 'funcionar (uma máquina)'], explanation: 'Use "run" for moving fast on foot, managing a business, or a machine working.', examples: ['I run every morning.', 'She runs her own company.'] },
+    { verb: 'say', s: 'says', past: 'said', pp: 'said', ing: 'saying', pt: ['dizer'], explanation: '"Say" reports the exact words someone spoke.', examples: ['She said hello to me.'] },
+    { verb: 'see', s: 'sees', past: 'saw', pp: 'seen', ing: 'seeing', pt: ['ver'], explanation: 'Use "see" when your eyes notice something.', examples: ['I saw a beautiful sunset.'] },
+    { verb: 'seem', s: 'seems', past: 'seemed', pp: 'seemed', ing: 'seeming', pt: ['parecer'], explanation: '"Seem" is used to describe how something appears to be, based on what you know.', examples: ['He seems very nice.'] },
+    { verb: 'sell', s: 'sells', past: 'sold', pp: 'sold', ing: 'selling', pt: ['vender'], explanation: 'Use "sell" to give something to someone in exchange for money.', examples: ['They sell fresh bread here.'] },
+    { verb: 'send', s: 'sends', past: 'sent', pp: 'sent', ing: 'sending', pt: ['enviar', 'mandar'], explanation: '"Send" means to make something go to another place or person.', examples: ['I will send you the address.'] },
+    { verb: 'serve', s: 'serves', past: 'served', pp: 'served', ing: 'serving', pt: ['servir'], explanation: 'Use "serve" to bring food or drinks to someone, or to work for a purpose.', examples: ['The waiter served our food quickly.'] },
+    { verb: 'share', s: 'shares', past: 'shared', pp: 'shared', ing: 'sharing', pt: ['compartilhar', 'dividir'], explanation: '"Share" means to use or have something together with other people.', examples: ['We shared a pizza.'] },
+    { verb: 'show', s: 'shows', past: 'showed', pp: 'shown', ing: 'showing', pt: ['mostrar'], explanation: 'Use "show" to let someone see something.', examples: ['Can you show me how this works?'] },
+    { verb: 'sit', s: 'sits', past: 'sat', pp: 'sat', ing: 'sitting', pt: ['sentar'], explanation: '"Sit" means to rest your body with your weight on your bottom.', examples: ['Please sit down.'] },
+    { verb: 'sleep', s: 'sleeps', past: 'slept', pp: 'slept', ing: 'sleeping', pt: ['dormir'], explanation: 'Use "sleep" when your body and mind rest at night.', examples: ['I slept eight hours last night.'] },
+    { verb: 'smile', s: 'smiles', past: 'smiled', pp: 'smiled', ing: 'smiling', pt: ['sorrir'], explanation: '"Smile" is the happy expression you make with your mouth.', examples: ['She smiled when she saw me.'] },
+    { verb: 'speak', s: 'speaks', past: 'spoke', pp: 'spoken', ing: 'speaking', pt: ['falar'], explanation: 'Use "speak" for using a language, or talking in a more formal way.', examples: ['Do you speak English?'] },
+    { verb: 'spend', s: 'spends', past: 'spent', pp: 'spent', ing: 'spending', pt: ['gastar (dinheiro)', 'passar (tempo)'], explanation: '"Spend" is used for money and for time.', examples: ['I spent $50 on books.', 'We spent the weekend at the beach.'] },
+    { verb: 'stand', s: 'stands', past: 'stood', pp: 'stood', ing: 'standing', pt: ['ficar em pé', 'aguentar'], explanation: 'Use "stand" to be on your feet, or to tolerate something you dislike.', examples: ['He was standing near the door.', 'I cannot stand loud noises.'] },
+    { verb: 'start', s: 'starts', past: 'started', pp: 'started', ing: 'starting', pt: ['começar'], explanation: '"Start" means to begin doing something.', examples: ['The movie starts at 8 p.m.'] },
+    { verb: 'stop', s: 'stops', past: 'stopped', pp: 'stopped', ing: 'stopping', pt: ['parar'], explanation: 'Use "stop" to end an action or movement.', examples: ['Please stop the car here.'] },
+    { verb: 'suggest', s: 'suggests', past: 'suggested', pp: 'suggested', ing: 'suggesting', pt: ['sugerir'], explanation: '"Suggest" means to give an idea about what could be done.', examples: ['I suggest we leave early.'] },
+    { verb: 'take', s: 'takes', past: 'took', pp: 'taken', ing: 'taking', pt: ['pegar', 'levar', 'tomar (tempo/remédio)'], explanation: 'Use "take" to grab something, carry it somewhere, or for time/medicine.', examples: ['Take my hand.', 'It takes 20 minutes to get there.'] },
+    { verb: 'talk', s: 'talks', past: 'talked', pp: 'talked', ing: 'talking', pt: ['conversar', 'falar'], explanation: '"Talk" means to have a conversation with someone.', examples: ['Can we talk for a minute?'] },
+    { verb: 'teach', s: 'teaches', past: 'taught', pp: 'taught', ing: 'teaching', pt: ['ensinar'], explanation: 'Use "teach" to help someone learn something.', examples: ['She teaches English at school.'] },
+    { verb: 'tell', s: 'tells', past: 'told', pp: 'told', ing: 'telling', pt: ['contar', 'dizer (para alguém)'], explanation: '"Tell" always needs a listener — you tell someone something.', examples: ['Tell me what happened.'] },
+    { verb: 'thank', s: 'thanks', past: 'thanked', pp: 'thanked', ing: 'thanking', pt: ['agradecer'], explanation: 'Use "thank" to show you are grateful.', examples: ['I thanked him for his help.'] },
+    { verb: 'think', s: 'thinks', past: 'thought', pp: 'thought', ing: 'thinking', pt: ['pensar', 'achar (opinião)'], explanation: '"Think" is used for both the mental process and for opinions.', examples: ['I think it is a good idea.'] },
+    { verb: 'try', s: 'tries', past: 'tried', pp: 'tried', ing: 'trying', pt: ['tentar', 'experimentar'], explanation: 'Use "try" to attempt something, or to test something new.', examples: ['I tried to call you twice.', 'You should try this food.'] },
+    { verb: 'turn', s: 'turns', past: 'turned', pp: 'turned', ing: 'turning', pt: ['virar', 'girar'], explanation: '"Turn" means to change direction or rotate.', examples: ['Turn left at the corner.'] },
+    { verb: 'understand', s: 'understands', past: 'understood', pp: 'understood', ing: 'understanding', pt: ['entender'], explanation: 'Use "understand" when the meaning of something is clear to you.', examples: ['I do not understand this word.'] },
+    { verb: 'use', s: 'uses', past: 'used', pp: 'used', ing: 'using', pt: ['usar'], explanation: '"Use" means to do something with an object for a purpose.', examples: ['Can I use your phone?'] },
+    { verb: 'wait', s: 'waits', past: 'waited', pp: 'waited', ing: 'waiting', pt: ['esperar'], explanation: 'Use "wait" to stay somewhere until something happens.', examples: ['I will wait for you outside.'] },
+    { verb: 'walk', s: 'walks', past: 'walked', pp: 'walked', ing: 'walking', pt: ['andar', 'caminhar'], explanation: '"Walk" means to move on foot at a normal speed.', examples: ['We walked to the park.'] },
+    { verb: 'want', s: 'wants', past: 'wanted', pp: 'wanted', ing: 'wanting', pt: ['querer'], explanation: 'Use "want" to express a desire.', examples: ['I want a cup of coffee.'] },
+    { verb: 'wash', s: 'washes', past: 'washed', pp: 'washed', ing: 'washing', pt: ['lavar'], explanation: '"Wash" means to clean something with water.', examples: ['I need to wash my hands.'] },
+    { verb: 'watch', s: 'watches', past: 'watched', pp: 'watched', ing: 'watching', pt: ['assistir', 'observar'], explanation: 'Use "watch" for looking at something that moves or changes, like TV or a game.', examples: ['We watched a movie last night.'] },
+    { verb: 'wear', s: 'wears', past: 'wore', pp: 'worn', ing: 'wearing', pt: ['vestir', 'usar (roupa)'], explanation: '"Wear" means to have clothes, jewelry, or accessories on your body.', examples: ['She is wearing a blue dress.'] },
+    { verb: 'win', s: 'wins', past: 'won', pp: 'won', ing: 'winning', pt: ['ganhar', 'vencer'], explanation: 'Use "win" when you are the best in a competition.', examples: ['Our team won the game.'] },
+    { verb: 'work', s: 'works', past: 'worked', pp: 'worked', ing: 'working', pt: ['trabalhar', 'funcionar'], explanation: '"Work" is used for jobs, and also for machines or plans that function correctly.', examples: ['I work from home.', 'This app works perfectly.'] },
+    { verb: 'worry', s: 'worries', past: 'worried', pp: 'worried', ing: 'worrying', pt: ['preocupar-se'], explanation: 'Use "worry" when you feel anxious about something.', examples: ['Do not worry, everything will be fine.'] },
+    { verb: 'write', s: 'writes', past: 'wrote', pp: 'written', ing: 'writing', pt: ['escrever'], explanation: '"Write" means to put words on paper or on a screen.', examples: ['I wrote her a letter.'] },
+  ],
+  travel: [
+    { verb: 'arrive', s: 'arrives', past: 'arrived', pp: 'arrived', ing: 'arriving', pt: ['chegar'], explanation: 'Use "arrive" when you reach a place, like an airport or a hotel.', examples: ['We arrived at the airport two hours early.'] },
+    { verb: 'board', s: 'boards', past: 'boarded', pp: 'boarded', ing: 'boarding', pt: ['embarcar'], explanation: '"Board" means to get on a plane, train, bus, or ship.', examples: ['We boarded the plane at gate 12.'] },
+    { verb: 'book', s: 'books', past: 'booked', pp: 'booked', ing: 'booking', pt: ['reservar'], explanation: 'Use "book" to arrange and pay for something in advance, like a flight or a hotel.', examples: ['I booked a hotel room for three nights.'] },
+    { verb: 'cancel', s: 'cancels', past: 'canceled', pp: 'canceled', ing: 'canceling', pt: ['cancelar'], explanation: '"Cancel" means to stop something that was planned from happening.', examples: ['They canceled our flight because of the storm.'] },
+    { verb: 'catch', s: 'catches', past: 'caught', pp: 'caught', ing: 'catching', pt: ['pegar (ônibus/trem/voo)', 'alcançar'], explanation: 'Use "catch" to get on a bus, train, or flight before it leaves.', examples: ['I need to catch my train.'] },
+    { verb: 'check', particle: 'in', s: 'checks', past: 'checked', pp: 'checked', ing: 'checking', pt: ['fazer check-in', 'registrar-se (hotel/aeroporto)'], explanation: '"Check in" means to officially arrive and register at a hotel or airport.', examples: ['We checked in at the hotel around noon.'] },
+    { verb: 'check', particle: 'out', s: 'checks', past: 'checked', pp: 'checked', ing: 'checking', pt: ['fazer check-out', 'sair (do hotel)'], explanation: '"Check out" means to officially leave a hotel after paying.', examples: ['Checkout time is 11 a.m.'] },
+    { verb: 'confirm', s: 'confirms', past: 'confirmed', pp: 'confirmed', ing: 'confirming', pt: ['confirmar'], explanation: 'Use "confirm" to make sure a reservation or plan is really going to happen.', examples: ['I called to confirm our reservation.'] },
+    { verb: 'connect', s: 'connects', past: 'connected', pp: 'connected', ing: 'connecting', pt: ['fazer conexão (voo)', 'conectar'], explanation: '"Connect" is used when you change from one flight or train to another during a trip.', examples: ['We connect through Miami on the way to New York.'] },
+    { verb: 'declare', s: 'declares', past: 'declared', pp: 'declared', ing: 'declaring', pt: ['declarar (na alfândega)'], explanation: 'Use "declare" to tell customs officers about items you are bringing into a country.', examples: ['Do you have anything to declare?'] },
+    { verb: 'delay', s: 'delays', past: 'delayed', pp: 'delayed', ing: 'delaying', pt: ['atrasar'], explanation: '"Delay" means to make something happen later than planned.', examples: ['Our flight was delayed by three hours.'] },
+    { verb: 'depart', s: 'departs', past: 'departed', pp: 'departed', ing: 'departing', pt: ['partir (avião/trem)'], explanation: 'Use "depart" for the formal moment a plane, train, or bus leaves.', examples: ['The train departs from platform 4.'] },
+    { verb: 'drop', particle: 'off', s: 'drops', past: 'dropped', pp: 'dropped', ing: 'dropping', pt: ['deixar (alguém em algum lugar)'], explanation: '"Drop off" means to take someone or something to a place and leave them there.', examples: ['Can you drop me off at the airport?'] },
+    { verb: 'exchange', s: 'exchanges', past: 'exchanged', pp: 'exchanged', ing: 'exchanging', pt: ['trocar (dinheiro/produto)'], explanation: 'Use "exchange" to change money into another currency, or to swap one thing for another.', examples: ['I need to exchange dollars for euros.'] },
+    { verb: 'explore', s: 'explores', past: 'explored', pp: 'explored', ing: 'exploring', pt: ['explorar'], explanation: '"Explore" means to travel around a new place to learn about it.', examples: ['We spent the day exploring the old city.'] },
+    { verb: 'fly', s: 'flies', past: 'flew', pp: 'flown', ing: 'flying', pt: ['voar'], explanation: 'Use "fly" for traveling by plane.', examples: ['We flew from São Paulo to Lisbon.'] },
+    { verb: 'get', particle: 'lost', s: 'gets', past: 'got', pp: 'gotten', ing: 'getting', pt: ['perder-se', 'ficar perdido'], explanation: '"Get lost" means to not know where you are anymore.', examples: ['We got lost trying to find the hotel.'] },
+    { verb: 'land', s: 'lands', past: 'landed', pp: 'landed', ing: 'landing', pt: ['aterrissar', 'pousar'], explanation: 'Use "land" for the moment a plane touches the ground.', examples: ['The plane landed safely despite the storm.'] },
+    { verb: 'miss', s: 'misses', past: 'missed', pp: 'missed', ing: 'missing', pt: ['perder (ônibus/voo)', 'sentir saudade'], explanation: '"Miss" can mean to arrive too late for something, or to feel sad because someone or something is not with you.', examples: ['I missed my connecting flight.', 'I miss my family when I travel.'] },
+    { verb: 'pack', s: 'packs', past: 'packed', pp: 'packed', ing: 'packing', pt: ['fazer as malas'], explanation: 'Use "pack" to put your things into a suitcase or bag before a trip.', examples: ['I still need to pack my suitcase.'] },
+    { verb: 'pick', particle: 'up', s: 'picks', past: 'picked', pp: 'picked', ing: 'picking', pt: ['pegar/buscar (alguém ou algo)'], explanation: '"Pick up" means to go get someone or something from a place.', examples: ['Can you pick me up at the station?'] },
+    { verb: 'rent', s: 'rents', past: 'rented', pp: 'rented', ing: 'renting', pt: ['alugar'], explanation: 'Use "rent" to pay to use something temporarily, like a car.', examples: ['We rented a car for the trip.'] },
+    { verb: 'reserve', s: 'reserves', past: 'reserved', pp: 'reserved', ing: 'reserving', pt: ['reservar'], explanation: '"Reserve" means to arrange for something to be kept for you, like a table or a seat.', examples: ['I reserved a table for two.'] },
+    { verb: 'stay', s: 'stays', past: 'stayed', pp: 'stayed', ing: 'staying', pt: ['ficar hospedado', 'ficar', 'permanecer'], explanation: 'Use "stay" for where you sleep during a trip, like a hotel.', examples: ['We stayed at a small hotel near the beach.'] },
+    { verb: 'take', particle: 'off', s: 'takes', past: 'took', pp: 'taken', ing: 'taking', pt: ['decolar (avião)'], explanation: '"Take off" describes the moment a plane leaves the ground.', examples: ['The plane took off right on time.'] },
+    { verb: 'tip', s: 'tips', past: 'tipped', pp: 'tipped', ing: 'tipping', pt: ['dar gorjeta'], explanation: 'Use "tip" to give extra money to someone for good service, like a waiter or a driver.', examples: ['We tipped the waiter 15%.'] },
+    { verb: 'transfer', s: 'transfers', past: 'transferred', pp: 'transferred', ing: 'transferring', pt: ['fazer baldeação', 'transferir'], explanation: '"Transfer" means to change from one bus, train, or flight to another.', examples: ['You need to transfer to the blue line.'] },
+    { verb: 'travel', s: 'travels', past: 'traveled', pp: 'traveled', ing: 'traveling', pt: ['viajar'], explanation: 'Use "travel" to go from one place to another, especially long distances.', examples: ['I love traveling to new countries.'] },
+    { verb: 'unpack', s: 'unpacks', past: 'unpacked', pp: 'unpacked', ing: 'unpacking', pt: ['desfazer as malas'], explanation: '"Unpack" means to take your things out of a suitcase after arriving.', examples: ['I unpacked as soon as I got to the room.'] },
+    { verb: 'visit', s: 'visits', past: 'visited', pp: 'visited', ing: 'visiting', pt: ['visitar'], explanation: 'Use "visit" to go see a place or a person for a period of time.', examples: ['We visited the museum on our last day.'] },
+  ],
+};
+
+// Nome pra mostrar/comparar (junta o phrasal com a partícula: "check" + "in" -> "check in").
+function displayVerb(v) {
+  return v.particle ? `${v.verb} ${v.particle}` : v.verb;
+}
+function verbKey(v) {
+  return displayVerb(v).trim().toLowerCase();
+}
+
+// Monta os 12 tempos a partir das partes principais. "be" é escrito à mão
+// porque não segue o padrão dos verbos regulares/irregulares comuns.
+function buildVerbForms(v) {
+  if (v.verb === 'be') {
+    return [
+      { block: 'Present', rows: [
+        { label: 'Simple', text: 'I am · he/she is · we/you/they are' },
+        { label: 'Continuous', text: 'I am being · he/she is being' },
+        { label: 'Perfect', text: 'I have been · he/she has been' },
+        { label: 'Perfect Continuous', text: 'I have been being · he/she has been being' },
+      ] },
+      { block: 'Past', rows: [
+        { label: 'Simple', text: 'I was · he/she was · we/you/they were' },
+        { label: 'Continuous', text: 'I was being · he/she was being' },
+        { label: 'Perfect', text: 'I had been · he/she had been' },
+        { label: 'Perfect Continuous', text: 'I had been being · he/she had been being' },
+      ] },
+      { block: 'Future', rows: [
+        { label: 'Simple', text: 'I will be · he/she will be' },
+        { label: 'Continuous', text: 'I will be being · he/she will be being' },
+        { label: 'Perfect', text: 'I will have been · he/she will have been' },
+        { label: 'Perfect Continuous', text: 'I will have been being · he/she will have been being' },
+      ] },
+    ];
+  }
+  const particle = v.particle ? ' ' + v.particle : '';
+  const inf = v.verb + particle;
+  const s = (v.s || v.verb + 's') + particle;
+  const past = (v.past || v.verb + 'ed') + particle;
+  const pp = (v.pp || v.past || v.verb + 'ed') + particle;
+  const ing = (v.ing || v.verb + 'ing') + particle;
+  return [
+    { block: 'Present', rows: [
+      { label: 'Simple', text: `I ${inf} · he/she ${s}` },
+      { label: 'Continuous', text: `I am ${ing} · he/she is ${ing}` },
+      { label: 'Perfect', text: `I have ${pp} · he/she has ${pp}` },
+      { label: 'Perfect Continuous', text: `I have been ${ing} · he/she has been ${ing}` },
+    ] },
+    { block: 'Past', rows: [
+      { label: 'Simple', text: `I ${past} · he/she ${past}` },
+      { label: 'Continuous', text: `I was ${ing} · he/she was ${ing}` },
+      { label: 'Perfect', text: `I had ${pp} · he/she had ${pp}` },
+      { label: 'Perfect Continuous', text: `I had been ${ing} · he/she had been ${ing}` },
+    ] },
+    { block: 'Future', rows: [
+      { label: 'Simple', text: `I will ${inf} · he/she will ${inf}` },
+      { label: 'Continuous', text: `I will be ${ing} · he/she will be ${ing}` },
+      { label: 'Perfect', text: `I will have ${pp} · he/she will have ${pp}` },
+      { label: 'Perfect Continuous', text: `I will have been ${ing} · he/she will have been ${ing}` },
+    ] },
+  ];
+}
+
 // ===== STATE =====
 let state = {
   currentTab: 'chat',
@@ -4545,6 +4785,408 @@ Rules:
   throw new Error("Ms. Mary's answer came back incomplete. Tap 🔍 Look up again.");
 }
 
+// ===== VERBS TAB =====
+// Verbos adicionados por Jean: localStorage 'ei_custom_verbs' = { daily:[...], travel:[...] }
+// (mesmo formato de VERB_DATA, com custom:true)
+
+function getCustomVerbs(category) {
+  try {
+    const all = JSON.parse(localStorage.getItem('ei_custom_verbs') || '{}');
+    return all[category] || [];
+  } catch { return []; }
+}
+
+function saveCustomVerb(category, entry) {
+  try {
+    const all = JSON.parse(localStorage.getItem('ei_custom_verbs') || '{}');
+    if (!all[category]) all[category] = [];
+    const k = verbKey(entry);
+    if (getAllVerbs().some(v => verbKey(v) === k)) return false;
+    all[category].push({ ...entry, custom: true, addedAt: new Date().toISOString().slice(0, 10) });
+    localStorage.setItem('ei_custom_verbs', JSON.stringify(all));
+    return true;
+  } catch { return false; }
+}
+
+function deleteCustomVerb(category, key) {
+  try {
+    const all = JSON.parse(localStorage.getItem('ei_custom_verbs') || '{}');
+    if (!all[category]) return false;
+    all[category] = all[category].filter(v => verbKey(v) !== key);
+    localStorage.setItem('ei_custom_verbs', JSON.stringify(all));
+    return true;
+  } catch { return false; }
+}
+
+// Todos os verbos (curados + do Jean), cada um marcado com a categoria de origem
+function getAllVerbs() {
+  const out = [];
+  for (const v of VERB_DATA.daily) out.push({ ...v, cat: 'daily' });
+  for (const v of VERB_DATA.travel) out.push({ ...v, cat: 'travel' });
+  for (const v of getCustomVerbs('daily')) out.push({ ...v, cat: 'daily' });
+  for (const v of getCustomVerbs('travel')) out.push({ ...v, cat: 'travel' });
+  return out;
+}
+
+// O verbo pesquisado já existe EXATAMENTE (verbo + partícula)? Mesma lição do
+// vocabHasExactWord: só igualdade conta, não parecença.
+function verbHasExactMatch(term) {
+  const q = (term || '').trim().toLowerCase();
+  if (!q) return false;
+  return getAllVerbs().some(v => verbKey(v) === q);
+}
+
+// Pesquisa por verbo (EN) ou por qualquer tradução (PT). Ordena: igual > começa com > contém.
+function searchVerbs(term) {
+  const q = (term || '').trim().toLowerCase();
+  if (!q) return [];
+  const hits = [];
+  for (const v of getAllVerbs()) {
+    const disp = verbKey(v);
+    const pts = (v.pt || []).map(p => p.toLowerCase());
+    let score = -1;
+    if (disp === q) score = 0;
+    else if (disp.startsWith(q)) score = 1;
+    else if (disp.includes(q)) score = 2;
+    else if (pts.some(p => p === q)) score = 3;
+    else if (pts.some(p => p.includes(q))) score = 4;
+    if (score >= 0) hits.push({ v, score });
+  }
+  hits.sort((a, b) => a.score - b.score || verbKey(a.v).localeCompare(verbKey(b.v)));
+  return hits.map(h => h.v);
+}
+
+let verbSearchTerm = '';
+let verbFilterCat = 'all'; // all | daily | travel | custom
+
+function renderVerbsScreen() {
+  const searchInput = document.getElementById('verbSearchInput');
+  const filtersEl = document.getElementById('verbFilters');
+  const listEl = document.getElementById('verbsList');
+  const addBtn = document.getElementById('btnAddVerb');
+
+  searchInput.value = verbSearchTerm;
+  searchInput.oninput = () => { verbSearchTerm = searchInput.value; paintVerbsList(listEl); };
+
+  const filters = [
+    { key: 'all', label: 'All' },
+    { key: 'daily', label: 'Daily' },
+    { key: 'travel', label: '✈️ Travel' },
+    { key: 'custom', label: '✨ My verbs' },
+  ];
+  filtersEl.innerHTML = '';
+  for (const f of filters) {
+    const btn = document.createElement('button');
+    btn.textContent = f.label;
+    const active = verbFilterCat === f.key;
+    btn.style.cssText = 'flex:1; padding:8px 6px; border-radius:10px; font-size:12px; font-family:inherit; cursor:pointer; border:1px solid rgba(255,255,255,0.12);' +
+      (active ? 'background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff; border-color:transparent;' : 'background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.75);');
+    btn.onclick = () => { verbFilterCat = f.key; renderVerbsScreen(); };
+    filtersEl.appendChild(btn);
+  }
+
+  addBtn.onclick = () => openAddVerbModal(() => renderVerbsScreen());
+
+  paintVerbsList(listEl);
+}
+
+function paintVerbsList(listEl) {
+  listEl.innerHTML = '';
+  const q = verbSearchTerm.trim();
+
+  let verbs = q.length >= 1 ? searchVerbs(q) : getAllVerbs();
+  if (verbFilterCat === 'daily') verbs = verbs.filter(v => v.cat === 'daily' && !v.custom);
+  else if (verbFilterCat === 'travel') verbs = verbs.filter(v => v.cat === 'travel' && !v.custom);
+  else if (verbFilterCat === 'custom') verbs = verbs.filter(v => v.custom);
+
+  verbs = verbs.slice().sort((a, b) => verbKey(a).localeCompare(verbKey(b)));
+
+  if (verbs.length === 0) {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'text-align:center; padding:20px; opacity:0.6; font-size:13px;';
+    empty.textContent = q ? `Nothing found for "${q}"` : 'No verbs in this filter yet.';
+    listEl.appendChild(empty);
+  } else {
+    let lastLetter = '';
+    for (const v of verbs) {
+      const letter = verbKey(v)[0].toUpperCase();
+      if (letter !== lastLetter) {
+        lastLetter = letter;
+        const head = document.createElement('div');
+        head.style.cssText = 'font-size:11px; font-weight:700; opacity:0.5; margin:12px 4px 6px;';
+        head.textContent = letter;
+        listEl.appendChild(head);
+      }
+      const item = document.createElement('div');
+      item.className = 'subtopic-item';
+      item.dataset.verb = verbKey(v);
+      item.dataset.cat = v.cat;
+      item.dataset.custom = v.custom ? '1' : '0';
+      if (v.custom) item.style.borderColor = 'rgba(139,92,246,0.35)';
+      item.style.display = 'flex';
+      item.style.alignItems = 'center';
+      item.style.gap = '10px';
+      const info = document.createElement('div');
+      info.style.flex = '1';
+      info.style.minWidth = '0';
+      info.innerHTML = `
+        <div class="label">${escapeHtml(displayVerb(v))}${v.cat === 'travel' ? ' ✈️' : ''}${v.custom ? ' ✨' : ''}</div>
+        <div style="font-size:11px;opacity:0.6;margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml((v.pt || []).join(', '))}</div>
+      `;
+      item.appendChild(info);
+      item.onclick = () => showVerbDetail(v, () => paintVerbsList(listEl));
+      listEl.appendChild(item);
+    }
+  }
+
+  // O verbo pesquisado não existe exatamente -> oferece adicionar com a IA
+  // (mesma lição do appendAddWordCta: aparece mesmo quando a lista NÃO está vazia)
+  if (q.length >= 1 && !verbHasExactMatch(q)) {
+    appendAddVerbCta(listEl, q);
+  }
+}
+
+function appendAddVerbCta(el, q) {
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'margin-top:16px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.08);';
+
+  const hint = document.createElement('div');
+  hint.style.cssText = 'text-align:center; font-size:12.5px; line-height:1.6; opacity:0.75; margin-bottom:12px;';
+  hint.innerHTML = `<b>"${escapeHtml(q)}"</b> isn't in your verb list yet.`;
+  wrap.appendChild(hint);
+
+  const btn = document.createElement('button');
+  btn.id = 'btnAddSearchedVerb';
+  btn.textContent = `🤖 Add "${q}" with Ms. Mary`;
+  btn.style.cssText = 'width:100%; background:linear-gradient(135deg,#6366f1,#8b5cf6); border:none; color:#fff; padding:11px; border-radius:12px; font-size:14px; font-weight:500; font-family:inherit; cursor:pointer;';
+  btn.onclick = () => openAddVerbModal(() => renderVerbsScreen(), q);
+  wrap.appendChild(btn);
+
+  el.appendChild(wrap);
+}
+
+function showVerbDetail(v, onChange) {
+  const forms = buildVerbForms(v);
+  const tableHtml = forms.map(block => `
+    <div style="margin-top:10px;">
+      <div style="font-size:12px; font-weight:700; color:#a78bfa; margin-bottom:4px;">${block.block}</div>
+      ${block.rows.map(r => `
+        <div style="display:flex; justify-content:space-between; gap:8px; font-size:12.5px; padding:5px 0; border-bottom:1px solid rgba(255,255,255,0.06);">
+          <span style="opacity:0.6; flex-shrink:0;">${r.label}</span>
+          <span style="text-align:right;">${escapeHtml(r.text)}</span>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+
+  const ov = document.createElement('div');
+  ov.className = 'overlay';
+  ov.innerHTML = `
+    <div class="overlay-card" style="max-width:420px; max-height:85vh; overflow-y:auto;">
+      <h2 style="text-align:center;">${escapeHtml(displayVerb(v))}${v.cat === 'travel' ? ' ✈️' : ''}</h2>
+      <div style="text-align:center; font-size:13px; color:#a78bfa; margin-bottom:8px;">${escapeHtml((v.pt || []).join(' · '))}</div>
+      <p style="font-size:13px; opacity:0.85; text-align:left;">${escapeHtml(v.explanation || '')}</p>
+      ${(v.examples || []).map(ex => `<div style="background:rgba(255,255,255,0.05); padding:8px 10px; border-radius:10px; margin-top:8px; font-size:12.5px; font-style:italic; text-align:left;">💬 ${escapeHtml(ex)}</div>`).join('')}
+      ${tableHtml}
+      <div style="display:flex; gap:8px; margin-top:14px;">
+        <button id="verbHearBtn" style="flex:1; background:rgba(139,92,246,0.2); border:1px solid rgba(139,92,246,0.4); color:#a78bfa; padding:10px; border-radius:10px; font-size:13px; font-family:inherit; cursor:pointer;">🔊 Hear</button>
+        <button id="verbCloseBtn" style="flex:1; background:rgba(255,255,255,0.1); border:none; color:#fff; padding:10px; border-radius:10px; font-size:13px; font-family:inherit; cursor:pointer;">Close</button>
+      </div>
+      ${v.custom ? `<button id="verbDelBtn" style="width:100%; margin-top:8px; background:transparent; border:none; color:rgba(248,113,113,0.85); padding:8px; font-size:12px; font-family:inherit; cursor:pointer;">🗑️ Remove this verb</button>` : ''}
+    </div>
+  `;
+  document.body.appendChild(ov);
+  document.getElementById('verbHearBtn').onclick = () => {
+    speakText(`${displayVerb(v)}. ${v.explanation || ''} ${(v.examples || []).join(' ')}`);
+  };
+  document.getElementById('verbCloseBtn').onclick = () => ov.remove();
+  const delBtn = document.getElementById('verbDelBtn');
+  if (delBtn) {
+    delBtn.onclick = () => {
+      if (!confirm(`Remover "${displayVerb(v)}" da sua lista?`)) return;
+      deleteCustomVerb(v.cat, verbKey(v));
+      ov.remove();
+      toast('Verb removed');
+      if (onChange) onChange();
+    };
+  }
+}
+
+// ----- ADICIONAR VERBO (a IA preenche, o codigo confere) -----
+function openAddVerbModal(onSuccess, prefill = '') {
+  const ov = document.createElement('div');
+  ov.className = 'overlay';
+  ov.id = 'addVerbOverlay';
+  ov.innerHTML = `
+    <div class="overlay-card" style="max-width:420px;">
+      <h2>➕ Add a verb</h2>
+      <p style="font-size:12px; opacity:0.8;">Type the verb in English or Portuguese: <strong>travel</strong>, <strong>viajar</strong>, <strong>check in</strong>...</p>
+      <p style="font-size:11px; opacity:0.6; margin-top:8px;">Ms. Mary fills in the translations, tenses, explanation and examples.</p>
+      <input id="addVerbInput" placeholder="Type a verb..." style="width:100%; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:10px 12px; color:#fff; font-size:15px; font-family:inherit; margin-top:8px; outline:none;">
+      <div id="addVerbPreview" style="margin-top:12px; display:none;"></div>
+      <div id="addVerbButtons" style="display:flex; gap:8px; margin-top:12px;">
+        <button id="addVerbCancel" style="flex:1; background:rgba(255,255,255,0.1); border:none; color:#fff; padding:10px; border-radius:10px; font-size:14px; font-family:inherit; cursor:pointer;">Cancel</button>
+        <button id="addVerbSuggest" style="flex:2; background:linear-gradient(135deg,#6366f1,#8b5cf6); border:none; color:#fff; padding:10px; border-radius:10px; font-size:14px; font-weight:500; font-family:inherit; cursor:pointer;">🔍 Look up</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(ov);
+
+  const input = document.getElementById('addVerbInput');
+  const preview = document.getElementById('addVerbPreview');
+  const btnSuggest = document.getElementById('addVerbSuggest');
+  const btnCancel = document.getElementById('addVerbCancel');
+  const btnRow = document.getElementById('addVerbButtons');
+  input.value = prefill;
+
+  btnCancel.onclick = () => ov.remove();
+
+  const resetSuggestBtn = () => {
+    btnSuggest.disabled = false;
+    btnSuggest.textContent = '🔍 Look up';
+    btnRow.style.display = 'flex';
+  };
+
+  const commit = (entry) => {
+    const ok = saveCustomVerb(entry.cat, entry);
+    if (ok) {
+      toast(`"${displayVerb(entry)}" added! ✨`);
+      ov.remove();
+      if (onSuccess) onSuccess();
+    } else {
+      toast(`"${displayVerb(entry)}" is already in your list.`);
+    }
+  };
+
+  btnSuggest.onclick = async () => {
+    const raw = input.value.trim();
+    if (!raw) { toast('Type a verb first'); return; }
+    if (!hasAnyKey()) { toast('Add API keys in Settings first'); return; }
+
+    btnSuggest.disabled = true;
+    btnSuggest.textContent = 'Thinking...';
+    preview.style.display = 'none';
+
+    try {
+      const entry = await lookupVerbViaAI(raw);
+
+      preview.style.display = 'block';
+      btnRow.style.display = 'none';
+
+      const forms = buildVerbForms(entry);
+      const tableHtml = forms.map(block => `
+        <div style="margin-top:8px;">
+          <div style="font-size:11px; font-weight:700; color:#a78bfa; margin-bottom:3px;">${block.block}</div>
+          ${block.rows.map(r => `<div style="display:flex; justify-content:space-between; gap:8px; font-size:11.5px; padding:3px 0;"><span style="opacity:0.6;">${r.label}</span><span>${escapeHtml(r.text)}</span></div>`).join('')}
+        </div>
+      `).join('');
+
+      preview.innerHTML = `
+        <div style="background:rgba(139,92,246,0.1); border:1px solid rgba(139,92,246,0.3); border-radius:12px; padding:14px; text-align:center; max-height:280px; overflow-y:auto;">
+          <div style="font-size:20px; font-weight:600;">${escapeHtml(displayVerb(entry))}${entry.cat === 'travel' ? ' ✈️' : ''}</div>
+          <div style="font-size:13px; color:#a78bfa; margin:4px 0;">${escapeHtml((entry.pt || []).join(' · '))}</div>
+          <div style="font-size:12px; opacity:0.85; text-align:left; margin-top:6px;">${escapeHtml(entry.explanation || '')}</div>
+          ${(entry.examples || []).map(ex => `<div style="font-size:11.5px; font-style:italic; margin-top:6px; opacity:0.7; text-align:left;">💬 ${escapeHtml(ex)}</div>`).join('')}
+          ${tableHtml}
+        </div>
+        <div style="display:flex; gap:8px; margin-top:10px;">
+          <button id="addVerbReject" style="flex:1; background:rgba(255,255,255,0.1); border:none; color:#fff; padding:9px; border-radius:8px; font-size:13px; font-family:inherit; cursor:pointer;">Try another</button>
+          <button id="addVerbConfirm" style="flex:2; background:linear-gradient(135deg,#22c55e,#16a34a); border:none; color:#fff; padding:9px; border-radius:8px; font-size:13px; font-weight:500; font-family:inherit; cursor:pointer;">✓ Add</button>
+        </div>
+      `;
+
+      document.getElementById('addVerbReject').onclick = () => {
+        preview.style.display = 'none';
+        resetSuggestBtn();
+      };
+      document.getElementById('addVerbConfirm').onclick = () => commit(entry);
+    } catch (err) {
+      toast('Error: ' + err.message);
+      resetSuggestBtn();
+    }
+  };
+
+  input.focus();
+}
+
+async function lookupVerbViaAI(userInput) {
+  const system = `You help Jean (Brazilian beginner learning English) add a verb to his verb-learning app.
+His input is EITHER an English verb ("travel", "check in") OR a Portuguese verb ("viajar").
+
+Return ONLY valid JSON (no markdown, no commentary):
+{
+  "verb": "base form of the verb, lowercase, WITHOUT any particle (e.g. 'check', not 'check in')",
+  "particle": "the particle if it is a phrasal verb (e.g. 'in', 'off', 'up'), or an empty string if it is not a phrasal verb",
+  "s": "3rd person singular present, e.g. 'checks'",
+  "past": "simple past form",
+  "pp": "past participle form",
+  "ing": "present participle (-ing) form",
+  "pt": ["every common Portuguese translation, as an array of strings"],
+  "cat": "'travel' only if this verb is specifically about airports, hotels, flights or trips, otherwise 'daily'",
+  "explanation": "one short, simple English sentence explaining when to use this verb",
+  "examples": ["1 or 2 natural English example sentences"],
+  "isModal": false
+}
+
+Rules:
+- If the input is a modal verb (can, could, must, should, might, may, will, would, shall), set "isModal" to true and leave the other text fields empty — modal verbs do not have all 12 tenses.
+- Every text field must use full forms, never contractions. Write "do not" instead of "don't", "cannot" instead of "can't".
+- "pt" must list every common-use translation, not just one (e.g. for "like": gostar de, curtir).`;
+
+  const messages = [
+    { role: 'system', content: system },
+    { role: 'user', content: userInput },
+  ];
+
+  // Duas tentativas: se a 1ª vier cortada/estranha, tenta de novo com mais espaço.
+  let ultimoErro = null;
+  for (const tokens of [900, 1400]) {
+    try {
+      const { text } = await callLLM(messages, { maxTokens: tokens, temperature: 0.3, json: true });
+      const json = parseAIJson(text);
+
+      if (json.isModal) {
+        throw new Error('Modal verbs (can, must, should...) do not have all 12 tenses, so they cannot be added here.');
+      }
+
+      if (!json.verb || !json.s || !json.past || !json.pp || !json.ing ||
+          !Array.isArray(json.pt) || json.pt.length === 0 ||
+          !json.explanation || !Array.isArray(json.examples) || json.examples.length === 0) {
+        ultimoErro = new Error('AI_BAD_JSON');
+        continue;
+      }
+
+      const entry = {
+        verb: String(json.verb).trim().toLowerCase(),
+        particle: json.particle ? String(json.particle).trim().toLowerCase() : undefined,
+        s: String(json.s).trim(),
+        past: String(json.past).trim(),
+        pp: String(json.pp).trim(),
+        ing: String(json.ing).trim(),
+        pt: json.pt.map(p => String(p).trim()).filter(Boolean),
+        cat: json.cat === 'travel' ? 'travel' : 'daily',
+        explanation: String(json.explanation).trim(),
+        examples: json.examples.map(e => String(e).trim()).filter(Boolean),
+      };
+      if (!entry.verb || !entry.pt.length || !entry.examples.length) {
+        ultimoErro = new Error('AI_BAD_JSON');
+        continue;
+      }
+
+      if (getAllVerbs().some(v => verbKey(v) === verbKey(entry))) {
+        throw new Error(`"${displayVerb(entry)}" is already in your verb list.`);
+      }
+
+      return entry;
+    } catch (err) {
+      if (err.message === 'AI_BAD_JSON' || err.message === 'AI_NO_JSON') { ultimoErro = err; continue; }
+      throw err;
+    }
+  }
+  console.log('lookupVerbViaAI falhou:', ultimoErro);
+  throw new Error("Ms. Mary's answer came back incomplete. Tap 🔍 Look up again.");
+}
+
 // ===== ASK ANYTHING =====
 // Redimensiona uma imagem já carregada (elemento <img>) pro lado maior caber
 // em maxLado, e devolve um data URL JPEG. Usado pra imagem grande (envio,
@@ -5545,6 +6187,14 @@ function bindSettings() {
       toast('Doubts cleared');
     }
   };
+  document.getElementById('btnClearVerbs').onclick = () => {
+    const count = getCustomVerbs('daily').length + getCustomVerbs('travel').length;
+    if (count === 0) { toast('No verbs added by you yet.'); return; }
+    if (confirm(`Apagar os ${count} verbos que você adicionou?`)) {
+      localStorage.removeItem('ei_custom_verbs');
+      toast('Your verbs were cleared');
+    }
+  };
   document.getElementById('btnResetQuotas').onclick = () => {
     state.quotaState = {};
     saveQuotaState();
@@ -6515,6 +7165,9 @@ function switchTab(name) {
   }
   if (name === 'doubts') {
     renderDoubts();
+  }
+  if (name === 'verbs') {
+    renderVerbsScreen();
   }
 }
 
