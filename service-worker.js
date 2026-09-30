@@ -4,7 +4,7 @@
    NUNCA cacheia chamadas de API (Gemini/Groq/Mistral) — sempre rede.
    ============================================================ */
 
-const CACHE_NAME = 'english-imersivo-v13';
+const CACHE_NAME = 'english-imersivo-v14';
 const SHELL = [
   './',
   './codigo_principal.html',
