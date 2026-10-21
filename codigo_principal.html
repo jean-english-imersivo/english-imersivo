@@ -1313,7 +1313,7 @@
         <button class="btn-danger" id="btnResetQuotas">Reset quota state (test)</button>
       </div>
 
-      <div class="info-line">English Imersivo v1.8 — Jean Edition</div>
+      <div class="info-line">English Imersivo v1.8.1 — Jean Edition</div>
     </div>
   </section>
 </main>
@@ -5907,22 +5907,35 @@ function populateVoiceDropdown() {
   }
 }
 
+let _utteranceAtual = null; // guarda a referência: o iOS pode "engolir" a fala se o objeto for coletado
 function speakText(text) {
-  if (!state.config.voiceOn) return;
+  // Quem decide falar sozinho (autoSpeak) já confere voiceOn antes de chamar.
+  // Aqui NÃO bloqueamos: botão "Hear" tocado com o dedo sempre tem que falar.
   if (!window.speechSynthesis) { toast('Voice not supported on this browser'); return; }
-  try { window.speechSynthesis.cancel(); } catch {}
+  const synth = window.speechSynthesis;
   const cleaned = stripNamePrefix(String(text))
     .replace(/[*_#`]+/g, '')
     .replace(/\s+/g, ' ')
     .trim();
   if (!cleaned) return;
-  const u = new SpeechSynthesisUtterance(cleaned);
-  const v = pickVoice();
-  if (v) { u.voice = v; u.lang = v.lang; }
-  else { u.lang = state.config.accent || 'en-US'; }
-  u.rate = state.config._rateOverride || 0.95;
-  u.pitch = 1.0;
-  window.speechSynthesis.speak(u);
+  try { synth.cancel(); } catch {}
+  // iOS: cancel() seguido de speak() no mesmo instante às vezes fica mudo. Pequena pausa resolve.
+  setTimeout(() => {
+    try { synth.resume(); } catch {} // sai do estado "pausado" que o iOS deixa depois do microfone
+    const u = new SpeechSynthesisUtterance(cleaned);
+    const v = pickVoice();
+    if (v) { u.voice = v; u.lang = v.lang; }
+    else { u.lang = state.config.accent || 'en-US'; }
+    u.rate = state.config._rateOverride || 0.95;
+    u.pitch = 1.0;
+    u.volume = 1.0;
+    u.onerror = (ev) => {
+      if (ev && (ev.error === 'canceled' || ev.error === 'interrupted')) return;
+      toast('Audio error: ' + ((ev && ev.error) || 'unknown') + ' — check silent switch & volume');
+    };
+    _utteranceAtual = u;
+    synth.speak(u);
+  }, 80);
 }
 
 // ===== VOICE — STT =====
