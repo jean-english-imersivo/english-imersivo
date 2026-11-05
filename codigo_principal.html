@@ -1313,7 +1313,7 @@
         <button class="btn-danger" id="btnResetQuotas">Reset quota state (test)</button>
       </div>
 
-      <div class="info-line">English Imersivo v1.8.1 — Jean Edition</div>
+      <div class="info-line">English Imersivo v1.9 — Jean Edition</div>
     </div>
   </section>
 </main>
@@ -3521,6 +3521,180 @@ function buildVerbForms(v) {
   ];
 }
 
+// ===== v1.9: ACHAR O VERBO EM QUALQUER FORMA (went, going, will go, have gone...) =====
+// Tudo aqui roda SEM internet e SEM IA: o codigo tira os auxiliares da frase
+// (will, have, was, didn't...), compara o que sobrou com as formas do verbo
+// (verb, s, past, pp, ing) e DESCOBRE o tempo a partir dos auxiliares que ele mesmo tirou.
+const VF_SUBJECTS = new Set(['i', 'you', 'he', 'she', 'it', 'we', 'they']);
+const VF_HELPERS = new Set([
+  'am', 'is', 'are', 'was', 'were', 'be', 'been',
+  'have', 'has', 'had', 'do', 'does', 'did',
+  'will', 'shall', 'would', 'can', 'could', 'may', 'might', 'must', 'should',
+  'to', 'gonna', "'s", "'d",
+  'not', 'never', 'just', 'already', 'always', 'still', 'also',
+]);
+const VF_IGNORE = new Set(['not', 'never', 'just', 'already', 'always', 'still', 'also']);
+
+// minusculas, aspas curvas -> reta, tira pontuacao das pontas, "check-in" -> "check in"
+function normalizeVerbQuery(q) {
+  return String(q || '').toLowerCase()
+    .replace(/[‘’´`]/g, "'")
+    .replace(/-/g, ' ')
+    .split(/\s+/)
+    .map(t => t.replace(/^[^\p{L}\p{N}']+|[^\p{L}\p{N}']+$/gu, '').replace(/^'+|'+$/g, ''))
+    .filter(Boolean)
+    .join(' ');
+}
+
+// "didn't" -> did + not, "I've" -> i + have, "he's" -> he + 's (is OU has: decide depois)
+function expandVerbContraction(t) {
+  if (t === 'cannot') return ['can', 'not'];
+  let m = t.match(/^(.+)n't$/);
+  if (m) {
+    const w = { wo: 'will', ca: 'can', sha: 'shall' }[m[1]] || m[1];
+    return [w, 'not'];
+  }
+  m = t.match(/^(i|you|he|she|it|we|they)'(m|re|ve|ll|d|s)$/);
+  if (m) {
+    const aux = { m: 'am', re: 'are', ve: 'have', ll: 'will', d: "'d", s: "'s" }[m[2]];
+    return [m[1], aux];
+  }
+  return [t];
+}
+
+// Separa a frase em { rest: palavras do verbo, helpers: auxiliares tirados do comeco }.
+// Sempre sobra pelo menos 1 palavra: "have", "had", "was", "been", "did" continuam sendo verbos.
+function splitVerbQuery(q) {
+  const toks = [];
+  for (const t of normalizeVerbQuery(q).split(' ').filter(Boolean)) toks.push(...expandVerbContraction(t));
+  const helpers = [];
+  let i = 0;
+  while (toks.length - i > 1) {
+    const t = toks[i];
+    if (t === 'going' && toks[i + 1] === 'to' && toks.length - i > 2) { helpers.push('going to'); i += 2; continue; }
+    if (t === 'gonna') { helpers.push('going to'); i += 1; continue; }
+    if (VF_SUBJECTS.has(t)) { i += 1; continue; }
+    if (VF_HELPERS.has(t)) { helpers.push(t); i += 1; continue; }
+    break;
+  }
+  return { rest: toks.slice(i), helpers: helpers.filter(h => !VF_IGNORE.has(h)) };
+}
+
+// Todas as formas de UM verbo, cada uma com o "tipo" (base, s, past, pp, ing; e am/is/are no "be").
+function verbFormEntries(v) {
+  const out = [];
+  const add = (text, kind) => {
+    if (!text) return;
+    const t = String(text).toLowerCase();
+    out.push({ text: t, kind });
+    // grafia britanica: traveled -> travelled, traveling -> travelling
+    if (/[aeiou]l(ed|ing)$/.test(t)) out.push({ text: t.replace(/l(ed|ing)$/, 'll$1'), kind });
+  };
+  if (v.verb === 'be') {
+    [['be', 'base'], ['am', 'am'], ['is', 'is'], ['are', 'are'],
+     ['was', 'past'], ['were', 'past'], ['been', 'pp'], ['being', 'ing']].forEach(([t, k]) => add(t, k));
+    return out;
+  }
+  add(v.verb, 'base');
+  add(v.s || v.verb + 's', 's');
+  add(v.past || v.verb + 'ed', 'past');
+  add(v.pp || v.past || v.verb + 'ed', 'pp');
+  add(v.ing || v.verb + 'ing', 'ing');
+  return out;
+}
+
+// Quais verbos de `verbs` tem o que o Jean digitou como uma de suas formas?
+// Devolve [{ v, kinds, helpers, partial }]. partial = bateu so com o verbo, sem a particula
+// ("checked" com "check in"): conta como parecido, nunca como "o verbo exato".
+function findVerbForms(query, verbs) {
+  const { rest, helpers } = splitVerbQuery(query);
+  if (!rest.length) return [];
+  const restStr = rest.join(' ');
+  const out = [];
+  for (const v of (verbs || getAllVerbs())) {
+    const full = new Set();
+    const part = new Set();
+    for (const e of verbFormEntries(v)) {
+      if (v.particle) {
+        const last = rest[rest.length - 1];
+        if (restStr === e.text + ' ' + v.particle) full.add(e.kind);
+        else if (rest.length >= 3 && rest.length <= 4 && rest[0] === e.text && last === v.particle) full.add(e.kind); // "picked me up"
+        else if (restStr === e.text) part.add(e.kind);
+      } else if (restStr === e.text) {
+        full.add(e.kind);
+      }
+    }
+    if (full.size) out.push({ v, kinds: [...full], helpers, partial: false });
+    else if (part.size) out.push({ v, kinds: [...part], helpers, partial: true });
+  }
+  return out;
+}
+
+// Regras: [auxiliares, tipos de forma aceitos, nome do tempo, [bloco, linha] na tabela dos 12 tempos]
+const FORM_RULES = [
+  [/^to$/, ['base'], 'Infinitive (to + verb)', null],
+  [/^(do|does)$/, ['base'], 'Simple Present (question / negative)', [0, 0]],
+  [/^did$/, ['base'], 'Simple Past (question / negative)', [1, 0]],
+  [/^(am|is|are)$/, ['ing'], 'Present Continuous', [0, 1]],
+  [/^(was|were)$/, ['ing'], 'Past Continuous', [1, 1]],
+  [/^(have|has)$/, ['pp'], 'Present Perfect', [0, 2]],
+  [/^(have|has) been$/, ['ing'], 'Present Perfect Continuous', [0, 3]],
+  [/^had$/, ['pp'], 'Past Perfect', [1, 2]],
+  [/^had been$/, ['ing'], 'Past Perfect Continuous', [1, 3]],
+  [/^(will|shall)$/, ['base'], 'Future Simple', [2, 0]],
+  [/^(will|shall) be$/, ['ing'], 'Future Continuous', [2, 1]],
+  [/^(will|shall) have$/, ['pp'], 'Future Perfect', [2, 2]],
+  [/^(will|shall) have been$/, ['ing'], 'Future Perfect Continuous', [2, 3]],
+  [/^(am|is|are) going to$/, ['base'], 'Future (going to)', [2, 0]],
+  [/^going to$/, ['base'], 'Future (going to)', [2, 0]],
+  [/^(was|were) going to$/, ['base'], 'Past: was/were going to + verb', null],
+  [/^would$/, ['base'], 'Conditional (would + verb)', null],
+  [/^would have$/, ['pp'], 'Conditional Perfect (would have + participle)', null],
+  [/^(can|could|may|might|must|should)$/, ['base'], 'With a modal verb (+ base form)', null],
+  [/^(can|could|may|might|must|should) have$/, ['pp'], 'Modal + have + past participle', null],
+  [/^(am|is|are|was|were)$/, ['pp'], 'Passive voice (be + past participle)', null],
+];
+
+// Forma "pelada", sem auxiliar nenhum ("went", "going", "goes"...)
+function describeBareForm(kinds) {
+  const parts = [];
+  const slots = [];
+  if (kinds.has('base')) { parts.push('Base form (Simple Present)'); slots.push([0, 0]); }
+  if (kinds.has('s')) { parts.push('Simple Present (he/she/it)'); slots.push([0, 0]); }
+  if (kinds.has('am')) { parts.push('Simple Present (I am)'); slots.push([0, 0]); }
+  if (kinds.has('is')) { parts.push('Simple Present (he/she/it is)'); slots.push([0, 0]); }
+  if (kinds.has('are')) { parts.push('Simple Present (you/we/they are)'); slots.push([0, 0]); }
+  if (kinds.has('past')) { parts.push('Simple Past'); slots.push([1, 0]); }
+  if (kinds.has('pp')) parts.push('Past Participle (used in perfect tenses)');
+  if (kinds.has('ing')) parts.push('-ing form (used in continuous tenses)');
+  if (!parts.length) return null;
+  // sem repetir a mesma celula da tabela
+  const uniq = slots.filter((s, i) => slots.findIndex(x => x[0] === s[0] && x[1] === s[1]) === i);
+  return { label: parts.join(' · '), slots: uniq };
+}
+
+// Nome do tempo a partir dos auxiliares que O CODIGO tirou (nunca vem da IA). null = nao sei dizer.
+function describeVerbForm(helpersIn, kindsIn) {
+  const kinds = new Set(kindsIn);
+  const hs = helpersIn.map(h => {
+    if (h === "'s") return kinds.has('ing') ? 'is' : (kinds.has('pp') ? 'has' : 'is');
+    if (h === "'d") return (kinds.has('pp') && !kinds.has('base')) ? 'had' : 'would';
+    return h;
+  });
+  const h = hs.join(' ');
+  if (!h) return describeBareForm(kinds);
+  for (const [re, ks, label, slot] of FORM_RULES) {
+    if (re.test(h) && ks.some(k => kinds.has(k))) return { label, slots: slot ? [slot] : [] };
+  }
+  return null;
+}
+
+// Texto curto pra mostrar na lista: 📍 "went" = Simple Past
+function verbFormNote(typed, match) {
+  const d = describeVerbForm(match.helpers, match.kinds);
+  return d ? `📍 "${typed}" = ${d.label}` : `📍 "${typed}" is a form of this verb`;
+}
+
 // ===== STATE =====
 let state = {
   currentTab: 'chat',
@@ -4982,21 +5156,33 @@ function getAllVerbs() {
 function verbHasExactMatch(term) {
   const q = (term || '').trim().toLowerCase();
   if (!q) return false;
-  return getAllVerbs().some(v => verbKey(v) === q);
+  const all = getAllVerbs();
+  if (all.some(v => verbKey(v) === q)) return true;
+  // v1.9: "went", "will go", "have gone"... tambem contam como "o verbo existe"
+  // (so a forma completa; "checked" achando so "check in" NAO conta)
+  return findVerbForms(q, all).some(m => !m.partial);
 }
 
-// Pesquisa por verbo (EN) ou por qualquer tradução (PT). Ordena: igual > começa com > contém.
+// Pesquisa por verbo (EN) ou por qualquer tradução (PT).
+// Ordena: igual > qualquer forma do verbo (went, going...) > começa com > contém.
 function searchVerbs(term) {
   const q = (term || '').trim().toLowerCase();
   if (!q) return [];
+  const all = getAllVerbs();
+  const forms = new Map(findVerbForms(q, all).map(m => [verbKey(m.v), m]));
+  const singleWord = !q.includes(' ');
   const hits = [];
-  for (const v of getAllVerbs()) {
+  for (const v of all) {
     const disp = verbKey(v);
     const pts = (v.pt || []).map(p => p.toLowerCase());
+    const fm = forms.get(disp);
     let score = -1;
     if (disp === q) score = 0;
+    else if (fm && !fm.partial) score = 0.5;
+    else if (fm && fm.partial) score = 0.8;
     else if (disp.startsWith(q)) score = 1;
     else if (disp.includes(q)) score = 2;
+    else if (singleWord && q.length >= 2 && verbFormEntries(v).some(e => e.text.startsWith(q))) score = 2.5; // "wen" -> go
     else if (pts.some(p => p === q)) score = 3;
     else if (pts.some(p => p.includes(q))) score = 4;
     if (score >= 0) hits.push({ v, score });
@@ -5016,6 +5202,15 @@ function renderVerbsScreen() {
 
   searchInput.value = verbSearchTerm;
   searchInput.oninput = () => { verbSearchTerm = searchInput.value; paintVerbsList(listEl); };
+  // v1.9: tecla "Buscar"/Enter do teclado = buscar na internet na hora (se o verbo não existe)
+  searchInput.onkeydown = (ev) => {
+    if (ev.key !== 'Enter') return;
+    const q = searchInput.value.trim();
+    if (q.length >= 2 && !verbHasExactMatch(q)) {
+      searchInput.blur();
+      runOnlineSearch(q);
+    }
+  };
 
   const filters = [
     { key: 'all', label: 'All' },
@@ -5043,7 +5238,15 @@ function paintVerbsList(listEl) {
   listEl.innerHTML = '';
   const q = verbSearchTerm.trim();
 
-  let verbs = q.length >= 1 ? searchVerbs(q) : getAllVerbs();
+  // v1.9: o Jean mudou o texto -> cancela a busca automática que estava esperando o tempo passar
+  if (verbOnline.timer && verbOnline.pendingKey !== normalizeVerbQuery(q)) {
+    clearTimeout(verbOnline.timer);
+    verbOnline.timer = null;
+  }
+
+  const allHits = q.length >= 1 ? searchVerbs(q) : getAllVerbs();
+  const formMap = q.length >= 1 ? new Map(findVerbForms(q).map(m => [verbKey(m.v), m])) : new Map();
+  let verbs = allHits;
   if (verbFilterCat === 'daily') verbs = verbs.filter(v => v.cat === 'daily' && !v.custom);
   else if (verbFilterCat === 'travel') verbs = verbs.filter(v => v.cat === 'travel' && !v.custom);
   else if (verbFilterCat === 'custom') verbs = verbs.filter(v => v.custom);
@@ -5051,10 +5254,13 @@ function paintVerbsList(listEl) {
   verbs = verbs.slice().sort((a, b) => verbKey(a).localeCompare(verbKey(b)));
 
   if (verbs.length === 0) {
-    const empty = document.createElement('div');
-    empty.style.cssText = 'text-align:center; padding:20px; opacity:0.6; font-size:13px;';
-    empty.textContent = q ? `Nothing found for "${q}"` : 'No verbs in this filter yet.';
-    listEl.appendChild(empty);
+    // v1.9: se vai aparecer a busca na internet logo abaixo, "Nothing found" só atrapalha
+    if (!q || verbHasExactMatch(q)) {
+      const empty = document.createElement('div');
+      empty.style.cssText = 'text-align:center; padding:20px; opacity:0.6; font-size:13px;';
+      empty.textContent = q ? `Nothing found for "${q}"` : 'No verbs in this filter yet.';
+      listEl.appendChild(empty);
+    }
   } else {
     let lastLetter = '';
     for (const v of verbs) {
@@ -5078,60 +5284,271 @@ function paintVerbsList(listEl) {
       const info = document.createElement('div');
       info.style.flex = '1';
       info.style.minWidth = '0';
+      // só conta como "forma" se o Jean digitou algo DIFERENTE do próprio verbo (went ≠ go)
+      const fm = verbKey(v) === normalizeVerbQuery(q) ? null : formMap.get(verbKey(v));
+      const formLine = fm
+        ? `<div class="verb-form-note" style="font-size:11.5px; color:#a78bfa; margin-top:3px;">${escapeHtml(verbFormNote(q, fm))}</div>`
+        : '';
       info.innerHTML = `
         <div class="label">${escapeHtml(displayVerb(v))}${v.cat === 'travel' ? ' ✈️' : ''}${v.custom ? ' ✨' : ''}</div>
         <div style="font-size:11px;opacity:0.6;margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml((v.pt || []).join(', '))}</div>
+        ${formLine}
       `;
       item.appendChild(info);
-      item.onclick = () => showVerbDetail(v, () => paintVerbsList(listEl));
+      item.onclick = () => showVerbDetail(v, () => paintVerbsList(listEl), fm ? { typed: q, match: fm } : null);
       listEl.appendChild(item);
     }
   }
 
-  // O verbo pesquisado não existe exatamente -> oferece adicionar com a IA
-  // (mesma lição do appendAddWordCta: aparece mesmo quando a lista NÃO está vazia)
+  // O verbo pesquisado não existe exatamente (nem como forma: went, going...) ->
+  // busca na internet. Aparece mesmo quando a lista NÃO está vazia (lição do v1.3).
   if (q.length >= 1 && !verbHasExactMatch(q)) {
-    appendAddVerbCta(listEl, q);
+    paintOnlineVerbSection(listEl, q, allHits.length > 0);
   }
 }
 
-function appendAddVerbCta(el, q) {
-  const wrap = document.createElement('div');
-  wrap.style.cssText = 'margin-top:16px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.08);';
+// ===== v1.9: VERBO QUE NÃO EXISTE NO APP -> BUSCA NA INTERNET =====
+// A IA (Gemini/Groq/Mistral) traz traduções, tempos e exemplos; um dicionário grátis
+// (api.dictionaryapi.dev) confere se é mesmo um verbo. Nada é salvo sem o Jean tocar em "Save offline".
+const verbOnline = {
+  cache: new Map(),   // termo normalizado -> resultado pronto (new | existing | message)
+  errors: new Map(),  // termo normalizado -> texto do erro (tem "Try again"; NUNCA refaz sozinho)
+  timer: null,        // espera de 1,5 s depois da última letra
+  pendingKey: '',     // termo que o timer vai buscar
+  loadingKey: '',     // termo que está sendo buscado agora (1 por vez)
+  nextTerm: '',       // termo que pediu busca enquanto outra rodava
+};
+const VERB_ONLINE_WAIT_MS = 1500;
 
-  const hint = document.createElement('div');
-  hint.style.cssText = 'text-align:center; font-size:12.5px; line-height:1.6; opacity:0.75; margin-bottom:12px;';
-  hint.innerHTML = `<b>"${escapeHtml(q)}"</b> isn't in your verb list yet.`;
-  wrap.appendChild(hint);
+function currentVerbQueryKey() { return normalizeVerbQuery(verbSearchTerm); }
 
-  const btn = document.createElement('button');
-  btn.id = 'btnAddSearchedVerb';
-  btn.textContent = `🤖 Add "${q}" with Ms. Mary`;
-  btn.style.cssText = 'width:100%; background:linear-gradient(135deg,#6366f1,#8b5cf6); border:none; color:#fff; padding:11px; border-radius:12px; font-size:14px; font-weight:500; font-family:inherit; cursor:pointer;';
-  btn.onclick = () => openAddVerbModal(() => renderVerbsScreen(), q);
-  wrap.appendChild(btn);
-
-  el.appendChild(wrap);
+function repaintVerbsIfCurrent(key) {
+  if (currentVerbQueryKey() !== key) return; // o Jean já mudou o texto: não pinta resultado velho
+  const listEl = document.getElementById('verbsList');
+  if (listEl) paintVerbsList(listEl);
 }
 
-function showVerbDetail(v, onChange) {
+function canSearchVerbOnline() {
+  return hasAnyKey() && navigator.onLine !== false;
+}
+
+function scheduleOnlineVerbSearch(term) {
+  const key = normalizeVerbQuery(term);
+  if (verbOnline.timer && verbOnline.pendingKey === key) return; // já está esperando
+  clearTimeout(verbOnline.timer);
+  verbOnline.pendingKey = key;
+  verbOnline.timer = setTimeout(() => {
+    verbOnline.timer = null;
+    const tabAberta = document.getElementById('view-verbs')?.classList.contains('active');
+    if (tabAberta && currentVerbQueryKey() === key && !verbHasExactMatch(term)) runOnlineSearch(term.trim());
+  }, VERB_ONLINE_WAIT_MS);
+}
+
+async function runOnlineSearch(term) {
+  const key = normalizeVerbQuery(term);
+  if (!key) return;
+  clearTimeout(verbOnline.timer);
+  verbOnline.timer = null;
+  if (verbOnline.cache.has(key)) { repaintVerbsIfCurrent(key); return; } // mesma busca não gasta cota de novo
+  if (verbOnline.loadingKey) { verbOnline.nextTerm = term; return; }      // 1 busca por vez
+  if (!canSearchVerbOnline()) { repaintVerbsIfCurrent(key); return; }
+
+  verbOnline.errors.delete(key);
+  verbOnline.loadingKey = key;
+  repaintVerbsIfCurrent(key);
+  try {
+    const entry = await lookupVerbViaAI(term);
+    const res = { kind: 'new', entry, typed: term, dict: { state: 'checking' } };
+    verbOnline.cache.set(key, res);
+    // O dicionário responde depois: o cartão aparece já e o selo é atualizado quando chegar.
+    checkVerbInDictionary(entry).then(d => { res.dict = d; repaintVerbsIfCurrent(key); });
+  } catch (err) {
+    if (err.existingVerb) {
+      verbOnline.cache.set(key, { kind: 'existing', verb: err.existingVerb, typed: term });
+    } else if (err.notAVerb || err.modal) {
+      verbOnline.cache.set(key, { kind: 'message', text: err.message });
+    } else {
+      verbOnline.errors.set(key, err.message || 'Something went wrong.');
+    }
+  } finally {
+    verbOnline.loadingKey = '';
+    repaintVerbsIfCurrent(key);
+    const next = verbOnline.nextTerm;
+    verbOnline.nextTerm = '';
+    if (next && currentVerbQueryKey() === normalizeVerbQuery(next) && !verbHasExactMatch(next)) runOnlineSearch(next);
+  }
+}
+
+// Pergunta pro dicionário grátis se a palavra é verbo. NUNCA bloqueia e NUNCA dá erro:
+// sem rede / 502 / demora = "unknown".
+async function checkVerbInDictionary(entry) {
+  const tryWord = async (w) => {
+    const r = await fetchComTempoLimite('https://api.dictionaryapi.dev/api/v2/entries/en/' + encodeURIComponent(w), {}, 8000);
+    if (r.status === 404) return 'missing';
+    if (!r.ok) return 'unknown';
+    const data = await r.json();
+    const isVerb = Array.isArray(data) && data.some(e => (e.meanings || []).some(m => m.partOfSpeech === 'verb'));
+    return isVerb ? 'ok' : 'notverb';
+  };
+  try {
+    let res = await tryWord(entry.particle ? `${entry.verb} ${entry.particle}` : entry.verb);
+    if (res !== 'ok' && entry.particle) {
+      const base = await tryWord(entry.verb); // phrasal verb: o dicionário costuma ter só o verbo base
+      res = base === 'ok' ? 'ok' : ((res === 'unknown' || base === 'unknown') ? 'unknown' : 'notverb');
+    }
+    return { state: res === 'missing' ? 'notverb' : res };
+  } catch {
+    return { state: 'unknown' };
+  }
+}
+
+function paintOnlineVerbSection(listEl, q, hadHits) {
+  const key = normalizeVerbQuery(q);
+  const wrap = document.createElement('div');
+  wrap.id = 'onlineVerbSection';
+  wrap.style.cssText = 'margin-top:16px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.08);';
+  listEl.appendChild(wrap);
+
+  const note = (html) => {
+    const d = document.createElement('div');
+    d.style.cssText = 'text-align:center; font-size:12.5px; line-height:1.6; opacity:0.8; margin-bottom:10px;';
+    d.innerHTML = html;
+    wrap.appendChild(d);
+  };
+  const button = (id, text, onclick, secondary) => {
+    const b = document.createElement('button');
+    b.id = id;
+    b.textContent = text;
+    b.style.cssText = 'width:100%; border:none; color:#fff; padding:11px; border-radius:12px; font-size:14px; font-weight:500; font-family:inherit; cursor:pointer; margin-top:6px;' +
+      (secondary ? 'background:rgba(255,255,255,0.1);' : 'background:linear-gradient(135deg,#6366f1,#8b5cf6);');
+    b.onclick = onclick;
+    wrap.appendChild(b);
+    return b;
+  };
+
+  const res = verbOnline.cache.get(key);
+  const err = verbOnline.errors.get(key);
+
+  // 1) já temos resposta pra esse termo
+  if (res) { paintOnlineVerbResult(wrap, res, key, listEl); return; }
+
+  // 2) buscando agora
+  if (verbOnline.loadingKey === key) {
+    note(`🌐 <b>"${escapeHtml(q)}"</b> isn't in your offline catalog.<br>Searching the internet…`);
+    return;
+  }
+
+  // 3) deu erro (tem botão pra tentar de novo; nunca refaz sozinho)
+  if (err) {
+    note(`⚠️ ${escapeHtml(err).replace(/\n/g, '<br>')}`);
+    button('btnSearchVerbOnline', '🔄 Try again', () => { verbOnline.errors.delete(key); runOnlineSearch(q); });
+    return;
+  }
+
+  // 4) sem chave de IA ou sem internet
+  if (!hasAnyKey()) {
+    note(`<b>"${escapeHtml(q)}"</b> isn't in your offline catalog.<br>Add your free API keys in Settings to search the internet.`);
+    return;
+  }
+  if (navigator.onLine === false) {
+    note(`<b>"${escapeHtml(q)}"</b> isn't in your offline catalog.<br>You are offline — connect to the internet to search for it.`);
+    return;
+  }
+
+  // 5) nada parecido no app -> busca sozinha depois de 1,5 s sem digitar; senão só oferece o botão
+  if (!hadHits && key.length >= 3) {
+    scheduleOnlineVerbSearch(q);
+    note(`🌐 <b>"${escapeHtml(q)}"</b> isn't in your offline catalog.<br>I will search the internet in a moment…`);
+    button('btnSearchVerbOnline', '🌐 Search now', () => runOnlineSearch(q));
+    return;
+  }
+  note(`<b>"${escapeHtml(q)}"</b> isn't in your verb list yet.`);
+  button('btnSearchVerbOnline', `🌐 Search "${q}" online`, () => runOnlineSearch(q));
+}
+
+function paintOnlineVerbResult(wrap, res, key, listEl) {
+  const card = document.createElement('div');
+  card.id = 'onlineVerbResult';
+  card.style.cssText = 'background:rgba(99,102,241,0.1); border:1px solid rgba(139,92,246,0.35); border-radius:14px; padding:14px;';
+  wrap.appendChild(card);
+  const afterChange = () => paintVerbsList(listEl);
+
+  if (res.kind === 'message') {
+    card.innerHTML = `<div style="font-size:13px; line-height:1.6;">ℹ️ ${escapeHtml(res.text)}</div>`;
+    return;
+  }
+
+  if (res.kind === 'existing') {
+    const m = findVerbForms(res.typed, [res.verb])[0];
+    const d = m ? describeVerbForm(m.helpers, m.kinds) : null;
+    card.innerHTML = `
+      <div style="font-size:13px; line-height:1.6;">💡 <b>"${escapeHtml(res.typed)}"</b> is a form of <b>${escapeHtml(displayVerb(res.verb))}</b>, which is already in your offline catalog.${d ? `<br><span style="color:#a78bfa;">📍 ${escapeHtml(d.label)}</span>` : ''}</div>
+      <button id="onlineVerbOpen" style="width:100%; margin-top:10px; background:linear-gradient(135deg,#6366f1,#8b5cf6); border:none; color:#fff; padding:10px; border-radius:12px; font-size:14px; font-family:inherit; cursor:pointer;">📖 Open ${escapeHtml(displayVerb(res.verb))}</button>`;
+    card.querySelector('#onlineVerbOpen').onclick = () => showVerbDetail(res.verb, afterChange, m ? { typed: res.typed, match: m } : null);
+    return;
+  }
+
+  // res.kind === 'new': verbo achado na internet, ainda NÃO salvo
+  const e = res.entry;
+  const m = findVerbForms(res.typed, [e])[0];         // o CÓDIGO confere em que forma o Jean digitou
+  const d = m ? describeVerbForm(m.helpers, m.kinds) : null;
+  const dictLine = {
+    checking: '<span style="opacity:0.6;">⏳ Checking an online dictionary…</span>',
+    ok: '<span style="color:#4ade80;">✓ Confirmed by an online dictionary</span>',
+    notverb: '<span style="color:#fbbf24;">⚠ The online dictionary does not list this as a verb — double-check before saving</span>',
+    unknown: '<span style="opacity:0.6;">ℹ️ Could not check the online dictionary right now</span>',
+  }[res.dict.state];
+  card.innerHTML = `
+    <div style="font-size:11.5px; font-weight:700; color:#a78bfa; text-align:center;">🌐 Found on the internet</div>
+    <div style="font-size:11.5px; opacity:0.7; text-align:center; margin-bottom:8px;">It is not in your offline catalog yet.</div>
+    <div style="font-size:20px; font-weight:600; text-align:center;">${escapeHtml(displayVerb(e))}${e.cat === 'travel' ? ' ✈️' : ''}</div>
+    <div style="font-size:13px; color:#a78bfa; text-align:center; margin:4px 0;">${escapeHtml((e.pt || []).join(' · '))}</div>
+    ${d ? `<div class="verb-form-note" style="font-size:12px; text-align:center; margin:2px 0 6px;">📍 "${escapeHtml(res.typed)}" = ${escapeHtml(d.label)}</div>` : ''}
+    <div style="font-size:12.5px; opacity:0.85; text-align:left; margin-top:6px;">${escapeHtml(e.explanation || '')}</div>
+    ${(e.examples || []).map(ex => `<div style="font-size:12px; font-style:italic; margin-top:6px; opacity:0.75; text-align:left;">💬 ${escapeHtml(ex)}</div>`).join('')}
+    <div id="onlineVerbDict" style="font-size:12px; margin-top:10px; text-align:center;">${dictLine}</div>
+    <div style="font-size:12.5px; margin-top:10px; text-align:center; opacity:0.85;">Do you want to save it in your offline catalog?</div>
+    <div style="display:flex; gap:8px; margin-top:10px;">
+      <button id="onlineVerbTenses" style="flex:1; background:rgba(255,255,255,0.1); border:none; color:#fff; padding:10px; border-radius:10px; font-size:13px; font-family:inherit; cursor:pointer;">📖 See 12 tenses</button>
+      <button id="onlineVerbSave" style="flex:1; background:linear-gradient(135deg,#22c55e,#16a34a); border:none; color:#fff; padding:10px; border-radius:10px; font-size:13px; font-weight:500; font-family:inherit; cursor:pointer;">${res.dict.state === 'notverb' ? '💾 Save anyway' : '💾 Save offline'}</button>
+    </div>`;
+  card.querySelector('#onlineVerbTenses').onclick = () => showVerbDetail(e, null, m ? { typed: res.typed, match: m } : null);
+  card.querySelector('#onlineVerbSave').onclick = () => {
+    if (saveCustomVerb(e.cat, e)) {
+      toast(`"${displayVerb(e)}" saved — works offline now ✨`);
+      verbOnline.cache.delete(key);
+      afterChange();
+    } else {
+      toast(`"${displayVerb(e)}" is already in your list.`);
+    }
+  };
+}
+
+function showVerbDetail(v, onChange, formInfo) {
   const forms = buildVerbForms(v);
-  const tableHtml = forms.map(block => `
+  // v1.9: se o Jean chegou aqui digitando uma forma (went, will go...), destaca a linha certa da tabela
+  const fd = formInfo ? describeVerbForm(formInfo.match.helpers, formInfo.match.kinds) : null;
+  const hot = (bi, ri) => !!(fd && fd.slots.some(s => s[0] === bi && s[1] === ri));
+  const tableHtml = forms.map((block, bi) => `
     <div style="margin-top:10px;">
       <div style="font-size:12px; font-weight:700; color:#a78bfa; margin-bottom:4px;">${block.block}</div>
-      ${block.rows.map(r => `
-        <div style="display:flex; justify-content:space-between; gap:8px; font-size:12.5px; padding:5px 0; border-bottom:1px solid rgba(255,255,255,0.06);">
+      ${block.rows.map((r, ri) => `
+        <div ${hot(bi, ri) ? 'class="verb-row-hot"' : ''} style="display:flex; justify-content:space-between; gap:8px; font-size:12.5px; padding:5px ${hot(bi, ri) ? '6px' : '0'}; border-bottom:1px solid rgba(255,255,255,0.06);${hot(bi, ri) ? ' background:rgba(139,92,246,0.25); border-radius:8px; font-weight:600;' : ''}">
           <span style="opacity:0.6; flex-shrink:0;">${r.label}</span>
           <span style="text-align:right;">${escapeHtml(r.text)}</span>
         </div>
       `).join('')}
     </div>
   `).join('');
+  const formBanner = formInfo
+    ? `<div id="verbFormBanner" style="background:rgba(139,92,246,0.15); border:1px solid rgba(139,92,246,0.35); border-radius:10px; padding:8px 10px; margin-bottom:8px; font-size:12.5px; text-align:left;">You typed <b>${escapeHtml(formInfo.typed)}</b>${fd ? ` → ${escapeHtml(fd.label)}` : ''} of <b>${escapeHtml(displayVerb(v))}</b></div>`
+    : '';
 
   const ov = document.createElement('div');
   ov.className = 'overlay';
   ov.innerHTML = `
     <div class="overlay-card" style="max-width:420px; max-height:85vh; overflow-y:auto;">
+      ${formBanner}
       <h2 style="text-align:center;">${escapeHtml(displayVerb(v))}${v.cat === 'travel' ? ' ✈️' : ''}</h2>
       <div style="text-align:center; font-size:13px; color:#a78bfa; margin-bottom:8px;">${escapeHtml((v.pt || []).join(' · '))}</div>
       <p style="font-size:13px; opacity:0.85; text-align:left;">${escapeHtml(v.explanation || '')}</p>
@@ -5261,9 +5678,12 @@ function openAddVerbModal(onSuccess, prefill = '') {
 async function lookupVerbViaAI(userInput) {
   const system = `You help Jean (Brazilian beginner learning English) add a verb to his verb-learning app.
 His input is EITHER an English verb ("travel", "check in") OR a Portuguese verb ("viajar").
+The English input can be in ANY form: the base form ("sneeze"), past ("sneezed", "went"), past participle ("gone"), -ing form ("going"), 3rd person ("goes"), or a full tense with auxiliaries ("will go", "has gone", "had been working"). The Portuguese input can also be conjugated ("espirrou").
+Whatever the form, always answer with the BASE form of the verb.
 
 Return ONLY valid JSON (no markdown, no commentary):
 {
+  "isVerb": true,
   "verb": "base form of the verb, lowercase, WITHOUT any particle (e.g. 'check', not 'check in')",
   "particle": "the particle if it is a phrasal verb (e.g. 'in', 'off', 'up'), or an empty string if it is not a phrasal verb",
   "s": "3rd person singular present, e.g. 'checks'",
@@ -5278,6 +5698,7 @@ Return ONLY valid JSON (no markdown, no commentary):
 }
 
 Rules:
+- If the input is NOT a verb at all (a noun, an adjective, a name, a random word), set "isVerb" to false and leave the other text fields empty.
 - If the input is a modal verb (can, could, must, should, might, may, will, would, shall), set "isModal" to true and leave the other text fields empty — modal verbs do not have all 12 tenses.
 - Every text field must use full forms, never contractions. Write "do not" instead of "don't", "cannot" instead of "can't".
 - "pt" must list every common-use translation, not just one (e.g. for "like": gostar de, curtir).`;
@@ -5295,7 +5716,14 @@ Rules:
       const json = parseAIJson(text);
 
       if (json.isModal) {
-        throw new Error('Modal verbs (can, must, should...) do not have all 12 tenses, so they cannot be added here.');
+        const e = new Error('Modal verbs (can, must, should...) do not have all 12 tenses, so they cannot be added here.');
+        e.modal = true;
+        throw e;
+      }
+      if (json.isVerb === false) {
+        const e = new Error(`"${String(userInput).trim()}" does not look like a verb. Try another word.`);
+        e.notAVerb = true;
+        throw e;
       }
 
       if (!json.verb || !json.s || !json.past || !json.pp || !json.ing ||
@@ -5322,8 +5750,11 @@ Rules:
         continue;
       }
 
-      if (getAllVerbs().some(v => verbKey(v) === verbKey(entry))) {
-        throw new Error(`"${displayVerb(entry)}" is already in your verb list.`);
+      const existing = getAllVerbs().find(v => verbKey(v) === verbKey(entry));
+      if (existing) {
+        const e = new Error(`"${displayVerb(entry)}" is already in your verb list.`);
+        e.existingVerb = existing; // a busca da aba Verbs usa isso pra abrir o verbo que já existe
+        throw e;
       }
 
       return entry;
