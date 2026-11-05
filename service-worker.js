@@ -4,7 +4,7 @@
    NUNCA cacheia chamadas de API (Gemini/Groq/Mistral) — sempre rede.
    ============================================================ */
 
-const CACHE_NAME = 'english-imersivo-v16';
+const CACHE_NAME = 'english-imersivo-v17';
 const SHELL = [
   './',
   './codigo_principal.html',
@@ -19,6 +19,7 @@ const API_HOSTS = [
   'generativelanguage.googleapis.com',
   'api.groq.com',
   'api.mistral.ai',
+  'api.dictionaryapi.dev', // v1.9: dicionário grátis da busca de verbos
 ];
 
 self.addEventListener('install', (event) => {
