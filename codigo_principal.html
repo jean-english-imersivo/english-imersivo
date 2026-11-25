@@ -1313,7 +1313,7 @@
         <button class="btn-danger" id="btnResetQuotas">Reset quota state (test)</button>
       </div>
 
-      <div class="info-line">English Imersivo v1.9.1 — Jean Edition</div>
+      <div class="info-line">English Imersivo v1.9.2 — Jean Edition</div>
     </div>
   </section>
 </main>
@@ -5739,8 +5739,23 @@ function openAddVerbModal(onSuccess, prefill = '') {
       };
       document.getElementById('addVerbConfirm').onclick = () => commit(entry);
     } catch (err) {
-      toast('Error: ' + err.message);
       resetSuggestBtn();
+      if (err.existingVerb) {
+        // O verbo já existe: em vez de só dar erro, explica e leva o Jean até ele.
+        const ex = err.existingVerb;
+        preview.style.display = 'block';
+        preview.innerHTML = `
+          <div style="background:rgba(139,92,246,0.1); border:1px solid rgba(139,92,246,0.3); border-radius:12px; padding:14px; font-size:13px; line-height:1.6;">
+            💡 <b>"${escapeHtml(raw)}"</b> = <b>${escapeHtml(displayVerb(ex))}</b>, which is already in your list. No need to add it again!
+            <button id="addVerbOpenExisting" style="width:100%; margin-top:10px; background:linear-gradient(135deg,#6366f1,#8b5cf6); border:none; color:#fff; padding:10px; border-radius:10px; font-size:14px; font-family:inherit; cursor:pointer;">📖 Open ${escapeHtml(displayVerb(ex))}</button>
+          </div>`;
+        document.getElementById('addVerbOpenExisting').onclick = () => {
+          ov.remove();
+          showVerbDetail(ex, onSuccess, null);
+        };
+        return;
+      }
+      toast('Error: ' + err.message);
     }
   };
 
