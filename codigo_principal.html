@@ -1313,7 +1313,7 @@
         <button class="btn-danger" id="btnResetQuotas">Reset quota state (test)</button>
       </div>
 
-      <div class="info-line">English Imersivo v1.9.2 — Jean Edition</div>
+      <div class="info-line">English Imersivo v1.9.3 — Jean Edition</div>
     </div>
   </section>
 </main>
@@ -5685,6 +5685,53 @@ function openAddVerbModal(onSuccess, prefill = '') {
     btnRow.style.display = 'flex';
   };
 
+  // v1.9.3: "🔗 Also means" — tudo que também quer dizer o que ele digitou.
+  // Junta o que o Jean JÁ TEM com esse sentido (offline) + o que a IA sugeriu.
+  const foldTxt = (t) => String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+  const buildRelatedBox = (typed, related, mainKey) => {
+    const q = foldTxt(typed);
+    const items = [];
+    const seen = new Set(mainKey ? [mainKey] : []);
+    // casa a PALAVRA inteira ("encontrar" acha "encontrar (uma pessoa)", mas não "reencontrar")
+    const wordRe = q.length >= 3 && /^[a-z ]+$/.test(q) ? new RegExp('(^|[^a-z])' + q + '($|[^a-z])') : null;
+    const have = wordRe ? getAllVerbs().filter(v => (v.pt || []).some(p => wordRe.test(foldTxt(p)))) : [];
+    for (const v of have) {
+      if (seen.has(verbKey(v))) continue;
+      seen.add(verbKey(v));
+      items.push({ v, have: true, pt: (v.pt || []).join(' · ') });
+    }
+    for (const r of (related || [])) {
+      const k = verbKey(r);
+      if (seen.has(k)) continue;
+      seen.add(k);
+      const mine = getAllVerbs().find(v => verbKey(v) === k);
+      items.push(mine ? { v: mine, have: true, pt: r.pt || (mine.pt || []).join(' · ') } : { v: r, have: false, pt: r.pt });
+    }
+    if (!items.length) return null;
+    const box = document.createElement('div');
+    box.id = 'addVerbRelated';
+    box.style.cssText = 'margin-top:12px; text-align:left;';
+    box.innerHTML = `<div style="font-size:12px; font-weight:700; color:#a78bfa; margin-bottom:6px;">🔗 Also means "${escapeHtml(typed)}":</div>`;
+    for (const it of items) {
+      const row = document.createElement('div');
+      row.className = 'addVerbRelatedRow';
+      row.style.cssText = 'display:flex; align-items:center; gap:8px; padding:7px 0; border-top:1px solid rgba(255,255,255,0.08);';
+      row.innerHTML = `<div style="flex:1; min-width:0;"><div style="font-size:14px; font-weight:600;">${escapeHtml(displayVerb(it.v))}</div><div style="font-size:11.5px; opacity:0.7;">${escapeHtml(it.pt || '')}</div></div>`;
+      const b = document.createElement('button');
+      b.style.cssText = 'flex:none; background:rgba(139,92,246,0.25); border:1px solid rgba(139,92,246,0.5); color:#fff; padding:7px 10px; border-radius:8px; font-size:12.5px; font-family:inherit; cursor:pointer;';
+      if (it.have) {
+        b.textContent = '📖 Open';
+        b.onclick = () => { ov.remove(); showVerbDetail(it.v, onSuccess, null); };
+      } else {
+        b.textContent = '➕ Look up';
+        b.onclick = () => { input.value = displayVerb(it.v); btnSuggest.onclick(); };
+      }
+      row.appendChild(b);
+      box.appendChild(row);
+    }
+    return box;
+  };
+
   const commit = (entry) => {
     const ok = saveCustomVerb(entry.cat, entry);
     if (ok) {
@@ -5738,6 +5785,8 @@ function openAddVerbModal(onSuccess, prefill = '') {
         resetSuggestBtn();
       };
       document.getElementById('addVerbConfirm').onclick = () => commit(entry);
+      const relBox = buildRelatedBox(raw, entry.related, verbKey(entry));
+      if (relBox) preview.appendChild(relBox);
     } catch (err) {
       resetSuggestBtn();
       if (err.existingVerb) {
@@ -5753,6 +5802,8 @@ function openAddVerbModal(onSuccess, prefill = '') {
           ov.remove();
           showVerbDetail(ex, onSuccess, null);
         };
+        const relBox = buildRelatedBox(raw, err.related, verbKey(ex));
+        if (relBox) preview.appendChild(relBox);
         return;
       }
       toast('Error: ' + err.message);
@@ -5781,10 +5832,12 @@ Return ONLY valid JSON (no markdown, no commentary):
   "cat": "'travel' only if this verb is specifically about airports, hotels, flights or trips, otherwise 'daily'",
   "explanation": "one short, simple English sentence explaining when to use this verb",
   "examples": ["1 or 2 natural English example sentences"],
-  "isModal": false
+  "isModal": false,
+  "related": [ { "verb": "base form, lowercase, without particle", "particle": "particle or empty string", "pt": "short Portuguese meaning in THIS situation, e.g. 'encontrar alguém'" } ]
 }
 
 Rules:
+- "related": ONLY when the input is Portuguese. List up to 6 OTHER common English verbs or phrasal verbs that a Portuguese speaker would also use to express that same Portuguese verb in different situations (e.g. for "encontrar": meet, run into, come across, find out). Do not repeat the main verb. If the input is English, use an empty array [].
 - If the input is NOT a verb at all (a noun, an adjective, a name, a random word), set "isVerb" to false and leave the other text fields empty.
 - If the input is a modal verb (can, could, must, should, might, may, will, would, shall), set "isModal" to true and leave the other text fields empty — modal verbs do not have all 12 tenses.
 - Every text field must use full forms, never contractions. Write "do not" instead of "don't", "cannot" instead of "can't".
@@ -5797,7 +5850,7 @@ Rules:
 
   // Duas tentativas: se a 1ª vier cortada/estranha, tenta de novo com mais espaço.
   let ultimoErro = null;
-  for (const tokens of [900, 1400]) {
+  for (const tokens of [1200, 1700]) {
     try {
       const { text } = await callLLM(messages, { maxTokens: tokens, temperature: 0.3, json: true });
       const json = parseAIJson(text);
@@ -5837,13 +5890,34 @@ Rules:
         continue;
       }
 
+      // v1.9.3: outros verbos que também querem dizer a mesma coisa em português
+      // (a IA sugere, o código confere: descarta lixo, repetidos e o próprio verbo).
+      const related = [];
+      const seenRel = new Set([verbKey(entry)]);
+      for (const r of (Array.isArray(json.related) ? json.related : [])) {
+        if (!r || typeof r !== 'object') continue;
+        const rv = String(r.verb || '').trim().toLowerCase();
+        if (!/^[a-z' -]{2,25}$/.test(rv)) continue;
+        const rp = String(r.particle || '').trim().toLowerCase();
+        if (rp && !/^[a-z]{1,12}$/.test(rp)) continue;
+        const item = { verb: rv, particle: rp || undefined, pt: String(r.pt || '').trim().slice(0, 80) };
+        const k = verbKey(item);
+        if (seenRel.has(k)) continue;
+        seenRel.add(k);
+        related.push(item);
+        if (related.length >= 6) break;
+      }
+
       const existing = getAllVerbs().find(v => verbKey(v) === verbKey(entry));
       if (existing) {
         const e = new Error(`"${displayVerb(entry)}" is already in your verb list.`);
         e.existingVerb = existing; // a busca da aba Verbs usa isso pra abrir o verbo que já existe
+        e.related = related;
         throw e;
       }
 
+      // não enumerável: não vai parar dentro do verbo salvo ({...entry} ignora)
+      Object.defineProperty(entry, 'related', { value: related, enumerable: false });
       return entry;
     } catch (err) {
       if (err.message === 'AI_BAD_JSON' || err.message === 'AI_NO_JSON') { ultimoErro = err; continue; }
